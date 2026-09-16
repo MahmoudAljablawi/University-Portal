@@ -4,12 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Models\College;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class CollegeController extends Controller
+class CollegeController extends Controller implements HasMiddleware
 {
     /**
      * Display a listing of the resource.
      */
+    public static function middleware(): array
+    {
+        return [
+            // يتطلب تسجيل الدخول لجميع العمليات
+            new Middleware('auth:sanctum'),
+
+            // عمليات التعديل والإنشاء والحذف مخصصة للـ admin فقط
+            new Middleware('role:admin', except: ['index', 'show']),
+        ];
+    }
     public function index()
     {
         $colleges = College::with('departments')->get();
@@ -71,7 +83,7 @@ class CollegeController extends Controller
         $college->update($validated);
 
         return response()->json([
-            'message' => 'Data Of Collage Updated Successfully',
+            'message' => 'Data Of College Updated Successfully',
             'data' => $college
         ]);
     }
@@ -84,7 +96,7 @@ class CollegeController extends Controller
         $college->delete();
 
         return response()->json([
-            'message' => 'Collage Deleted Successfully'
+            'message' => 'College Deleted Successfully'
         ]);
     }
 }

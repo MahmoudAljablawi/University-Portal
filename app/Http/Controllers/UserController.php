@@ -4,13 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Hash;
 
-class UserController extends Controller
+class UserController extends Controller implements HasMiddleware
 {
     /**
      * Display a listing of the resource.
      */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('auth:sanctum'),
+            new Middleware('role:admin'), // مخصص للـ admin بالكامل
+        ];
+    }
     public function index()
     {
         $users = User::all();
@@ -44,7 +53,7 @@ class UserController extends Controller
         $user = User::create($validated);
 
         return response()->json([
-            'message' => 'User Create Successfully',
+            'message' => 'User Created Successfully',
             'data' => $user
         ], 201);
     }

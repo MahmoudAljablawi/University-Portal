@@ -4,12 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class CourseController extends Controller
+class CourseController extends Controller implements HasMiddleware
 {
     /**
      * Display a listing of the resource.
      */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('auth:sanctum'),
+            new Middleware('role:admin', except: ['index', 'show']),
+        ];
+    }
     public function index()
     {
         $courses = Course::with(['department', 'prerequisites'])->get();

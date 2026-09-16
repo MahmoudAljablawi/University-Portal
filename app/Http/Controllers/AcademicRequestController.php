@@ -4,91 +4,121 @@ namespace App\Http\Controllers;
 
 use App\Models\AcademicRequest;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class AcademicRequestController extends Controller
+class AcademicRequestController extends Controller implements HasMiddleware
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public static function middleware(): array
     {
-        $requests = AcademicRequest::with('student')->get();
-        return response()->json($requests);
+        return [
+            new Middleware('auth:sanctum'),
+        ];
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(Request $request)
     {
-        //
+        $user = $request->user();
+
+        if ($user->role === 'admin') {
+            return response()->json(AcademicRequest::with('student')->get());
+        } else {
+            return response()->json(AcademicRequest::where('student_id', $user->id)->get());
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
+        $user = $request->user();
+
+        if ($user->role !== 'student') {
+            return response()->json(['message' => 'Only students can submit academic requests.'], 403);
+        }
+
         $validated = $request->validate([
-            'student_id' => 'required|exists:users,id',
-            'type' => 'required|string|max:255',
-            'details' => 'nullable|string',
-            'status' => 'sometimes|in:pending,approved,rejected',
+            'title' => 'required|string|max:255',
+            'type' => 'required|string|max:100', // مثل: postponement, add_drop, etc.
+            'description' => 'required|string',
         ]);
 
-        $academicRequest = AcademicRequest::create($validated);
+        $academicRequest = AcademicRequest::create([
+            'student_id' => $user->id,
+            'title' => $validated['title'],
+            'type' => $validated['type'],
+            'description' => $validated['description'],
+            'status' => 'pending', // الحالة الافتراضية قيد الانتظار
+        ]);
 
         return response()->json([
-            'message' => 'The academic application has been successfully submitted',
+            'message' => 'Academic Request Submitted Successfully',
             'data' => $academicRequest->load('student')
         ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(AcademicRequest $academicRequest)
+    public function show(Request $request, AcademicRequest $academicRequest)
     {
+        $user = $request->user();
+
+        if ($user->role === 'student' && $user->id !== $academicRequest->student_id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         return response()->json($academicRequest->load('student'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, AcademicRequest $academicRequest)
     {
-        $validated = $request->validate([
-            'student_id' => 'required|exists:users,id',
-            'type' => 'required|string|max:255',
-            'details' => 'nullable|string',
-            'status' => 'required|in:pending,approved,rejected',
-        ]);
+        $user = $request->user();
 
-        $academicRequest->update($validated);
+        // الـ Admin فقط هو من يمكنه تغيير حالة الطلب (قبول/رفض)
+        if ($user->role === 'admin') {
+            $validated = $request->validate([
+                'status' => 'required|in:pending,approved,rejected',
+                'admin_notes' => 'nullable|string|max:255',
+            ]);
 
-        return response()->json([
-            'message' => 'The academic application has been successfully updated',
-            'data' => $academicRequest->load('student')
-        ]);
+            $academicRequest->update($validated);
+
+            return response()->json([
+                'message' => 'Academic Request Status Updated Successfully',
+                'data' => $academicRequest->load('student')
+            ]);
+        }
+
+        if ($user->role === 'student' && $user->id === $academicRequest->student_id) {
+            if ($academicRequest->status !== 'pending') {
+                return response()->json(['message' => 'Cannot modify a processed request.'], 422);
+            }
+
+            $validated = $request->validate([
+                'title' => 'sometimes|string|max:255',
+                'type' => 'sometimes|string|max:100',
+                'description' => 'sometimes|string',
+            ]);
+
+            $academicRequest->update($validated);
+
+            return response()->json([
+                'message' => 'Academic Request Updated Successfully',
+                'data' => $academicRequest
+            ]);
+        }
+
+        return response()->json(['message' => 'Unauthorized'], 403);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(AcademicRequest $academicRequest)
+    public function destroy(Request $request, AcademicRequest $academicRequest)
     {
-        $academicRequest->delete();
+        $user = $request->user();
 
-        return response()->json([
-            'message' => 'The academic application has been successfully deleted'
-        ]);
+        if ($user->role === 'admin' || ($user->id === $academicRequest->student_id && $academicRequest->status === 'pending')) {
+            $academicRequest->delete();
+
+            return response()->json([
+                'message' => 'Academic Request Deleted Successfully'
+            ]);
+        }
+
+        return response()->json(['message' => 'Unauthorized'], 403);
     }
 }

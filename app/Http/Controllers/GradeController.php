@@ -3,96 +3,125 @@
 namespace App\Http\Controllers;
 
 use App\Models\Grade;
+use App\Models\CourseSection;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class GradeController extends Controller
+class GradeController extends Controller implements HasMiddleware
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public static function middleware(): array
     {
-        $grades = Grade::with(['enrollment.student', 'enrollment.section.course'])->get();
-        return response()->json($grades);
+        return [
+            new Middleware('auth:sanctum'),
+            new Middleware('role:admin,instructor', except: ['index', 'show']),
+        ];
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(Request $request)
     {
-        //
+        $user = $request->user();
+
+        if ($user->role === 'admin') {
+            return response()->json(Grade::with(['student', 'section.course'])->get());
+        } elseif ($user->role === 'instructor') {
+            return response()->json(Grade::whereHas('section', function ($q) use ($user) {
+                $q->where('instructor_id', $user->id);
+            })->with(['student', 'section.course'])->get());
+        } else {
+            return response()->json(Grade::where('student_id', $user->id)->with(['section.course'])->get());
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
+        $user = $request->user();
+
         $validated = $request->validate([
-            'enrollment_id' => 'required|exists:enrollments,id|unique:grades,enrollment_id',
-            'midterm_grade' => 'nullable|numeric|min:0|max:100',
-            'final_grade' => 'nullable|numeric|min:0|max:100',
-            'total_grade' => 'nullable|numeric|min:0|max:100',
-            'letter_grade' => 'nullable|string|max:5',
-            'is_published' => 'boolean',
+            'student_id' => 'required|exists:users,id',
+            'course_section_id' => 'required|exists:course_sections,id',
+            'grade' => 'required|numeric|min:0|max:100',
+            'notes' => 'nullable|string|max:255',
         ]);
 
-        $grade = Grade::create($validated);
+        // إذا كان المستخدم أستاذ، نتأكد أنه يدرس هذه الشعبة فعلاً
+        if ($user->role === 'instructor') {
+            $isInstructorOfSection = CourseSection::where('id', $validated['course_section_id'])
+                ->where('instructor_id', $user->id)
+                ->exists();
+
+            if (! $isInstructorOfSection) {
+                return response()->json(['message' => 'عذراً، لست الأستاذ المسؤول عن هذه الشعبة.'], 403);
+            }
+        }
+
+        $grade = Grade::updateOrCreate(
+            [
+                'student_id' => $validated['student_id'],
+                'course_section_id' => $validated['course_section_id'],
+            ],
+            [
+                'grade' => $validated['grade'],
+                'notes' => $validated['notes'] ?? null,
+            ]
+        );
 
         return response()->json([
-            'message' => 'Grade Added Successfully',
-            'data' => $grade->load(['enrollment.student', 'enrollment.section.course'])
+            'message' => 'Grade Saved Successfully',
+            'data' => $grade->load(['student', 'section.course'])
         ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Grade $grade)
+    public function show(Request $request, Grade $grade)
     {
-        return response()->json($grade->load(['enrollment.student', 'enrollment.section.course']));
+        $user = $request->user();
+
+        if ($user->role === 'student' && $user->id !== $grade->student_id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        return response()->json($grade->load(['student', 'section.course']));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Grade $grade)
     {
+        $user = $request->user();
+
+        if ($user->role === 'instructor') {
+            $grade->load('section');
+            if ($grade->section->instructor_id !== $user->id) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+        }
+
         $validated = $request->validate([
-            'enrollment_id' => 'required|exists:enrollments,id|unique:grades,enrollment_id,' . $grade->id,
-            'midterm_grade' => 'nullable|numeric|min:0|max:100',
-            'final_grade' => 'nullable|numeric|min:0|max:100',
-            'total_grade' => 'nullable|numeric|min:0|max:100',
-            'letter_grade' => 'nullable|string|max:5',
-            'is_published' => 'boolean',
+            'grade' => 'sometimes|numeric|min:0|max:100',
+            'notes' => 'nullable|string|max:255',
         ]);
 
         $grade->update($validated);
 
         return response()->json([
-            'message' => 'Grade Successfully Updated',
-            'data' => $grade->load(['enrollment.student', 'enrollment.section.course'])
+            'message' => 'Grade Updated Successfully',
+            'data' => $grade->load(['student', 'section.course'])
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Grade $grade)
+    public function destroy(Request $request, Grade $grade)
     {
+        $user = $request->user();
+
+        if ($user->role === 'instructor') {
+            $grade->load('section');
+            if ($grade->section->instructor_id !== $user->id) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+        }
+
         $grade->delete();
 
         return response()->json([
-            'message' => 'Grade Successfully Deleted'
+            'message' => 'Grade Deleted Successfully'
         ]);
     }
 }

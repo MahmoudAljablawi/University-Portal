@@ -10,6 +10,7 @@ use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\AcademicRequestController;
 use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,3 +32,12 @@ Route::apiResource('users', UserController::class);
 //   للمتطلبات السابقة للمقررات
 Route::post('courses/{course}/prerequisites', [CourseController::class, 'addPrerequisite']);
 Route::delete('courses/{course}/prerequisites', [CourseController::class, 'removePrerequisite']);
+
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/profile', [AuthController::class, 'profile']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+});

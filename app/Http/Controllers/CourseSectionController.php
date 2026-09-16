@@ -4,12 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\CourseSection;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class CourseSectionController extends Controller
+class CourseSectionController extends Controller implements HasMiddleware
 {
     /**
      * Display a listing of the resource.
      */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('auth:sanctum'),
+            new Middleware('role:admin', except: ['index', 'show']),
+        ];
+    }
     public function index()
     {
         $sections = CourseSection::with(['course', 'semester', 'instructor'])->get();
@@ -32,7 +41,7 @@ class CourseSectionController extends Controller
         $validated = $request->validate([
             'course_id' => 'required|exists:courses,id',
             'semester_id' => 'required|exists:academic_semesters,id',
-            'instructor_id' => 'required|exists:users,id',
+            'instructor_id' => 'required|exists:users,id|role:instructor',
             'section_number' => 'required|integer|min:1',
             'capacity' => 'required|integer|min:1',
         ]);

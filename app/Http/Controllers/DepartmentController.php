@@ -4,12 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\Department;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class DepartmentController extends Controller
+class DepartmentController extends Controller implements HasMiddleware
 {
     /**
      * Display a listing of the resource.
      */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('auth:sanctum'),
+            new Middleware('role:admin', except: ['index', 'show']),
+        ];
+    }
     public function index()
     {
         $departments = Department::with('college')->get();

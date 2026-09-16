@@ -2,79 +2,109 @@
 
 namespace Database\Seeders;
 
-use App\Models\AcademicSemester;
-use App\Models\College;
-use App\Models\Course;
-use App\Models\Department;
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\User;
+use App\Models\College;
+use App\Models\Department;
+use App\Models\Course;
+use App\Models\AcademicSemester;
+use App\Models\CourseSection;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // 1. إنشاء المستخدمين (أدمن، أستاذ، طالب)
+        // 1. Create Base Users
         $admin = User::create([
-            'name' => 'System Admin',
-            'email' => 'admin@university.edu',
+            'name' => 'System Administrator',
+            'email' => 'admin@portal.com',
             'password' => Hash::make('password'),
             'role' => 'admin',
+            'phone' => '+963911111111',
             'is_active' => true,
         ]);
 
         $instructor = User::create([
             'name' => 'Dr. John Doe',
-            'email' => 'instructor@university.edu',
+            'email' => 'instructor@portal.com',
             'password' => Hash::make('password'),
             'role' => 'instructor',
+            'phone' => '+963922222222',
             'is_active' => true,
         ]);
 
         $student = User::create([
-            'name' => 'Alex Smith',
-            'email' => 'student@university.edu',
+            'name' => 'Mahmoud Aljablawi',
+            'email' => 'student@portal.com',
             'password' => Hash::make('password'),
             'role' => 'student',
+            'phone' => '+963933333333',
             'is_active' => true,
         ]);
 
-        // 2. إنشاء الكلية
+        // 2. Create Colleges
         $college = College::create([
-            'name' => 'كلية الهندسة المعلوماتية',
-            'code' => 'ITE',
+            'name' => 'Faculty of Informatics Engineering',
+            'code' => 'CEI',
         ]);
 
-        // 3. إنشاء القسم
-        $department = Department::create([
-            'name' => 'هندسة البرمجيات والذكاء الاصطناعي',
-            'code' => 'SE-AI',
+        // 3. Create Departments
+        $deptAI = Department::create([
+            'name' => 'Artificial Intelligence Department',
+            'code' => 'AI',
             'college_id' => $college->id,
         ]);
 
-        // 4. إنشاء الفصل الأكاديمي
+        $deptSE = Department::create([
+            'name' => 'Software Engineering Department',
+            'code' => 'SE',
+            'college_id' => $college->id,
+        ]);
+
+        // 4. Create Academic Semesters
         $semester = AcademicSemester::create([
-            'name' => 'الفصل الدراسي الأول 2026/2027',
-            'code' => 'SEM-2026-1',
-            'start_date' => '2026-10-01',
-            'end_date' => '2027-02-01',
+            'name' => 'Fall 2026 Semester',
+            'code' => 'FALL-2026',
+            'start_date' => '2026-09-01',
+            'end_date' => '2027-01-15',
             'is_active' => true,
         ]);
 
-        // 5. إنشاء مقرر دراسي
-        $course = Course::create([
-            'name' => 'هندسة البرمجيات ',
-            'code' => 'SE401',
-            'department_id' => $department->id,
+        // 5. Create Courses
+        $course1 = Course::create([
+            'name' => 'Advanced Machine Learning',
+            'code' => 'AI401',
+            'department_id' => $deptAI->id,
             'credits' => 3,
-            'semester_level' => 4,
-            'description' => 'مقرر  في تصميم الأنظمة .',
+            'semester_level' => 4, 
+            'description' => 'Advanced studies in machine learning algorithms and neural networks.',
+        ]);
+
+        $course2 = Course::create([
+            'name' => 'Advanced Software Engineering',
+            'code' => 'SE302',
+            'department_id' => $deptSE->id,
+            'credits' => 3,
+            'semester_level' => 3,
+            'description' => 'Study of design patterns and distributed application development.',
+        ]);
+
+        // 6. Create Course Sections
+        CourseSection::create([
+            'course_id' => $course1->id,
+            'semester_id' => $semester->id,
+            'instructor_id' => $instructor->id,
+            'section_number' => 1,
+            'capacity' => 40,
+        ]);
+
+        CourseSection::create([
+            'course_id' => $course2->id,
+            'semester_id' => $semester->id,
+            'instructor_id' => $instructor->id,
+            'section_number' => 1,
+            'capacity' => 35,
         ]);
     }
 }
