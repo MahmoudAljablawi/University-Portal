@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AcademicRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -25,6 +26,12 @@ class AcademicRequestController extends Controller implements HasMiddleware
         } else {
             return response()->json(AcademicRequest::where('student_id', $user->id)->get());
         }
+       // return view('academic-requests.index', compact('requests'));
+    }
+    public function create()
+    {
+        $students = User::where('role', 'student')->get();
+        return view('academic-requests.create', compact('students'));
     }
 
     public function store(Request $request)
@@ -53,17 +60,24 @@ class AcademicRequestController extends Controller implements HasMiddleware
             'message' => 'Academic Request Submitted Successfully',
             'data' => $academicRequest->load('student')
         ], 201);
+        //return redirect()->route('academic-requests.index')->with('success', 'Academic request created successfully.');
     }
 
     public function show(Request $request, AcademicRequest $academicRequest)
     {
         $user = $request->user();
-
+        $academicRequest->load('student');
         if ($user->role === 'student' && $user->id !== $academicRequest->student_id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         return response()->json($academicRequest->load('student'));
+        //return view('academic-requests.show', compact('academicRequest'));
+    }
+    public function edit(AcademicRequest $academicRequest)
+    {
+        $students = User::where('role', 'student')->get();
+        return view('academic-requests.edit', compact('academicRequest', 'students'));
     }
 
     public function update(Request $request, AcademicRequest $academicRequest)
@@ -105,6 +119,7 @@ class AcademicRequestController extends Controller implements HasMiddleware
         }
 
         return response()->json(['message' => 'Unauthorized'], 403);
+       // return redirect()->route('academic-requests.index')->with('success', 'Academic request updated successfully.');
     }
 
     public function destroy(Request $request, AcademicRequest $academicRequest)
@@ -120,5 +135,6 @@ class AcademicRequestController extends Controller implements HasMiddleware
         }
 
         return response()->json(['message' => 'Unauthorized'], 403);
+        //return redirect()->route('academic-requests.index')->with('success', 'Academic request deleted successfully.');
     }
 }

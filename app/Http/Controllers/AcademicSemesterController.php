@@ -23,6 +23,7 @@ class AcademicSemesterController extends Controller implements HasMiddleware
     {
         $semesters = AcademicSemester::all();
         return response()->json($semesters);
+        //return view('semesters.index', compact('semesters'));
     }
 
     /**
@@ -30,7 +31,7 @@ class AcademicSemesterController extends Controller implements HasMiddleware
      */
     public function create()
     {
-        //
+        //return view('semesters.create');
     }
 
     /**
@@ -52,6 +53,7 @@ class AcademicSemesterController extends Controller implements HasMiddleware
             'message' => 'Academic Semester Created Successfully',
             'data' => $semester
         ], 201);
+       // return redirect()->route('semesters.index')->with('success', 'Academic semester created successfully.');
     }
 
     /**
@@ -60,14 +62,15 @@ class AcademicSemesterController extends Controller implements HasMiddleware
     public function show(AcademicSemester $academicSemester)
     {
         return response()->json($academicSemester->load('sections.course'));
+        //return view('semesters.show', compact('semester'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(AcademicSemester $semester)
     {
-        //
+        //return view('semesters.edit', compact('semester'));
     }
 
     /**
@@ -89,6 +92,7 @@ class AcademicSemesterController extends Controller implements HasMiddleware
             'message' => 'Data Of Academic Semester Updated Successfully',
             'data' => $academicSemester
         ]);
+        //return redirect()->route('semesters.index')->with('success', 'Academic semester updated successfully.');
     }
 
     /**
@@ -101,5 +105,6 @@ class AcademicSemesterController extends Controller implements HasMiddleware
         return response()->json([
             'message' => 'Academic Semester Deleted Successfully'
         ]);
+        //return redirect()->route('semesters.index')->with('success', 'Academic semester deleted successfully.');
     }
 }

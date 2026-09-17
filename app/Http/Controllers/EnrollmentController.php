@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Enrollment;
 use App\Models\CourseSection;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -32,8 +33,16 @@ class EnrollmentController extends Controller implements HasMiddleware
             // الطالب يرى تسجيلاته الشخصية فقط
             return response()->json(Enrollment::where('student_id', $user->id)->with(['section.course'])->get());
         }
+        //return view('enrollments.index');
     }
 
+    public function create()
+    {
+        //$students = User::where('role', 'student')->get();
+        //$sections = CourseSection::with(['course', 'semester'])->get();
+
+        //return view('enrollments.create', compact('students', 'sections'));
+    }
     public function store(Request $request)
     {
         $user = $request->user();
@@ -67,6 +76,7 @@ class EnrollmentController extends Controller implements HasMiddleware
             'message' => 'Enrollment Created Successfully',
             'data' => $enrollment->load(['section.course', 'student'])
         ], 201);
+        //return redirect()->route('enrollments.index')->with('success', 'Student enrolled successfully.');
     }
 
     public function show(Request $request, Enrollment $enrollment)
@@ -78,6 +88,20 @@ class EnrollmentController extends Controller implements HasMiddleware
         }
 
         return response()->json($enrollment->load(['student', 'section.course']));
+       // return view('enrollments.edit', compact('enrollment', 'students', 'sections'));
+    }
+    public function update(Request $request, Enrollment $enrollment)
+    {
+        $validated = $request->validate([
+            'student_id' => 'required|exists:users,id',
+            'course_section_id' => 'required|exists:course_sections,id',
+            'status' => 'required|string|in:enrolled,dropped,completed',
+        ]);
+
+        $enrollment->update($validated);
+
+        return redirect()->route('enrollments.index')
+            ->with('success', 'Enrollment updated successfully.');
     }
 
     public function destroy(Request $request, Enrollment $enrollment)
@@ -93,5 +117,6 @@ class EnrollmentController extends Controller implements HasMiddleware
         return response()->json([
             'message' => 'Enrollment Dropped Successfully'
         ]);
+        //return redirect()->route('enrollments.index')->with('success', 'Enrollment deleted successfully.');
     }
 }

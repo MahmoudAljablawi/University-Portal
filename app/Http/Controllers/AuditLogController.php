@@ -18,13 +18,18 @@ class AuditLogController extends Controller implements HasMiddleware
     }
 
     public function index(Request $request)
-    {
+    {   $auditLogs = AuditLog::with('user')->latest()->get();
         return response()->json(AuditLog::with('user')->latest()->get());
+        //return view('audit-logs.index', compact('auditLogs'));
+
     }
 
     public function show(AuditLog $auditLog)
     {
+
+        $auditLog->load('user');
         return response()->json($auditLog->load('user'));
+        //return view('audit-logs.show', compact('auditLog'));
     }
 
     public function destroy(AuditLog $auditLog)

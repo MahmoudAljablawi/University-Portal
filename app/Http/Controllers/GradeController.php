@@ -31,6 +31,7 @@ class GradeController extends Controller implements HasMiddleware
         } else {
             return response()->json(Grade::where('student_id', $user->id)->with(['section.course'])->get());
         }
+        //return view('grades.index');
     }
 
     public function store(Request $request)
@@ -70,17 +71,20 @@ class GradeController extends Controller implements HasMiddleware
             'message' => 'Grade Saved Successfully',
             'data' => $grade->load(['student', 'section.course'])
         ], 201);
+
+        //return redirect()->route('grades.index')->with('success', 'Grade recorded successfully.');
     }
 
     public function show(Request $request, Grade $grade)
     {
         $user = $request->user();
-
+        $grade->load(['enrollment.student', 'enrollment.courseSection.course']);
         if ($user->role === 'student' && $user->id !== $grade->student_id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         return response()->json($grade->load(['student', 'section.course']));
+        //return view('grades.show', compact('grade'));
     }
 
     public function update(Request $request, Grade $grade)
@@ -105,6 +109,7 @@ class GradeController extends Controller implements HasMiddleware
             'message' => 'Grade Updated Successfully',
             'data' => $grade->load(['student', 'section.course'])
         ]);
+        //return redirect()->route('grades.index')->with('success', 'Grade updated successfully.');
     }
 
     public function destroy(Request $request, Grade $grade)
@@ -123,5 +128,6 @@ class GradeController extends Controller implements HasMiddleware
         return response()->json([
             'message' => 'Grade Deleted Successfully'
         ]);
+        //return redirect()->route('grades.index')->with('success', 'Grade deleted successfully.');
     }
 }

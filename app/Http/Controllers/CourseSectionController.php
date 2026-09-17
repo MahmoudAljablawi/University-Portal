@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AcademicSemester;
+use App\Models\Course;
 use App\Models\CourseSection;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -23,6 +26,7 @@ class CourseSectionController extends Controller implements HasMiddleware
     {
         $sections = CourseSection::with(['course', 'semester', 'instructor'])->get();
         return response()->json($sections);
+        //return view('course-sections.index', compact('sections'));
     }
 
     /**
@@ -30,7 +34,11 @@ class CourseSectionController extends Controller implements HasMiddleware
      */
     public function create()
     {
-        //
+        //$courses = Course::all();
+        //$semesters = AcademicSemester::all();
+        //$instructors = User::where('role', 'instructor')->get();
+
+        //return view('course-sections.create', compact('courses', 'semesters', 'instructors'));
     }
 
     /**
@@ -52,6 +60,7 @@ class CourseSectionController extends Controller implements HasMiddleware
             'message' => 'Course Section Created Successfully',
             'data' => $section->load(['course', 'semester', 'instructor'])
         ], 201);
+        //return redirect()->route('course-sections.index')->with('success', 'Course section created successfully.');
     }
 
     /**
@@ -59,15 +68,21 @@ class CourseSectionController extends Controller implements HasMiddleware
      */
     public function show(CourseSection $courseSection)
     {
-        return response()->json($courseSection->load(['course', 'semester', 'instructor', 'enrollments.student']));
+        $crsSec = $courseSection->load(['course', 'semester', 'instructor', 'enrollments.student']);
+        return response()->json($crsSec);
+        //return view('course-sections.show', compact('crsSec'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(CourseSection $courseSection)
     {
-        //
+        //$courses = Course::all();
+        //$semesters = AcademicSemester::all();
+        //$instructors = User::where('role', 'instructor')->get();
+
+        //return view('course-sections.edit', compact('courseSection', 'courses', 'semesters', 'instructors'));
     }
 
     /**
@@ -89,6 +104,7 @@ class CourseSectionController extends Controller implements HasMiddleware
             'message' => 'Data Of Course Section Updated Successfully',
             'data' => $courseSection->load(['course', 'semester', 'instructor'])
         ]);
+        //return redirect()->route('course-sections.index')->with('success', 'Course section updated successfully.');
     }
 
     /**
@@ -101,5 +117,6 @@ class CourseSectionController extends Controller implements HasMiddleware
         return response()->json([
             'message' => 'Course Section Deleted Successfully'
         ]);
+        //return redirect()->route('course-sections.index')->with('success', 'Course section deleted successfully.');
     }
 }

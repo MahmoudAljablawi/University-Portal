@@ -26,6 +26,7 @@ class CollegeController extends Controller implements HasMiddleware
     {
         $colleges = College::with('departments')->get();
         return response()->json($colleges);
+        //return view('colleges.index', compact('colleges'));
     }
 
     /**
@@ -33,7 +34,7 @@ class CollegeController extends Controller implements HasMiddleware
      */
     public function create()
     {
-        //
+        //return view('colleges.create');
     }
 
     /**
@@ -52,6 +53,7 @@ class CollegeController extends Controller implements HasMiddleware
             'message' => 'College Created Successfully',
             'data' => $college
         ], 201);
+        //return redirect()->route('colleges.index')->with('success', 'College created successfully.');
     }
 
     /**
@@ -60,6 +62,7 @@ class CollegeController extends Controller implements HasMiddleware
     public function show(College $college)
     {
         return response()->json($college->load('departments'));
+        //return view('colleges.show', compact('college'));
     }
 
     /**
@@ -67,7 +70,7 @@ class CollegeController extends Controller implements HasMiddleware
      */
     public function edit(string $id)
     {
-        //
+        //return view('colleges.edit', compact('college'));
     }
 
     /**
@@ -86,6 +89,7 @@ class CollegeController extends Controller implements HasMiddleware
             'message' => 'Data Of College Updated Successfully',
             'data' => $college
         ]);
+        //return redirect()->route('colleges.index')->with('success', 'College updated successfully.');
     }
 
     /**
@@ -98,5 +102,6 @@ class CollegeController extends Controller implements HasMiddleware
         return response()->json([
             'message' => 'College Deleted Successfully'
         ]);
+        //return redirect()->route('colleges.index')->with('success', 'College deleted successfully.');
     }
 }

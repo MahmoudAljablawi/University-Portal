@@ -24,6 +24,7 @@ class UserController extends Controller implements HasMiddleware
     {
         $users = User::all();
         return response()->json($users);
+        //return view('users.index', compact('users'));
     }
 
     /**
@@ -31,7 +32,7 @@ class UserController extends Controller implements HasMiddleware
      */
     public function create()
     {
-        //
+        //return view('users.create');
     }
 
     /**
@@ -56,6 +57,7 @@ class UserController extends Controller implements HasMiddleware
             'message' => 'User Created Successfully',
             'data' => $user
         ], 201);
+        //return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
     /**
@@ -64,14 +66,15 @@ class UserController extends Controller implements HasMiddleware
     public function show(User $user)
     {
         return response()->json($user->load(['teachingSections', 'enrollments', 'academicRequests']));
+        //return view('users.show', compact('user'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(User $user)
     {
-        //
+        //return view('users.edit', compact('user'));
     }
 
     /**
@@ -97,6 +100,7 @@ class UserController extends Controller implements HasMiddleware
             'message' => 'Data Of User Updated Successfully',
             'data' => $user
         ]);
+        //return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
     /**
@@ -109,5 +113,6 @@ class UserController extends Controller implements HasMiddleware
         return response()->json([
             'message' => 'User Deleted Successfully'
         ]);
+        //return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 }

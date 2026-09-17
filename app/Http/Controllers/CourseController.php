@@ -23,6 +23,7 @@ class CourseController extends Controller implements HasMiddleware
     {
         $courses = Course::with(['department', 'prerequisites'])->get();
         return response()->json($courses);
+        //return view('courses.index', compact('courses'));
     }
 
     /**
@@ -30,7 +31,7 @@ class CourseController extends Controller implements HasMiddleware
      */
     public function create()
     {
-        //
+        //return view('courses.create');
     }
 
     /**
@@ -52,6 +53,7 @@ class CourseController extends Controller implements HasMiddleware
             'message' => 'Course Created Successfully',
             'data' => $course->load('department')
         ], 201);
+        //return redirect()->route('courses.index')->with('success', 'Course created successfully.');
     }
 
     /**
@@ -59,15 +61,19 @@ class CourseController extends Controller implements HasMiddleware
      */
     public function show(Course $course)
     {
-        return response()->json($course->load(['department', 'prerequisites', 'sections']));
+        $crs = $course->load(['department', 'prerequisites', 'sections']);
+        // جلب جميع المقررات الأخرى لكي يختار منها المستخدم متطلباً سابقاً إذا أراد في صفحة التفاصيل
+        $allCourses = Course::where('id', '!=', $course->id)->get();
+        return response()->json($crs);
+        //return view('courses.show', compact('course', 'allCourses'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Course $course)
     {
-        //
+        //return view('courses.edit' );
     }
 
     /**
@@ -89,6 +95,7 @@ class CourseController extends Controller implements HasMiddleware
             'message' => 'Data Of Course Updated Successfully',
             'data' => $course->load('department')
         ]);
+        //return redirect()->route('courses.index')->with('success', 'Course updated successfully.');
     }
 
     /**
@@ -101,6 +108,7 @@ class CourseController extends Controller implements HasMiddleware
         return response()->json([
             'message' => 'Course Deleted Successfully'
         ]);
+        //return redirect()->route('courses.index')->with('success', 'Course deleted successfully.');
     }
     public function addPrerequisite(Request $request, Course $course)
     {
@@ -115,6 +123,7 @@ class CourseController extends Controller implements HasMiddleware
             'message' => 'تم إضافة المتطلب السابق بنجاح',
             'data' => $course->load('prerequisites')
         ]);
+        //return back()->with('success', 'Prerequisite added successfully.');
     }
     public function removePrerequisite(Request $request, Course $course)
     {
@@ -128,5 +137,6 @@ class CourseController extends Controller implements HasMiddleware
             'message' => 'تم إزالة المتطلب السابق بنجاح',
             'data' => $course->load('prerequisites')
         ]);
+        //return back()->with('success', 'Prerequisite removed successfully.');
     }
 }

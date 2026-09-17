@@ -23,6 +23,7 @@ class DepartmentController extends Controller implements HasMiddleware
     {
         $departments = Department::with('college')->get();
         return response()->json($departments);
+        //return view('departments.index', compact('departments'));
     }
 
     /**
@@ -30,7 +31,7 @@ class DepartmentController extends Controller implements HasMiddleware
      */
     public function create()
     {
-        //
+        //return view('departments.create');
     }
 
     /**
@@ -50,6 +51,7 @@ class DepartmentController extends Controller implements HasMiddleware
             'message' => 'Department Created Successfully',
             'data' => $department->load('college')
         ], 201);
+        //return redirect()->route('departments.index')->with('success', 'Department created successfully.');
     }
 
     /**
@@ -58,14 +60,15 @@ class DepartmentController extends Controller implements HasMiddleware
     public function show(Department $department)
     {
         return response()->json($department->load('college', 'courses'));
+        //return view('departments.show', compact('department'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Department $department)
     {
-        //
+        //return view('departments.edit', compact('department', 'colleges'));
     }
 
     /**
@@ -85,6 +88,7 @@ class DepartmentController extends Controller implements HasMiddleware
             'message' => 'Data Of Department Updated Successfully',
             'data' => $department->load('college')
         ]);
+        //return redirect()->route('departments.index')->with('success', 'Department updated successfully.');
     }
 
     /**
@@ -97,5 +101,6 @@ class DepartmentController extends Controller implements HasMiddleware
         return response()->json([
             'message' => 'Department Deleted Successfully'
         ]);
+        //return redirect()->route('departments.index')->with('success', 'Department deleted successfully.');
     }
 }
