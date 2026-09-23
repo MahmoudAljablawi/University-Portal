@@ -25,8 +25,7 @@ class CourseSectionController extends Controller implements HasMiddleware
     public function index()
     {
         $sections = CourseSection::with(['course', 'semester', 'instructor'])->get();
-        return response()->json($sections);
-        //return view('course-sections.index', compact('sections'));
+        return request()->expectsJson() ? response()->json($sections) : view('course-sections.index', compact('sections'));
     }
 
     /**
@@ -34,11 +33,10 @@ class CourseSectionController extends Controller implements HasMiddleware
      */
     public function create()
     {
-        //$courses = Course::all();
-        //$semesters = AcademicSemester::all();
-        //$instructors = User::where('role', 'instructor')->get();
-
-        //return view('course-sections.create', compact('courses', 'semesters', 'instructors'));
+        $courses = Course::all();
+        $semesters = AcademicSemester::all();
+        $instructors = User::where('role', 'instructor')->get();
+        return view('course-sections.create', compact('courses', 'semesters', 'instructors'));
     }
 
     /**
@@ -56,6 +54,9 @@ class CourseSectionController extends Controller implements HasMiddleware
 
         $section = CourseSection::create($validated);
 
+        if (! $request->expectsJson()) {
+            return redirect()->route('course-sections.index')->with('success', 'Course section created successfully.');
+        }
         return response()->json([
             'message' => 'Course Section Created Successfully',
             'data' => $section->load(['course', 'semester', 'instructor'])
@@ -69,8 +70,7 @@ class CourseSectionController extends Controller implements HasMiddleware
     public function show(CourseSection $courseSection)
     {
         $crsSec = $courseSection->load(['course', 'semester', 'instructor', 'enrollments.student']);
-        return response()->json($crsSec);
-        //return view('course-sections.show', compact('crsSec'));
+        return request()->expectsJson() ? response()->json($crsSec) : view('course-sections.show', compact('crsSec'));
     }
 
     /**
@@ -78,11 +78,10 @@ class CourseSectionController extends Controller implements HasMiddleware
      */
     public function edit(CourseSection $courseSection)
     {
-        //$courses = Course::all();
-        //$semesters = AcademicSemester::all();
-        //$instructors = User::where('role', 'instructor')->get();
-
-        //return view('course-sections.edit', compact('courseSection', 'courses', 'semesters', 'instructors'));
+        $courses = Course::all();
+        $semesters = AcademicSemester::all();
+        $instructors = User::where('role', 'instructor')->get();
+        return view('course-sections.edit', compact('courseSection', 'courses', 'semesters', 'instructors'));
     }
 
     /**
@@ -100,6 +99,9 @@ class CourseSectionController extends Controller implements HasMiddleware
 
         $courseSection->update($validated);
 
+        if (! $request->expectsJson()) {
+            return redirect()->route('course-sections.index')->with('success', 'Course section updated successfully.');
+        }
         return response()->json([
             'message' => 'Data Of Course Section Updated Successfully',
             'data' => $courseSection->load(['course', 'semester', 'instructor'])
@@ -114,6 +116,9 @@ class CourseSectionController extends Controller implements HasMiddleware
     {
         $courseSection->delete();
 
+        if (! request()->expectsJson()) {
+            return redirect()->route('course-sections.index')->with('success', 'Course section deleted successfully.');
+        }
         return response()->json([
             'message' => 'Course Section Deleted Successfully'
         ]);

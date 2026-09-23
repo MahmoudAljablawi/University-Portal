@@ -22,8 +22,7 @@ class CourseController extends Controller implements HasMiddleware
     public function index()
     {
         $courses = Course::with(['department', 'prerequisites'])->get();
-        return response()->json($courses);
-        //return view('courses.index', compact('courses'));
+        return request()->expectsJson() ? response()->json($courses) : view('courses.index', compact('courses'));
     }
 
     /**
@@ -31,7 +30,8 @@ class CourseController extends Controller implements HasMiddleware
      */
     public function create()
     {
-        //return view('courses.create');
+        $departments = \App\Models\Department::all();
+        return view('courses.create', compact('departments'));
     }
 
     /**
@@ -49,6 +49,9 @@ class CourseController extends Controller implements HasMiddleware
 
         $course = Course::create($validated);
 
+        if (! $request->expectsJson()) {
+            return redirect()->route('courses.index')->with('success', 'Course created successfully.');
+        }
         return response()->json([
             'message' => 'Course Created Successfully',
             'data' => $course->load('department')
@@ -64,8 +67,7 @@ class CourseController extends Controller implements HasMiddleware
         $crs = $course->load(['department', 'prerequisites', 'sections']);
         // جلب جميع المقررات الأخرى لكي يختار منها المستخدم متطلباً سابقاً إذا أراد في صفحة التفاصيل
         $allCourses = Course::where('id', '!=', $course->id)->get();
-        return response()->json($crs);
-        //return view('courses.show', compact('course', 'allCourses'));
+        return request()->expectsJson() ? response()->json($crs) : view('courses.show', compact('course', 'allCourses'));
     }
 
     /**
@@ -73,7 +75,8 @@ class CourseController extends Controller implements HasMiddleware
      */
     public function edit(Course $course)
     {
-        //return view('courses.edit' );
+        $departments = \App\Models\Department::all();
+        return view('courses.edit', compact('course', 'departments'));
     }
 
     /**
@@ -91,6 +94,9 @@ class CourseController extends Controller implements HasMiddleware
 
         $course->update($validated);
 
+        if (! $request->expectsJson()) {
+            return redirect()->route('courses.index')->with('success', 'Course updated successfully.');
+        }
         return response()->json([
             'message' => 'Data Of Course Updated Successfully',
             'data' => $course->load('department')
@@ -105,6 +111,9 @@ class CourseController extends Controller implements HasMiddleware
     {
         $course->delete();
 
+        if (! request()->expectsJson()) {
+            return redirect()->route('courses.index')->with('success', 'Course deleted successfully.');
+        }
         return response()->json([
             'message' => 'Course Deleted Successfully'
         ]);
@@ -119,6 +128,9 @@ class CourseController extends Controller implements HasMiddleware
         // ربط المقرر بالمتطلب السابق عبر جدول الـ Pivot
         $course->prerequisites()->syncWithoutDetaching($validated['prerequisite_id']);
 
+        if (! $request->expectsJson()) {
+            return back()->with('success', 'Prerequisite added successfully.');
+        }
         return response()->json([
             'message' => 'تم إضافة المتطلب السابق بنجاح',
             'data' => $course->load('prerequisites')
@@ -133,6 +145,9 @@ class CourseController extends Controller implements HasMiddleware
 
         $course->prerequisites()->detach($validated['prerequisite_id']);
 
+        if (! $request->expectsJson()) {
+            return back()->with('success', 'Prerequisite removed successfully.');
+        }
         return response()->json([
             'message' => 'تم إزالة المتطلب السابق بنجاح',
             'data' => $course->load('prerequisites')

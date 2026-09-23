@@ -22,8 +22,7 @@ class AcademicSemesterController extends Controller implements HasMiddleware
     public function index()
     {
         $semesters = AcademicSemester::all();
-        return response()->json($semesters);
-        //return view('semesters.index', compact('semesters'));
+        return request()->expectsJson() ? response()->json($semesters) : view('academic-semesters.index', compact('semesters'));
     }
 
     /**
@@ -31,7 +30,7 @@ class AcademicSemesterController extends Controller implements HasMiddleware
      */
     public function create()
     {
-        //return view('semesters.create');
+        return view('academic-semesters.create');
     }
 
     /**
@@ -49,6 +48,9 @@ class AcademicSemesterController extends Controller implements HasMiddleware
 
         $semester = AcademicSemester::create($validated);
 
+        if (! $request->expectsJson()) {
+            return redirect()->route('academic-semesters.index')->with('success', 'Academic semester created successfully.');
+        }
         return response()->json([
             'message' => 'Academic Semester Created Successfully',
             'data' => $semester
@@ -61,16 +63,15 @@ class AcademicSemesterController extends Controller implements HasMiddleware
      */
     public function show(AcademicSemester $academicSemester)
     {
-        return response()->json($academicSemester->load('sections.course'));
-        //return view('semesters.show', compact('semester'));
+        return request()->expectsJson() ? response()->json($academicSemester->load('sections.course')) : view('academic-semesters.show', compact('academicSemester'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(AcademicSemester $semester)
+    public function edit(AcademicSemester $academicSemester)
     {
-        //return view('semesters.edit', compact('semester'));
+        return view('academic-semesters.edit', compact('academicSemester'));
     }
 
     /**
@@ -88,6 +89,9 @@ class AcademicSemesterController extends Controller implements HasMiddleware
 
         $academicSemester->update($validated);
 
+        if (! $request->expectsJson()) {
+            return redirect()->route('academic-semesters.index')->with('success', 'Academic semester updated successfully.');
+        }
         return response()->json([
             'message' => 'Data Of Academic Semester Updated Successfully',
             'data' => $academicSemester
@@ -102,6 +106,9 @@ class AcademicSemesterController extends Controller implements HasMiddleware
     {
         $academicSemester->delete();
 
+        if (! request()->expectsJson()) {
+            return redirect()->route('academic-semesters.index')->with('success', 'Academic semester deleted successfully.');
+        }
         return response()->json([
             'message' => 'Academic Semester Deleted Successfully'
         ]);

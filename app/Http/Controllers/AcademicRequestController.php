@@ -22,11 +22,11 @@ class AcademicRequestController extends Controller implements HasMiddleware
         $user = $request->user();
 
         if ($user->role === 'admin') {
-            return response()->json(AcademicRequest::with('student')->get());
+            $requests = AcademicRequest::with('student')->get();
         } else {
-            return response()->json(AcademicRequest::where('student_id', $user->id)->get());
+            $requests = AcademicRequest::where('student_id', $user->id)->get();
         }
-       // return view('academic-requests.index', compact('requests'));
+        return $request->expectsJson() ? response()->json($requests) : view('academic-requests.index', compact('requests'));
     }
     public function create()
     {
@@ -39,23 +39,25 @@ class AcademicRequestController extends Controller implements HasMiddleware
         $user = $request->user();
 
         if ($user->role !== 'student') {
+            abort_unless($request->expectsJson(), 403);
             return response()->json(['message' => 'Only students can submit academic requests.'], 403);
         }
 
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'type' => 'required|string|max:100', // مثل: postponement, add_drop, etc.
-            'description' => 'required|string',
+            'request_type' => 'required|string|max:100',
+            'reason' => 'required|string',
         ]);
 
         $academicRequest = AcademicRequest::create([
             'student_id' => $user->id,
-            'title' => $validated['title'],
-            'type' => $validated['type'],
-            'description' => $validated['description'],
+            'request_type' => $validated['request_type'],
+            'reason' => $validated['reason'],
             'status' => 'pending', // الحالة الافتراضية قيد الانتظار
         ]);
 
+        if (! $request->expectsJson()) {
+            return redirect()->route('academic-requests.index')->with('success', 'Academic request created successfully.');
+        }
         return response()->json([
             'message' => 'Academic Request Submitted Successfully',
             'data' => $academicRequest->load('student')
@@ -68,11 +70,10 @@ class AcademicRequestController extends Controller implements HasMiddleware
         $user = $request->user();
         $academicRequest->load('student');
         if ($user->role === 'student' && $user->id !== $academicRequest->student_id) {
+            abort_unless($request->expectsJson(), 403);
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-
-        return response()->json($academicRequest->load('student'));
-        //return view('academic-requests.show', compact('academicRequest'));
+        return $request->expectsJson() ? response()->json($academicRequest->load('student')) : view('academic-requests.show', compact('academicRequest'));
     }
     public function edit(AcademicRequest $academicRequest)
     {
@@ -93,6 +94,9 @@ class AcademicRequestController extends Controller implements HasMiddleware
 
             $academicRequest->update($validated);
 
+            if (! $request->expectsJson()) {
+                return redirect()->route('academic-requests.index')->with('success', 'Academic request updated successfully.');
+            }
             return response()->json([
                 'message' => 'Academic Request Status Updated Successfully',
                 'data' => $academicRequest->load('student')
@@ -101,23 +105,29 @@ class AcademicRequestController extends Controller implements HasMiddleware
 
         if ($user->role === 'student' && $user->id === $academicRequest->student_id) {
             if ($academicRequest->status !== 'pending') {
+                if (! $request->expectsJson()) {
+                    return back()->withErrors(['status' => 'Cannot modify a processed request.']);
+                }
                 return response()->json(['message' => 'Cannot modify a processed request.'], 422);
             }
 
             $validated = $request->validate([
-                'title' => 'sometimes|string|max:255',
-                'type' => 'sometimes|string|max:100',
-                'description' => 'sometimes|string',
+                'request_type' => 'sometimes|string|max:100',
+                'reason' => 'sometimes|string',
             ]);
 
             $academicRequest->update($validated);
 
+            if (! $request->expectsJson()) {
+                return redirect()->route('academic-requests.index')->with('success', 'Academic request updated successfully.');
+            }
             return response()->json([
                 'message' => 'Academic Request Updated Successfully',
                 'data' => $academicRequest
             ]);
         }
 
+        abort_unless($request->expectsJson(), 403);
         return response()->json(['message' => 'Unauthorized'], 403);
        // return redirect()->route('academic-requests.index')->with('success', 'Academic request updated successfully.');
     }
@@ -129,11 +139,15 @@ class AcademicRequestController extends Controller implements HasMiddleware
         if ($user->role === 'admin' || ($user->id === $academicRequest->student_id && $academicRequest->status === 'pending')) {
             $academicRequest->delete();
 
+            if (! $request->expectsJson()) {
+                return redirect()->route('academic-requests.index')->with('success', 'Academic request deleted successfully.');
+            }
             return response()->json([
                 'message' => 'Academic Request Deleted Successfully'
             ]);
         }
 
+        abort_unless($request->expectsJson(), 403);
         return response()->json(['message' => 'Unauthorized'], 403);
         //return redirect()->route('academic-requests.index')->with('success', 'Academic request deleted successfully.');
     }

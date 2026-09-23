@@ -23,8 +23,7 @@ class UserController extends Controller implements HasMiddleware
     public function index()
     {
         $users = User::all();
-        return response()->json($users);
-        //return view('users.index', compact('users'));
+        return request()->expectsJson() ? response()->json($users) : view('users.index', compact('users'));
     }
 
     /**
@@ -32,7 +31,7 @@ class UserController extends Controller implements HasMiddleware
      */
     public function create()
     {
-        //return view('users.create');
+        return view('users.create');
     }
 
     /**
@@ -53,6 +52,9 @@ class UserController extends Controller implements HasMiddleware
 
         $user = User::create($validated);
 
+        if (! $request->expectsJson()) {
+            return redirect()->route('users.index')->with('success', 'User created successfully.');
+        }
         return response()->json([
             'message' => 'User Created Successfully',
             'data' => $user
@@ -65,8 +67,7 @@ class UserController extends Controller implements HasMiddleware
      */
     public function show(User $user)
     {
-        return response()->json($user->load(['teachingSections', 'enrollments', 'academicRequests']));
-        //return view('users.show', compact('user'));
+        return request()->expectsJson() ? response()->json($user->load(['teachingSections', 'enrollments', 'academicRequests'])) : view('users.show', compact('user'));
     }
 
     /**
@@ -74,7 +75,7 @@ class UserController extends Controller implements HasMiddleware
      */
     public function edit(User $user)
     {
-        //return view('users.edit', compact('user'));
+        return view('users.edit', compact('user'));
     }
 
     /**
@@ -96,6 +97,9 @@ class UserController extends Controller implements HasMiddleware
 
         $user->update($validated);
 
+        if (! $request->expectsJson()) {
+            return redirect()->route('users.index')->with('success', 'User updated successfully.');
+        }
         return response()->json([
             'message' => 'Data Of User Updated Successfully',
             'data' => $user
@@ -110,6 +114,9 @@ class UserController extends Controller implements HasMiddleware
     {
         $user->delete();
 
+        if (! request()->expectsJson()) {
+            return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+        }
         return response()->json([
             'message' => 'User Deleted Successfully'
         ]);

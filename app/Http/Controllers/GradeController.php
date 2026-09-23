@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Grade;
 use App\Models\CourseSection;
+use App\Models\Enrollment;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -23,15 +24,22 @@ class GradeController extends Controller implements HasMiddleware
         $user = $request->user();
 
         if ($user->role === 'admin') {
-            return response()->json(Grade::with(['student', 'section.course'])->get());
+            $grades = Grade::with(['enrollment.student', 'enrollment.section.course'])->get();
         } elseif ($user->role === 'instructor') {
-            return response()->json(Grade::whereHas('section', function ($q) use ($user) {
+            $grades = Grade::whereHas('enrollment.section', function ($q) use ($user) {
                 $q->where('instructor_id', $user->id);
-            })->with(['student', 'section.course'])->get());
+            })->with(['enrollment.student', 'enrollment.section.course'])->get();
         } else {
-            return response()->json(Grade::where('student_id', $user->id)->with(['section.course'])->get());
+            $grades = Grade::whereHas('enrollment', fn ($q) => $q->where('student_id', $user->id))
+                ->with(['enrollment.section.course'])->get();
         }
-        //return view('grades.index');
+        return $request->expectsJson() ? response()->json($grades) : view('grades.index', compact('grades'));
+    }
+
+    public function create()
+    {
+        $enrollments = Enrollment::with(['student', 'section.course', 'section.semester'])->get();
+        return view('grades.create', compact('enrollments'));
     }
 
     public function store(Request $request)
@@ -39,34 +47,36 @@ class GradeController extends Controller implements HasMiddleware
         $user = $request->user();
 
         $validated = $request->validate([
-            'student_id' => 'required|exists:users,id',
-            'course_section_id' => 'required|exists:course_sections,id',
-            'grade' => 'required|numeric|min:0|max:100',
-            'notes' => 'nullable|string|max:255',
+            'enrollment_id' => 'required|exists:enrollments,id',
+            'midterm_grade' => 'nullable|numeric|min:0|max:100',
+            'final_grade' => 'nullable|numeric|min:0|max:100',
+            'total_grade' => 'nullable|numeric|min:0|max:100',
+            'letter_grade' => 'nullable|string|max:5',
+            'is_published' => 'boolean',
         ]);
 
         // إذا كان المستخدم أستاذ، نتأكد أنه يدرس هذه الشعبة فعلاً
         if ($user->role === 'instructor') {
-            $isInstructorOfSection = CourseSection::where('id', $validated['course_section_id'])
+            $isInstructorOfSection = CourseSection::whereHas('enrollments', fn ($q) => $q->whereKey($validated['enrollment_id']))
                 ->where('instructor_id', $user->id)
                 ->exists();
 
             if (! $isInstructorOfSection) {
+                if (! $request->expectsJson()) {
+                    abort(403, 'You are not the instructor for this section.');
+                }
                 return response()->json(['message' => 'عذراً، لست الأستاذ المسؤول عن هذه الشعبة.'], 403);
             }
         }
 
         $grade = Grade::updateOrCreate(
-            [
-                'student_id' => $validated['student_id'],
-                'course_section_id' => $validated['course_section_id'],
-            ],
-            [
-                'grade' => $validated['grade'],
-                'notes' => $validated['notes'] ?? null,
-            ]
+            ['enrollment_id' => $validated['enrollment_id']],
+            $validated
         );
 
+        if (! $request->expectsJson()) {
+            return redirect()->route('grades.index')->with('success', 'Grade recorded successfully.');
+        }
         return response()->json([
             'message' => 'Grade Saved Successfully',
             'data' => $grade->load(['student', 'section.course'])
@@ -78,13 +88,19 @@ class GradeController extends Controller implements HasMiddleware
     public function show(Request $request, Grade $grade)
     {
         $user = $request->user();
-        $grade->load(['enrollment.student', 'enrollment.courseSection.course']);
-        if ($user->role === 'student' && $user->id !== $grade->student_id) {
+        $grade->load(['enrollment.student', 'enrollment.section.course']);
+        if ($user->role === 'student' && $user->id !== optional($grade->enrollment)->student_id) {
+            abort_unless($request->expectsJson(), 403);
             return response()->json(['message' => 'Unauthorized'], 403);
         }
+        return $request->expectsJson() ? response()->json($grade->load(['enrollment.student', 'enrollment.section.course'])) : view('grades.show', compact('grade'));
+    }
 
-        return response()->json($grade->load(['student', 'section.course']));
-        //return view('grades.show', compact('grade'));
+    public function edit(Grade $grade)
+    {
+        $grade->load(['enrollment.student', 'enrollment.section.course', 'enrollment.section.semester']);
+        $enrollments = Enrollment::with(['student', 'section.course', 'section.semester'])->get();
+        return view('grades.edit', compact('grade', 'enrollments'));
     }
 
     public function update(Request $request, Grade $grade)
@@ -92,22 +108,29 @@ class GradeController extends Controller implements HasMiddleware
         $user = $request->user();
 
         if ($user->role === 'instructor') {
-            $grade->load('section');
-            if ($grade->section->instructor_id !== $user->id) {
+            $grade->load('enrollment.section');
+            if (optional(optional($grade->enrollment)->section)->instructor_id !== $user->id) {
+                abort_unless($request->expectsJson(), 403);
                 return response()->json(['message' => 'Unauthorized'], 403);
             }
         }
 
         $validated = $request->validate([
-            'grade' => 'sometimes|numeric|min:0|max:100',
-            'notes' => 'nullable|string|max:255',
+            'midterm_grade' => 'sometimes|nullable|numeric|min:0|max:100',
+            'final_grade' => 'sometimes|nullable|numeric|min:0|max:100',
+            'total_grade' => 'sometimes|nullable|numeric|min:0|max:100',
+            'letter_grade' => 'sometimes|nullable|string|max:5',
+            'is_published' => 'sometimes|boolean',
         ]);
 
         $grade->update($validated);
 
+        if (! $request->expectsJson()) {
+            return redirect()->route('grades.index')->with('success', 'Grade updated successfully.');
+        }
         return response()->json([
             'message' => 'Grade Updated Successfully',
-            'data' => $grade->load(['student', 'section.course'])
+            'data' => $grade->load(['enrollment.student', 'enrollment.section.course'])
         ]);
         //return redirect()->route('grades.index')->with('success', 'Grade updated successfully.');
     }
@@ -117,14 +140,18 @@ class GradeController extends Controller implements HasMiddleware
         $user = $request->user();
 
         if ($user->role === 'instructor') {
-            $grade->load('section');
-            if ($grade->section->instructor_id !== $user->id) {
+            $grade->load('enrollment.section');
+            if (optional(optional($grade->enrollment)->section)->instructor_id !== $user->id) {
+                abort_unless($request->expectsJson(), 403);
                 return response()->json(['message' => 'Unauthorized'], 403);
             }
         }
 
         $grade->delete();
 
+        if (! $request->expectsJson()) {
+            return redirect()->route('grades.index')->with('success', 'Grade deleted successfully.');
+        }
         return response()->json([
             'message' => 'Grade Deleted Successfully'
         ]);

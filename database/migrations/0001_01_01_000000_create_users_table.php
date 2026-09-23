@@ -19,8 +19,10 @@ return new class extends Migration
             $table->string('password');
             $table->string('phone')->nullable();
             $table->string('role')->default('student'); //  (student, instructor, department_head, admin)
-            $table->boolean('is_active')->default(true); // حالة الحساب (مفعل / معطل)
+            $table->boolean('is_active')->default(true);
             $table->rememberToken();
+            $table->foreignId('current_team_id')->nullable();
+            $table->string('profile_photo_path', 2048)->nullable();
             $table->timestamps();
         });
 

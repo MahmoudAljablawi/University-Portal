@@ -23,32 +23,31 @@ class EnrollmentController extends Controller implements HasMiddleware
         $user = $request->user();
 
         if ($user->role === 'admin') {
-            return response()->json(Enrollment::with(['student', 'section.course'])->get());
+            $enrollments = Enrollment::with(['student', 'section.course'])->get();
         } elseif ($user->role === 'instructor') {
             // الأستاذ يرى تسجيلات الشعب الخاصة به فقط
-            return response()->json(Enrollment::whereHas('section', function ($query) use ($user) {
+            $enrollments = Enrollment::whereHas('section', function ($query) use ($user) {
                 $query->where('instructor_id', $user->id);
-            })->with(['student', 'section.course'])->get());
+            })->with(['student', 'section.course'])->get();
         } else {
             // الطالب يرى تسجيلاته الشخصية فقط
-            return response()->json(Enrollment::where('student_id', $user->id)->with(['section.course'])->get());
+            $enrollments = Enrollment::where('student_id', $user->id)->with(['section.course'])->get();
         }
-        //return view('enrollments.index');
+        return $request->expectsJson() ? response()->json($enrollments) : view('enrollments.index', compact('enrollments'));
     }
 
     public function create()
     {
-        //$students = User::where('role', 'student')->get();
-        //$sections = CourseSection::with(['course', 'semester'])->get();
-
-        //return view('enrollments.create', compact('students', 'sections'));
+        $students = User::where('role', 'student')->get();
+        $sections = CourseSection::with(['course', 'semester'])->get();
+        return view('enrollments.create', compact('students', 'sections'));
     }
     public function store(Request $request)
     {
         $user = $request->user();
 
         $validated = $request->validate([
-            'course_section_id' => 'required|exists:course_sections,id',
+            'section_id' => 'required|exists:course_sections,id',
             'student_id' => $user->role === 'admin' ? 'required|exists:users,id' : 'prohibited',
         ]);
 
@@ -56,10 +55,13 @@ class EnrollmentController extends Controller implements HasMiddleware
 
         // التحقق من عدم التكرار في نفس الشعبة
         $exists = Enrollment::where('student_id', $studentId)
-            ->where('course_section_id', $validated['course_section_id'])
+            ->where('section_id', $validated['section_id'])
             ->exists();
 
         if ($exists) {
+            if (! $request->expectsJson()) {
+                return back()->withErrors(['section_id' => 'Student is already enrolled in this section.']);
+            }
             return response()->json([
                 'message' => 'Student is already enrolled in this section.'
             ], 422);
@@ -67,11 +69,13 @@ class EnrollmentController extends Controller implements HasMiddleware
 
         $enrollment = Enrollment::create([
             'student_id' => $studentId,
-            'course_section_id' => $validated['course_section_id'],
+            'section_id' => $validated['section_id'],
             'status' => 'enrolled',
-            'enrollment_date' => now(),
         ]);
 
+        if (! $request->expectsJson()) {
+            return redirect()->route('enrollments.index')->with('success', 'Student enrolled successfully.');
+        }
         return response()->json([
             'message' => 'Enrollment Created Successfully',
             'data' => $enrollment->load(['section.course', 'student'])
@@ -84,17 +88,26 @@ class EnrollmentController extends Controller implements HasMiddleware
         $user = $request->user();
 
         if ($user->role !== 'admin' && $user->id !== $enrollment->student_id) {
+            abort_unless($request->expectsJson(), 403);
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-
-        return response()->json($enrollment->load(['student', 'section.course']));
-       // return view('enrollments.edit', compact('enrollment', 'students', 'sections'));
+        return $request->expectsJson()
+            ? response()->json($enrollment->load(['student', 'section.course']))
+            : view('enrollments.show', compact('enrollment'));
     }
+
+    public function edit(Enrollment $enrollment)
+    {
+        $students = User::where('role', 'student')->get();
+        $sections = CourseSection::with(['course', 'semester'])->get();
+        return view('enrollments.edit', compact('enrollment', 'students', 'sections'));
+    }
+
     public function update(Request $request, Enrollment $enrollment)
     {
         $validated = $request->validate([
             'student_id' => 'required|exists:users,id',
-            'course_section_id' => 'required|exists:course_sections,id',
+            'section_id' => 'required|exists:course_sections,id',
             'status' => 'required|string|in:enrolled,dropped,completed',
         ]);
 
@@ -114,6 +127,9 @@ class EnrollmentController extends Controller implements HasMiddleware
 
         $enrollment->delete();
 
+        if (! $request->expectsJson()) {
+            return redirect()->route('enrollments.index')->with('success', 'Enrollment deleted successfully.');
+        }
         return response()->json([
             'message' => 'Enrollment Dropped Successfully'
         ]);

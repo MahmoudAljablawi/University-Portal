@@ -25,8 +25,7 @@ class CollegeController extends Controller implements HasMiddleware
     public function index()
     {
         $colleges = College::with('departments')->get();
-        return response()->json($colleges);
-        //return view('colleges.index', compact('colleges'));
+        return request()->expectsJson() ? response()->json($colleges) : view('colleges.index', compact('colleges'));
     }
 
     /**
@@ -34,7 +33,7 @@ class CollegeController extends Controller implements HasMiddleware
      */
     public function create()
     {
-        //return view('colleges.create');
+        return view('colleges.create');
     }
 
     /**
@@ -49,6 +48,9 @@ class CollegeController extends Controller implements HasMiddleware
 
         $college = College::create($validated);
 
+        if (! $request->expectsJson()) {
+            return redirect()->route('colleges.index')->with('success', 'College created successfully.');
+        }
         return response()->json([
             'message' => 'College Created Successfully',
             'data' => $college
@@ -61,16 +63,15 @@ class CollegeController extends Controller implements HasMiddleware
      */
     public function show(College $college)
     {
-        return response()->json($college->load('departments'));
-        //return view('colleges.show', compact('college'));
+        return request()->expectsJson() ? response()->json($college->load('departments')) : view('colleges.show', compact('college'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(College $college)
     {
-        //return view('colleges.edit', compact('college'));
+        return view('colleges.edit', compact('college'));
     }
 
     /**
@@ -85,6 +86,9 @@ class CollegeController extends Controller implements HasMiddleware
 
         $college->update($validated);
 
+        if (! $request->expectsJson()) {
+            return redirect()->route('colleges.index')->with('success', 'College updated successfully.');
+        }
         return response()->json([
             'message' => 'Data Of College Updated Successfully',
             'data' => $college
@@ -99,6 +103,9 @@ class CollegeController extends Controller implements HasMiddleware
     {
         $college->delete();
 
+        if (! request()->expectsJson()) {
+            return redirect()->route('colleges.index')->with('success', 'College deleted successfully.');
+        }
         return response()->json([
             'message' => 'College Deleted Successfully'
         ]);

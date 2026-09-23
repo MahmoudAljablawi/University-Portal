@@ -12,24 +12,95 @@ use App\Http\Controllers\AcademicRequestController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\UserController;
 
-// الصفحة الافتراضية عند بدء تشغيل السيرفر قبل التعديل 
-Route::get('/', function () {return view('welcome');});
+/*
+|--------------------------------------------------------------------------
+| Public Routes
+|--------------------------------------------------------------------------
+*/
 
-// الصفحة الرئيسية للوحة التحكم
-Route::get('/', function () {return view('dashboard');})->name('dashboard');
+Route::get('/', function () {
+    return redirect()->route('dashboard');
+});
 
-// استخدام Route::resource (بدون api) لضمان توفر مسارات create و edit لصفحات Blade
-Route::resource('colleges', CollegeController::class);
-Route::resource('departments', DepartmentController::class);
-Route::resource('academic-semesters', AcademicSemesterController::class);
-Route::resource('courses', CourseController::class);
-Route::resource('course-sections', CourseSectionController::class);
-Route::resource('enrollments', EnrollmentController::class);
-Route::resource('grades', GradeController::class);
-Route::resource('academic-requests', AcademicRequestController::class);
-Route::resource('audit-logs', AuditLogController::class)->only(['index', 'show']);
-Route::resource('users', UserController::class);
+/*
+|--------------------------------------------------------------------------
+| Authenticated Routes
+|--------------------------------------------------------------------------
+*/
 
-// مسارات إضافية تابعة للمقررات (المتطلبات السابقة)
-Route::post('courses/{course}/prerequisites', [CourseController::class, 'addPrerequisite']);
-Route::delete('courses/{course}/prerequisites', [CourseController::class, 'removePrerequisite']);
+Route::middleware([
+    'auth',
+    config('jetstream.auth_session'),
+    'verified',
+])->group(function () {
+
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+    Route::resource('colleges', CollegeController::class);
+
+    Route::resource('departments', DepartmentController::class);
+
+    Route::resource(
+        'academic-semesters',
+        AcademicSemesterController::class
+    );
+
+    Route::resource('courses', CourseController::class);
+
+    Route::resource(
+        'course-sections',
+        CourseSectionController::class
+    );
+
+    Route::resource('enrollments', EnrollmentController::class);
+
+    Route::resource('grades', GradeController::class);
+
+    Route::resource(
+        'academic-requests',
+        AcademicRequestController::class
+    );
+
+    Route::resource('audit-logs', AuditLogController::class)
+        ->only(['index', 'show']);
+
+    Route::resource('users', UserController::class);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Course Prerequisites
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post(
+        'courses/{course}/prerequisites',
+        [CourseController::class, 'addPrerequisite']
+    );
+
+    Route::delete(
+        'courses/{course}/prerequisites',
+        [CourseController::class, 'removePrerequisite']
+    );
+});
+
+/*
+|--------------------------------------------------------------------------
+| Language
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/language/{locale}', function (string $locale) {
+
+    abort_unless(
+        in_array($locale, ['en', 'ar']),
+        404
+    );
+
+    session(['locale' => $locale]);
+
+    return redirect()->back();
+
+})->name('language.switch');
+

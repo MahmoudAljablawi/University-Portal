@@ -22,8 +22,7 @@ class DepartmentController extends Controller implements HasMiddleware
     public function index()
     {
         $departments = Department::with('college')->get();
-        return response()->json($departments);
-        //return view('departments.index', compact('departments'));
+        return request()->expectsJson() ? response()->json($departments) : view('departments.index', compact('departments'));
     }
 
     /**
@@ -31,7 +30,8 @@ class DepartmentController extends Controller implements HasMiddleware
      */
     public function create()
     {
-        //return view('departments.create');
+        $colleges = \App\Models\College::all();
+        return view('departments.create', compact('colleges'));
     }
 
     /**
@@ -47,6 +47,9 @@ class DepartmentController extends Controller implements HasMiddleware
 
         $department = Department::create($validated);
 
+        if (! $request->expectsJson()) {
+            return redirect()->route('departments.index')->with('success', 'Department created successfully.');
+        }
         return response()->json([
             'message' => 'Department Created Successfully',
             'data' => $department->load('college')
@@ -59,8 +62,7 @@ class DepartmentController extends Controller implements HasMiddleware
      */
     public function show(Department $department)
     {
-        return response()->json($department->load('college', 'courses'));
-        //return view('departments.show', compact('department'));
+        return request()->expectsJson() ? response()->json($department->load('college', 'courses')) : view('departments.show', compact('department'));
     }
 
     /**
@@ -68,7 +70,8 @@ class DepartmentController extends Controller implements HasMiddleware
      */
     public function edit(Department $department)
     {
-        //return view('departments.edit', compact('department', 'colleges'));
+        $colleges = \App\Models\College::all();
+        return view('departments.edit', compact('department', 'colleges'));
     }
 
     /**
@@ -84,6 +87,9 @@ class DepartmentController extends Controller implements HasMiddleware
 
         $department->update($validated);
 
+        if (! $request->expectsJson()) {
+            return redirect()->route('departments.index')->with('success', 'Department updated successfully.');
+        }
         return response()->json([
             'message' => 'Data Of Department Updated Successfully',
             'data' => $department->load('college')
@@ -98,6 +104,9 @@ class DepartmentController extends Controller implements HasMiddleware
     {
         $department->delete();
 
+        if (! request()->expectsJson()) {
+            return redirect()->route('departments.index')->with('success', 'Department deleted successfully.');
+        }
         return response()->json([
             'message' => 'Department Deleted Successfully'
         ]);
