@@ -12,13 +12,16 @@ return array(
 
     'services' => 'Services',
     'academic_requests' => 'Academic Requests',
-
+    'enrollments' => 'Enrollments',
+    'academic_semesters' => 'Academic Semesters',
     'language' => 'AR',
     'close_menu' => 'Close menu',
     'open_menu' => 'Open menu',
 
     'university_portal' => 'University Portal',
-
+    'toggle_theme' => 'Toggle theme',
+    'profile' => 'Profile',
+    'logout' => 'Logout',
 
     'users' => 'Users',
     'colleges' => 'Colleges',

@@ -19,22 +19,87 @@ class GradeController extends Controller implements HasMiddleware
         ];
     }
 
+
     public function index(Request $request)
     {
         $user = $request->user();
 
         if ($user->role === 'admin') {
-            $grades = Grade::with(['enrollment.student', 'enrollment.section.course'])->get();
+
+            $grades = Grade::with([
+                'enrollment.student',
+                'enrollment.section.course',
+            ])->get();
         } elseif ($user->role === 'instructor') {
-            $grades = Grade::whereHas('enrollment.section', function ($q) use ($user) {
-                $q->where('instructor_id', $user->id);
-            })->with(['enrollment.student', 'enrollment.section.course'])->get();
+
+            $grades = Grade::whereHas('enrollment.section', function ($query) use ($user) {
+                $query->where('instructor_id', $user->id);
+            })
+                ->with([
+                    'enrollment.student',
+                    'enrollment.section.course',
+                ])
+                ->get();
         } else {
-            $grades = Grade::whereHas('enrollment', fn ($q) => $q->where('student_id', $user->id))
-                ->with(['enrollment.section.course'])->get();
+
+            // Students can only see published grades
+            $grades = Grade::whereHas('enrollment', function ($query) use ($user) {
+                $query->where('student_id', $user->id);
+            })
+                ->where('is_published', true)
+                ->with([
+                    'enrollment.section.course',
+                ])
+                ->get();
         }
-        return $request->expectsJson() ? response()->json($grades) : view('grades.index', compact('grades'));
+
+        return $request->expectsJson()
+            ? response()->json($grades)
+            : view('grades.index', compact('grades'));
     }
+
+
+    public function show(Request $request, Grade $grade)
+    {
+        $user = $request->user();
+
+        $grade->load([
+            'enrollment.student',
+            'enrollment.section.course',
+            'enrollment.section.semester',
+        ]);
+
+        /*
+    |--------------------------------------------------------------------------
+    | Student access
+    |--------------------------------------------------------------------------
+    |
+    | A student can only view:
+    | 1. Their own grade
+    | 2. A published grade
+    |
+    */
+
+        if ($user->role === 'student') {
+
+            if (
+                $grade->enrollment->student_id !== $user->id ||
+                ! $grade->is_published
+            ) {
+                abort_unless($request->expectsJson(), 403);
+
+                return response()->json([
+                    'message' => 'Unauthorized',
+                ], 403);
+            }
+        }
+
+        return $request->expectsJson()
+            ? response()->json($grade)
+            : view('grades.show', compact('grade'));
+    }
+
+
 
     public function create()
     {
@@ -57,7 +122,7 @@ class GradeController extends Controller implements HasMiddleware
 
         // إذا كان المستخدم أستاذ، نتأكد أنه يدرس هذه الشعبة فعلاً
         if ($user->role === 'instructor') {
-            $isInstructorOfSection = CourseSection::whereHas('enrollments', fn ($q) => $q->whereKey($validated['enrollment_id']))
+            $isInstructorOfSection = CourseSection::whereHas('enrollments', fn($q) => $q->whereKey($validated['enrollment_id']))
                 ->where('instructor_id', $user->id)
                 ->exists();
 
@@ -85,16 +150,6 @@ class GradeController extends Controller implements HasMiddleware
         //return redirect()->route('grades.index')->with('success', 'Grade recorded successfully.');
     }
 
-    public function show(Request $request, Grade $grade)
-    {
-        $user = $request->user();
-        $grade->load(['enrollment.student', 'enrollment.section.course']);
-        if ($user->role === 'student' && $user->id !== optional($grade->enrollment)->student_id) {
-            abort_unless($request->expectsJson(), 403);
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-        return $request->expectsJson() ? response()->json($grade->load(['enrollment.student', 'enrollment.section.course'])) : view('grades.show', compact('grade'));
-    }
 
     public function edit(Grade $grade)
     {

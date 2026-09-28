@@ -1,10 +1,199 @@
 @extends('layouts.app')
 
 @section('title', 'Edit Department')
-@section('content')
-<div class="mx-auto max-w-3xl space-y-6">
- <div><a href="{{ route('departments.index') }}" class="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-foreground-muted)] hover:text-[var(--color-primary)]">? Back to Departments</a><h1 class="mt-3 text-2xl font-semibold text-[var(--color-foreground)]">Edit Department</h1><p class="mt-1 text-sm text-[var(--color-foreground-muted)]">Assign a department to a college.</p></div>
- @if ($errors->any())<div class="rounded-lg border border-[var(--color-danger)]/30 bg-[color-mix(in_srgb,var(--color-danger)_8%,transparent)] p-4"><p class="text-sm font-medium text-[var(--color-danger)]">Please correct the following errors:</p><ul class="mt-2 list-inside list-disc text-sm text-[var(--color-danger)]">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
- <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]"><form action="{{ route('departments.update, $department') }}" method="POST" class="space-y-6 p-6 sm:p-8">@csrf @method('PUT')<div><label for="name" class="mb-2 block text-sm font-medium text-[var(--color-foreground)]">Department name</label><input id="name" name="name" type="text" value="{{ old('name', $department->name ?? "") }}" required autofocus class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm text-[var(--color-foreground)] outline-none transition placeholder:text-[var(--color-foreground-muted)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20">@error('name')<p class="mt-1.5 text-sm text-[var(--color-danger)]">{{ $message }}</p>@enderror</div><div><label for="code" class="mb-2 block text-sm font-medium text-[var(--color-foreground)]">Department code</label><input id="code" name="code" type="text" value="{{ old('code', $department->code ?? "") }}" required class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm text-[var(--color-foreground)] outline-none transition placeholder:text-[var(--color-foreground-muted)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20">@error('code')<p class="mt-1.5 text-sm text-[var(--color-danger)]">{{ $message }}</p>@enderror</div><div><label for="college_id" class="mb-2 block text-sm font-medium text-[var(--color-foreground)]">College</label><select id="college_id" name="college_id" required class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm text-[var(--color-foreground)]">@foreach ($colleges as $college)<option value="{{ $college->id }}" @selected(old('college_id', $department->college_id ?? null)==$college->id)>{{ $college->name }} ({{ $college->code }})</option>@endforeach</select>@error('college_id')<p class="mt-1.5 text-sm text-[var(--color-danger)]">{{ $message }}</p>@enderror</div><div class="flex flex-col-reverse gap-3 border-t border-[var(--color-border)] pt-6 sm:flex-row sm:justify-end"><a href="{{ route('departments.index') }}" class="rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-center text-sm font-medium text-[var(--color-foreground)] hover:bg-[var(--color-surface-muted)]">Cancel</a><button type="submit" class="rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-medium text-white hover:bg-[var(--color-primary-hover)]">Save changes</button></div></form></div>
+
+@section('content') <div class="mx-auto max-w-3xl space-y-6">
+
+
+    {{-- Page Header --}}
+    <div>
+        <div class="flex items-center gap-2 text-sm text-[var(--color-foreground-muted)]">
+            <a
+                href="{{ route('departments.index') }}"
+                class="transition hover:text-[var(--color-primary)]"
+            >
+                Departments
+            </a>
+
+            <span>/</span>
+
+            <span>Edit</span>
+        </div>
+
+        <h1 class="mt-2 text-2xl font-semibold tracking-tight">
+            Edit Department
+        </h1>
+
+        <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
+            Update the department information.
+        </p>
+    </div>
+
+    {{-- Validation Errors --}}
+    @if ($errors->any())
+        <div
+            class="rounded-lg border border-[var(--color-danger)]
+                   bg-red-50 p-4 dark:bg-red-950/20"
+        >
+            <p class="font-medium text-[var(--color-danger)]">
+                Please correct the following errors:
+            </p>
+
+            <ul class="mt-2 list-inside list-disc space-y-1 text-sm text-[var(--color-danger)]">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    {{-- Form --}}
+    <div
+        class="rounded-xl border border-[var(--color-border)]
+               bg-[var(--color-surface)] p-6 shadow-sm sm:p-8"
+    >
+        <form
+            action="{{ route('departments.update', $department) }}"
+            method="POST"
+            class="space-y-6"
+        >
+            @csrf
+            @method('PUT')
+
+            {{-- Department Name --}}
+            <div>
+                <label
+                    for="name"
+                    class="mb-2 block text-sm font-medium"
+                >
+                    Department Name
+                </label>
+
+                <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    value="{{ old('name', $department->name) }}"
+                    required
+                    autofocus
+                    maxlength="255"
+                    class="block w-full rounded-lg border border-[var(--color-border)]
+                           bg-[var(--color-background)] px-4 py-2.5 text-sm
+                           outline-none transition
+                           focus:border-[var(--color-primary)]
+                           focus:ring-2 focus:ring-[var(--color-primary)]/20"
+                >
+
+                @error('name')
+                    <p class="mt-1.5 text-sm text-[var(--color-danger)]">
+                        {{ $message }}
+                    </p>
+                @enderror
+            </div>
+
+            {{-- Department Code --}}
+            <div>
+                <label
+                    for="code"
+                    class="mb-2 block text-sm font-medium"
+                >
+                    Department Code
+                </label>
+
+                <input
+                    id="code"
+                    name="code"
+                    type="text"
+                    value="{{ old('code', $department->code) }}"
+                    required
+                    maxlength="50"
+                    class="block w-full rounded-lg border border-[var(--color-border)]
+                           bg-[var(--color-background)] px-4 py-2.5 text-sm
+                           uppercase outline-none transition
+                           focus:border-[var(--color-primary)]
+                           focus:ring-2 focus:ring-[var(--color-primary)]/20"
+                >
+
+                @error('code')
+                    <p class="mt-1.5 text-sm text-[var(--color-danger)]">
+                        {{ $message }}
+                    </p>
+                @enderror
+            </div>
+
+            {{-- College --}}
+            <div>
+                <label
+                    for="college_id"
+                    class="mb-2 block text-sm font-medium"
+                >
+                    College
+                </label>
+
+                <select
+                    id="college_id"
+                    name="college_id"
+                    required
+                    class="block w-full rounded-lg border border-[var(--color-border)]
+                           bg-[var(--color-background)] px-4 py-2.5 text-sm
+                           outline-none transition
+                           focus:border-[var(--color-primary)]
+                           focus:ring-2 focus:ring-[var(--color-primary)]/20"
+                >
+                    <option value="">Select a college</option>
+
+                    @foreach ($colleges as $college)
+                        <option
+                            value="{{ $college->id }}"
+                            @selected(
+                                old('college_id', $department->college_id) == $college->id
+                            )
+                        >
+                            {{ $college->name }}
+
+                            @if ($college->code)
+                                ({{ $college->code }})
+                            @endif
+                        </option>
+                    @endforeach
+                </select>
+
+                @error('college_id')
+                    <p class="mt-1.5 text-sm text-[var(--color-danger)]">
+                        {{ $message }}
+                    </p>
+                @enderror
+            </div>
+
+            {{-- Actions --}}
+            <div
+                class="flex flex-col-reverse gap-3 border-t border-[var(--color-border)]
+                       pt-6 sm:flex-row sm:justify-end"
+            >
+                <a
+                    href="{{ route('departments.show', $department) }}"
+                    class="inline-flex items-center justify-center rounded-lg
+                           border border-[var(--color-border)]
+                           px-4 py-2.5 text-sm font-medium
+                           transition hover:bg-[var(--color-surface-muted)]"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="inline-flex items-center justify-center rounded-lg
+                           bg-[var(--color-primary)] px-4 py-2.5 text-sm font-medium
+                           text-white transition
+                           hover:bg-[var(--color-primary-hover)]"
+                >
+                    Update Department
+                </button>
+            </div>
+        </form>
+    </div>
+
 </div>
+
+
 @endsection

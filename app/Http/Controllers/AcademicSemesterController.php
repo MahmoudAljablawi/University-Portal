@@ -63,6 +63,7 @@ class AcademicSemesterController extends Controller implements HasMiddleware
      */
     public function show(AcademicSemester $academicSemester)
     {
+        $academicSemester->load('courseSections.course');
         return request()->expectsJson() ? response()->json($academicSemester->load('sections.course')) : view('academic-semesters.show', compact('academicSemester'));
     }
 

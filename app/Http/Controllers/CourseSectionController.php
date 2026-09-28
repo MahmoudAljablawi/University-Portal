@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Validation\Rule;
 
 class CourseSectionController extends Controller implements HasMiddleware
 {
@@ -47,7 +48,12 @@ class CourseSectionController extends Controller implements HasMiddleware
         $validated = $request->validate([
             'course_id' => 'required|exists:courses,id',
             'semester_id' => 'required|exists:academic_semesters,id',
-            'instructor_id' => 'required|exists:users,id|role:instructor',
+            'instructor_id' => [
+                'required',
+                Rule::exists('users', 'id')->where(function ($query) {
+                    $query->where('role', 'instructor');
+                }),
+            ],
             'section_number' => 'required|integer|min:1',
             'capacity' => 'required|integer|min:1',
         ]);

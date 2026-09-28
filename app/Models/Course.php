@@ -15,6 +15,7 @@ class Course extends Model
         'credits',
         'semester_level',
         'department_id',
+        'description',
     ];
 
     // المقرر ينتمي إلى قسم أكاديمي واحد

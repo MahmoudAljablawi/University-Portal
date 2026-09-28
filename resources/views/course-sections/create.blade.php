@@ -1,5 +1,218 @@
+
 @extends('layouts.app')
-@section('title','Create Course Section')
+
+@section('title', 'Create Course Section')
+
 @section('content')
-<div class="mx-auto max-w-3xl space-y-6"><div><a href="{{ route('course-sections.index') }}" class="text-sm font-medium text-[var(--color-foreground-muted)] hover:text-[var(--color-primary)]">? Back to Course Sections</a><h1 class="mt-3 text-2xl font-semibold text-[var(--color-foreground)]">Create Course Section</h1><p class="mt-1 text-sm text-[var(--color-foreground-muted)]">Schedule a course section and assign its instructor.</p></div>@if($errors->any())<x-validation-errors />@endif<div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]"><form action="{{ route('course-sections.store') }}" method="POST" class="space-y-6 p-6 sm:p-8">@csrf <div><label for="course_id" class="mb-2 block text-sm font-medium text-[var(--color-foreground)]">Course</label><select id="course_id" name="course_id" required class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-2.5">@foreach($courses as $course)<option value="{{ $course->id }}" @selected(old('course_id', $courseSection->course_id ?? null)==$course->id)>{{ $course->code }} ? {{ $course->name }}</option>@endforeach</select></div><div><label for="semester_id" class="mb-2 block text-sm font-medium text-[var(--color-foreground)]">Semester</label><select id="semester_id" name="semester_id" required class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-2.5">@foreach($semesters as $semester)<option value="{{ $semester->id }}" @selected(old('semester_id', $courseSection->semester_id ?? null)==$semester->id)>{{ $semester->name }}</option>@endforeach</select></div><div><label for="instructor_id" class="mb-2 block text-sm font-medium text-[var(--color-foreground)]">Instructor</label><select id="instructor_id" name="instructor_id" required class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-2.5">@foreach($instructors as $instructor)<option value="{{ $instructor->id }}" @selected(old('instructor_id', $courseSection->instructor_id ?? null)==$instructor->id)>{{ $instructor->name }}</option>@endforeach</select></div><div class="grid gap-6 sm:grid-cols-2"><div><label for="section_number" class="mb-2 block text-sm font-medium">Section number</label><input id="section_number" name="section_number" type="number" min="1" required value="{{ old('section_number', $courseSection->section_number ?? '') }}" class="w-full rounded-lg border border-[var(--color-border)] p-2.5"></div><div><label for="capacity" class="mb-2 block text-sm font-medium">Capacity</label><input id="capacity" name="capacity" type="number" min="1" required value="{{ old('capacity', $courseSection->capacity ?? '') }}" class="w-full rounded-lg border border-[var(--color-border)] p-2.5"></div></div><div class="flex justify-end gap-3 border-t border-[var(--color-border)] pt-6"><a href="{{ route('course-sections.index') }}" class="rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm">Cancel</a><button class="rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-medium text-white">Create course section</button></div></form></div></div>
+    <div class="mx-auto max-w-3xl space-y-6">
+
+        <div>
+            <h1 class="text-2xl font-semibold">
+                Create Course Section
+            </h1>
+
+            <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
+                Create a new section for a course.
+            </p>
+        </div>
+
+        @if ($errors->any())
+            <div class="rounded-lg border border-[var(--color-danger)]/30 bg-[var(--color-surface-muted)] p-4">
+                <ul class="list-disc space-y-1 ps-5 text-sm text-[var(--color-danger)]">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm">
+
+            <form
+                action="{{ route('course-sections.store') }}"
+                method="POST"
+                class="space-y-6"
+            >
+                @csrf
+
+                {{-- Course --}}
+                <div>
+                    <label
+                        for="course_id"
+                        class="mb-2 block text-sm font-medium"
+                    >
+                        Course
+                    </label>
+
+                    <select
+                        id="course_id"
+                        name="course_id"
+                        required
+                        class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--color-primary)]"
+                    >
+                        <option value="">Select Course</option>
+
+                        @foreach ($courses as $course)
+                            <option
+                                value="{{ $course->id }}"
+                                @selected(old('course_id') == $course->id)
+                            >
+                                {{ $course->code }} — {{ $course->name }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    @error('course_id')
+                        <p class="mt-1 text-sm text-[var(--color-danger)]">
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+
+                {{-- Semester --}}
+                <div>
+                    <label
+                        for="semester_id"
+                        class="mb-2 block text-sm font-medium"
+                    >
+                        Academic Semester
+                    </label>
+
+                    <select
+                        id="semester_id"
+                        name="semester_id"
+                        required
+                        class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--color-primary)]"
+                    >
+                        <option value="">Select Academic Semester</option>
+
+                        @foreach ($semesters as $semester)
+                            <option
+                                value="{{ $semester->id }}"
+                                @selected(old('semester_id') == $semester->id)
+                            >
+                                {{ $semester->name }} ({{ $semester->code }})
+                            </option>
+                        @endforeach
+                    </select>
+
+                    @error('semester_id')
+                        <p class="mt-1 text-sm text-[var(--color-danger)]">
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+
+                {{-- Instructor --}}
+                <div>
+                    <label
+                        for="instructor_id"
+                        class="mb-2 block text-sm font-medium"
+                    >
+                        Instructor
+                    </label>
+
+                    <select
+                        id="instructor_id"
+                        name="instructor_id"
+                        required
+                        class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--color-primary)]"
+                    >
+                        <option value="">Select Instructor</option>
+
+                        @foreach ($instructors as $instructor)
+                            <option
+                                value="{{ $instructor->id }}"
+                                @selected(old('instructor_id') == $instructor->id)
+                            >
+                                {{ $instructor->name }} — {{ $instructor->email }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    @error('instructor_id')
+                        <p class="mt-1 text-sm text-[var(--color-danger)]">
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+
+                {{-- Section Number --}}
+                <div>
+                    <label
+                        for="section_number"
+                        class="mb-2 block text-sm font-medium"
+                    >
+                        Section Number
+                    </label>
+
+                    <input
+                        id="section_number"
+                        name="section_number"
+                        type="number"
+                        value="{{ old('section_number') }}"
+                        required
+                        min="1"
+                        class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--color-primary)]"
+                        placeholder="e.g. 1"
+                    >
+
+                    @error('section_number')
+                        <p class="mt-1 text-sm text-[var(--color-danger)]">
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+
+                {{-- Capacity --}}
+                <div>
+                    <label
+                        for="capacity"
+                        class="mb-2 block text-sm font-medium"
+                    >
+                        Capacity
+                    </label>
+
+                    <input
+                        id="capacity"
+                        name="capacity"
+                        type="number"
+                        value="{{ old('capacity') }}"
+                        required
+                        min="1"
+                        class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--color-primary)]"
+                        placeholder="e.g. 30"
+                    >
+
+                    @error('capacity')
+                        <p class="mt-1 text-sm text-[var(--color-danger)]">
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+
+                {{-- Actions --}}
+                <div class="flex items-center justify-end gap-3 border-t border-[var(--color-border)] pt-6">
+
+                    <a
+                        href="{{ route('course-sections.index') }}"
+                        class="rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium transition hover:bg-[var(--color-surface-muted)]"
+                    >
+                        Cancel
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-primary-hover)]"
+                    >
+                        Create Section
+                    </button>
+
+                </div>
+            </form>
+
+        </div>
+    </div>
 @endsection
+
+

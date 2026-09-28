@@ -1,6 +1,142 @@
-﻿@extends('layouts.app')
-@section('title','Create Enrollment')
+﻿
+@extends('layouts.app')
+
+@section('title', 'Create Enrollment')
+
 @section('content')
-<div class="mx-auto max-w-3xl space-y-6"><div><a href="{{ route('enrollments.index') }}" class="text-sm font-medium text-[var(--color-foreground-muted)] hover:text-[var(--color-primary)]">? Back to Enrollments</a><h1 class="mt-3 text-2xl font-semibold text-[var(--color-foreground)]">Create Enrollment</h1><p class="mt-1 text-sm text-[var(--color-foreground-muted)]">Record a student in an available course section.</p></div>@if($errors->any())<x-validation-errors />@endif<div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]"><form action="{{ route('enrollments.store') }}" method="POST" class="space-y-6 p-6 sm:p-8">@csrf @if(auth()->user()->role === 'admin')<div><label for="student_id" class="mb-2 block text-sm font-medium">Student</label><select id="student_id" name="student_id" class="w-full rounded-lg border border-[var(--color-border)] p-2.5">@foreach($students as $student)<option value="{{ $student->id }}" @selected(old('student_id', $enrollment->student_id ?? null)==$student->id)>{{ $student->name }} ({{ $student->email }})</option>@endforeach</select>@endif</div><div><label for="section_id" class="mb-2 block text-sm font-medium">Course section</label><select id="section_id" name="section_id" required class="w-full rounded-lg border border-[var(--color-border)] p-2.5">@foreach($sections as $section)<option value="{{ $section->id }}" @selected(old('section_id', null)==$section->id)>{{ optional($section->course)->code }} ? {{ optional($section->course)->name }} / {{ optional($section->semester)->name }}</option>@endforeach</select></div><div><label for="status" class="mb-2 block text-sm font-medium">Status</label><select id="status" name="status" required class="w-full rounded-lg border border-[var(--color-border)] p-2.5">@foreach(['enrolled','dropped','completed'] as $status)<option value="{{ $status }}" @selected(old('status', 'enrolled')===$status)>{{ ucfirst($status) }}</option>@endforeach</select></div><div class="flex justify-end gap-3 border-t border-[var(--color-border)] pt-6"><a href="{{ route('enrollments.index') }}" class="rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm">Cancel</a><button class="rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-medium text-white">Create enrollment</button></div></form></div></div>
+    <div class="mx-auto max-w-3xl space-y-6">
+
+        <div>
+            <h1 class="text-2xl font-semibold">
+                Create Enrollment
+            </h1>
+
+            <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
+                Register a student in a course section.
+            </p>
+        </div>
+
+        @if ($errors->any())
+            <div class="rounded-lg border border-[var(--color-danger)]/30 bg-[var(--color-surface-muted)] p-4">
+                <ul class="list-disc space-y-1 ps-5 text-sm text-[var(--color-danger)]">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm">
+
+            <form
+                action="{{ route('enrollments.store') }}"
+                method="POST"
+                class="space-y-6"
+            >
+                @csrf
+
+                {{-- Student - Admin only --}}
+                @if (auth()->user()->role === 'admin')
+                    <div>
+                        <label
+                            for="student_id"
+                            class="mb-2 block text-sm font-medium"
+                        >
+                            Student
+                        </label>
+
+                        <select
+                            id="student_id"
+                            name="student_id"
+                            required
+                            class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--color-primary)]"
+                        >
+                            <option value="">Select Student</option>
+
+                            @foreach ($students as $student)
+                                <option
+                                    value="{{ $student->id }}"
+                                    @selected(old('student_id') == $student->id)
+                                >
+                                    {{ $student->name }} — {{ $student->email }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        @error('student_id')
+                            <p class="mt-1 text-sm text-[var(--color-danger)]">
+                                {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+                @else
+                    <div class="rounded-lg bg-[var(--color-surface-muted)] p-4">
+                        <p class="text-sm text-[var(--color-foreground-muted)]">
+                            You are creating an enrollment for your own account.
+                        </p>
+                    </div>
+                @endif
+
+                {{-- Section --}}
+                <div>
+                    <label
+                        for="section_id"
+                        class="mb-2 block text-sm font-medium"
+                    >
+                        Course Section
+                    </label>
+
+                    <select
+                        id="section_id"
+                        name="section_id"
+                        required
+                        class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--color-primary)]"
+                    >
+                        <option value="">Select Course Section</option>
+
+                        @foreach ($sections as $section)
+                            <option
+                                value="{{ $section->id }}"
+                                @selected(old('section_id') == $section->id)
+                            >
+                                {{ $section->course?->code }}
+                                —
+                                {{ $section->course?->name }}
+                                | Section {{ $section->section_number }}
+                                | {{ $section->semester?->name }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    @error('section_id')
+                        <p class="mt-1 text-sm text-[var(--color-danger)]">
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+
+                <div class="flex items-center justify-end gap-3 border-t border-[var(--color-border)] pt-6">
+
+                    <a
+                        href="{{ route('enrollments.index') }}"
+                        class="rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium transition hover:bg-[var(--color-surface-muted)]"
+                    >
+                        Cancel
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-primary-hover)]"
+                    >
+                        Enroll
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
 @endsection
+
 

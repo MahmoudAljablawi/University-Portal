@@ -1,5 +1,293 @@
 @extends('layouts.app')
-@section('title','Academic Semester')
+
+@section('title', 'Academic Semester Details')
+
 @section('content')
-<div class="mx-auto max-w-4xl space-y-6"><div><a href="{{ route('academic-semesters.index') }}" class="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-foreground-muted)] hover:text-[var(--color-primary)]">? Back to Academic Semester</a><h1 class="mt-3 text-2xl font-semibold text-[var(--color-foreground)]">Academic Semester</h1><p class="mt-1 text-sm text-[var(--color-foreground-muted)]">View record details and related information.</p></div><div class="overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]"><dl class="grid gap-6 px-6 py-6 sm:grid-cols-2 sm:px-8"><div><dt class="text-xs font-medium uppercase tracking-wide text-[var(--color-foreground-muted)]">Name</dt><dd class="mt-1 break-words text-sm font-medium text-[var(--color-foreground)]">{{ $academicSemester->name ?? '?' }}</dd></div><div><dt class="text-xs font-medium uppercase tracking-wide text-[var(--color-foreground-muted)]">Code</dt><dd class="mt-1 break-words text-sm font-medium text-[var(--color-foreground)]">{{ $academicSemester->code ?? '?' }}</dd></div><div><dt class="text-xs font-medium uppercase tracking-wide text-[var(--color-foreground-muted)]">Start date</dt><dd class="mt-1 break-words text-sm font-medium text-[var(--color-foreground)]">{{ $academicSemester->start_date ?? '?' }}</dd></div><div><dt class="text-xs font-medium uppercase tracking-wide text-[var(--color-foreground-muted)]">End date</dt><dd class="mt-1 break-words text-sm font-medium text-[var(--color-foreground)]">{{ $academicSemester->end_date ?? '?' }}</dd></div><div><dt class="text-xs font-medium uppercase tracking-wide text-[var(--color-foreground-muted)]">Status</dt><dd class="mt-1 break-words text-sm font-medium text-[var(--color-foreground)]">{{ $academicSemester->is_active ? "Active" : "Inactive" ?? '?' }}</dd></div></dl><div class="flex flex-col-reverse gap-3 border-t border-[var(--color-border)] px-6 py-5 sm:flex-row sm:justify-end sm:px-8"><a href="{{ route('academic-semesters.index') }}" class="rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-center text-sm">Back</a><a href="{{ route('academic-semesters.edit', $academicSemester) }}" class="rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-center text-sm text-white">Edit</a></div></div></div>
+@php
+$user = auth()->user();
+$isAdmin = $user?->role === 'admin';
+@endphp
+
+
+<div class="mx-auto max-w-5xl space-y-6">
+
+    {{-- Header --}}
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+            <div class="flex items-center gap-2 text-sm text-[var(--color-foreground-muted)]">
+                <a
+                    href="{{ route('academic-semesters.index') }}"
+                    class="transition hover:text-[var(--color-primary)]"
+                >
+                    Academic Semesters
+                </a>
+
+                <span>/</span>
+
+                <span>Details</span>
+            </div>
+
+            <h1 class="mt-2 text-2xl font-semibold tracking-tight">
+                {{ $academicSemester->name }}
+            </h1>
+
+            <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
+                Academic semester details and related course sections.
+            </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <a
+                href="{{ route('academic-semesters.index') }}"
+                class="inline-flex items-center justify-center rounded-lg
+                       border border-[var(--color-border)]
+                       px-4 py-2.5 text-sm font-medium
+                       transition hover:bg-[var(--color-surface-muted)]"
+            >
+                Back
+            </a>
+
+            @if ($isAdmin)
+                <a
+                    href="{{ route('academic-semesters.edit', $academicSemester) }}"
+                    class="inline-flex items-center justify-center rounded-lg
+                           bg-[var(--color-primary)] px-4 py-2.5 text-sm font-medium
+                           text-white transition
+                           hover:bg-[var(--color-primary-hover)]"
+                >
+                    Edit Semester
+                </a>
+            @endif
+        </div>
+    </div>
+
+    {{-- Semester Information --}}
+    <div
+        class="rounded-xl border border-[var(--color-border)]
+               bg-[var(--color-surface)] shadow-sm"
+    >
+        <div class="border-b border-[var(--color-border)] px-6 py-4">
+            <h2 class="text-base font-semibold">
+                Semester Information
+            </h2>
+        </div>
+
+        <div class="grid gap-6 p-6 sm:grid-cols-2 lg:grid-cols-4">
+
+            {{-- Name --}}
+            <div>
+                <p class="text-sm text-[var(--color-foreground-muted)]">
+                    Semester Name
+                </p>
+
+                <p class="mt-1 font-medium">
+                    {{ $academicSemester->name }}
+                </p>
+            </div>
+
+            {{-- Code --}}
+            <div>
+                <p class="text-sm text-[var(--color-foreground-muted)]">
+                    Code
+                </p>
+
+                <p class="mt-1">
+                    <span
+                        class="inline-flex rounded-md
+                               bg-[var(--color-surface-muted)]
+                               px-2.5 py-1 text-sm font-medium"
+                    >
+                        {{ $academicSemester->code }}
+                    </span>
+                </p>
+            </div>
+
+            {{-- Start Date --}}
+            <div>
+                <p class="text-sm text-[var(--color-foreground-muted)]">
+                    Start Date
+                </p>
+
+                <p class="mt-1 font-medium">
+                    {{ $academicSemester->start_date
+                        ? \Carbon\Carbon::parse($academicSemester->start_date)->format('Y-m-d')
+                        : '—' }}
+                </p>
+            </div>
+
+            {{-- End Date --}}
+            <div>
+                <p class="text-sm text-[var(--color-foreground-muted)]">
+                    End Date
+                </p>
+
+                <p class="mt-1 font-medium">
+                    {{ $academicSemester->end_date
+                        ? \Carbon\Carbon::parse($academicSemester->end_date)->format('Y-m-d')
+                        : '—' }}
+                </p>
+            </div>
+
+        </div>
+
+        <div class="border-t border-[var(--color-border)] px-6 py-4">
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-[var(--color-foreground-muted)]">
+                    Status
+                </span>
+
+                @if ($academicSemester->is_active)
+                    <span
+                        class="inline-flex items-center rounded-full
+                               bg-green-100 px-2.5 py-1 text-xs font-medium
+                               text-green-700 dark:bg-green-950/40
+                               dark:text-green-400"
+                    >
+                        Active
+                    </span>
+                @else
+                    <span
+                        class="inline-flex items-center rounded-full
+                               bg-[var(--color-surface-muted)]
+                               px-2.5 py-1 text-xs font-medium
+                               text-[var(--color-foreground-muted)]"
+                    >
+                        Inactive
+                    </span>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    {{-- Course Sections --}}
+    <div
+        class="overflow-hidden rounded-xl border border-[var(--color-border)]
+               bg-[var(--color-surface)] shadow-sm"
+    >
+        <div
+            class="flex items-center justify-between border-b
+                   border-[var(--color-border)] px-6 py-4"
+        >
+            <div>
+                <h2 class="text-base font-semibold">
+                    Course Sections
+                </h2>
+
+                <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
+                    Course sections associated with this academic semester.
+                </p>
+            </div>
+
+            <span
+                class="rounded-full bg-[var(--color-surface-muted)]
+                       px-3 py-1 text-sm font-medium"
+            >
+                {{ $academicSemester->courseSections->count()??0}}
+            </span>
+        </div>
+
+        @if ($academicSemester->courseSections->isNotEmpty())
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-[var(--color-border)]">
+                    <thead class="bg-[var(--color-surface-muted)]">
+                        <tr>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-semibold
+                                       uppercase tracking-wider
+                                       text-[var(--color-foreground-muted)]"
+                            >
+                                #
+                            </th>
+
+                            <th
+                                class="px-6 py-3 text-left text-xs font-semibold
+                                       uppercase tracking-wider
+                                       text-[var(--color-foreground-muted)]"
+                            >
+                                Course
+                            </th>
+
+                            <th
+                                class="px-6 py-3 text-left text-xs font-semibold
+                                       uppercase tracking-wider
+                                       text-[var(--color-foreground-muted)]"
+                            >
+                                Course Code
+                            </th>
+
+                            <th
+                                class="px-6 py-3 text-left text-xs font-semibold
+                                       uppercase tracking-wider
+                                       text-[var(--color-foreground-muted)]"
+                            >
+                                Section
+                            </th>
+
+                            <th
+                                class="px-6 py-3 text-left text-xs font-semibold
+                                       uppercase tracking-wider
+                                       text-[var(--color-foreground-muted)]"
+                            >
+                                Capacity
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-[var(--color-border)]">
+                        @foreach ($academicSemester->courseSections as $section)
+                            <tr class="transition hover:bg-[var(--color-surface-muted)]">
+
+                                <td class="whitespace-nowrap px-6 py-4 text-sm text-[var(--color-foreground-muted)]">
+                                    {{ $section->id }}
+                                </td>
+
+                                <td class="whitespace-nowrap px-6 py-4">
+                                    <div class="font-medium">
+                                        {{ $section->course?->name ?? '—' }}
+                                    </div>
+                                </td>
+
+                                <td class="whitespace-nowrap px-6 py-4">
+                                    @if ($section->course?->code)
+                                        <span
+                                            class="inline-flex rounded-md
+                                                   bg-[var(--color-surface-muted)]
+                                                   px-2.5 py-1 text-xs font-medium"
+                                        >
+                                            {{ $section->course->code }}
+                                        </span>
+                                    @else
+                                        —
+                                    @endif
+                                </td>
+
+                                <td class="whitespace-nowrap px-6 py-4 text-sm">
+                                    {{ $section->section_number ?? $section->id }}
+                                </td>
+
+                                <td class="whitespace-nowrap px-6 py-4 text-sm">
+                                    {{ $section->capacity ?? '—' }}
+                                </td>
+
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @else
+            <div class="px-6 py-12 text-center">
+                <p class="text-sm font-medium">
+                    No course sections found.
+                </p>
+
+                <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
+                    This academic semester does not have any course sections yet.
+                </p>
+            </div>
+        @endif
+    </div>
+
+</div>
+
+
 @endsection

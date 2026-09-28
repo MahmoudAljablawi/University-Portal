@@ -1,5 +1,260 @@
 @extends('layouts.app')
-@section('title','Department')
+
+@section('title', 'Department Details')
+
 @section('content')
-<div class="mx-auto max-w-4xl space-y-6"><div><a href="{{ route('departments.index') }}" class="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-foreground-muted)] hover:text-[var(--color-primary)]">? Back to Department</a><h1 class="mt-3 text-2xl font-semibold text-[var(--color-foreground)]">Department</h1><p class="mt-1 text-sm text-[var(--color-foreground-muted)]">View record details and related information.</p></div><div class="overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]"><dl class="grid gap-6 px-6 py-6 sm:grid-cols-2 sm:px-8"><div><dt class="text-xs font-medium uppercase tracking-wide text-[var(--color-foreground-muted)]">Name</dt><dd class="mt-1 break-words text-sm font-medium text-[var(--color-foreground)]">{{ $department->name ?? '?' }}</dd></div><div><dt class="text-xs font-medium uppercase tracking-wide text-[var(--color-foreground-muted)]">Code</dt><dd class="mt-1 break-words text-sm font-medium text-[var(--color-foreground)]">{{ $department->code ?? '?' }}</dd></div><div><dt class="text-xs font-medium uppercase tracking-wide text-[var(--color-foreground-muted)]">College</dt><dd class="mt-1 break-words text-sm font-medium text-[var(--color-foreground)]">{{ optional($department->college)->name ?? '?' }}</dd></div></dl><div class="flex flex-col-reverse gap-3 border-t border-[var(--color-border)] px-6 py-5 sm:flex-row sm:justify-end sm:px-8"><a href="{{ route('departments.index') }}" class="rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-center text-sm">Back</a><a href="{{ route('departments.edit', $department) }}" class="rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-center text-sm text-white">Edit</a></div></div></div>
+@php
+$user = auth()->user();
+$isAdmin = $user?->role === 'admin';
+@endphp
+
+
+<div class="mx-auto max-w-5xl space-y-6">
+
+    {{-- Header --}}
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+            <div class="flex items-center gap-2 text-sm text-[var(--color-foreground-muted)]">
+                <a
+                    href="{{ route('departments.index') }}"
+                    class="transition hover:text-[var(--color-primary)]"
+                >
+                    Departments
+                </a>
+
+                <span>/</span>
+
+                <span>Details</span>
+            </div>
+
+            <h1 class="mt-2 text-2xl font-semibold tracking-tight">
+                {{ $department->name }}
+            </h1>
+
+            <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
+                Department details and related courses.
+            </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <a
+                href="{{ route('departments.index') }}"
+                class="inline-flex items-center justify-center rounded-lg
+                       border border-[var(--color-border)]
+                       px-4 py-2.5 text-sm font-medium
+                       transition hover:bg-[var(--color-surface-muted)]"
+            >
+                Back
+            </a>
+
+            @if ($isAdmin)
+                <a
+                    href="{{ route('departments.edit', $department) }}"
+                    class="inline-flex items-center justify-center rounded-lg
+                           bg-[var(--color-primary)] px-4 py-2.5 text-sm font-medium
+                           text-white transition
+                           hover:bg-[var(--color-primary-hover)]"
+                >
+                    Edit Department
+                </a>
+            @endif
+        </div>
+    </div>
+
+    {{-- Department Information --}}
+    <div
+        class="rounded-xl border border-[var(--color-border)]
+               bg-[var(--color-surface)] shadow-sm"
+    >
+        <div class="border-b border-[var(--color-border)] px-6 py-4">
+            <h2 class="text-base font-semibold">
+                Department Information
+            </h2>
+        </div>
+
+        <div class="grid gap-6 p-6 sm:grid-cols-2">
+
+            {{-- Name --}}
+            <div>
+                <p class="text-sm text-[var(--color-foreground-muted)]">
+                    Department Name
+                </p>
+
+                <p class="mt-1 font-medium">
+                    {{ $department->name }}
+                </p>
+            </div>
+
+            {{-- Code --}}
+            <div>
+                <p class="text-sm text-[var(--color-foreground-muted)]">
+                    Department Code
+                </p>
+
+                <p class="mt-1">
+                    <span
+                        class="inline-flex rounded-md
+                               bg-[var(--color-surface-muted)]
+                               px-2.5 py-1 text-sm font-medium"
+                    >
+                        {{ $department->code }}
+                    </span>
+                </p>
+            </div>
+
+            {{-- College --}}
+            <div>
+                <p class="text-sm text-[var(--color-foreground-muted)]">
+                    College
+                </p>
+
+                @if ($department->college)
+                    <a
+                        href="{{ route('colleges.show', $department->college) }}"
+                        class="mt-1 inline-block font-medium
+                               text-[var(--color-primary)]
+                               transition hover:underline"
+                    >
+                        {{ $department->college->name }}
+                    </a>
+
+                    @if ($department->college->code)
+                        <p class="mt-0.5 text-sm text-[var(--color-foreground-muted)]">
+                            {{ $department->college->code }}
+                        </p>
+                    @endif
+                @else
+                    <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
+                        No college assigned.
+                    </p>
+                @endif
+            </div>
+
+            {{-- Courses Count --}}
+            <div>
+                <p class="text-sm text-[var(--color-foreground-muted)]">
+                    Courses
+                </p>
+
+                <p class="mt-1 font-medium">
+                    {{ $department->courses->count() }}
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    {{-- Courses --}}
+    <div
+        class="overflow-hidden rounded-xl border border-[var(--color-border)]
+               bg-[var(--color-surface)] shadow-sm"
+    >
+        <div
+            class="flex items-center justify-between border-b
+                   border-[var(--color-border)] px-6 py-4"
+        >
+            <div>
+                <h2 class="text-base font-semibold">
+                    Courses
+                </h2>
+
+                <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
+                    Courses belonging to this department.
+                </p>
+            </div>
+
+            <span
+                class="rounded-full bg-[var(--color-surface-muted)]
+                       px-3 py-1 text-sm font-medium"
+            >
+                {{ $department->courses->count() }}
+            </span>
+        </div>
+
+        @if ($department->courses->isNotEmpty())
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-[var(--color-border)]">
+                    <thead class="bg-[var(--color-surface-muted)]">
+                        <tr>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-semibold
+                                       uppercase tracking-wider
+                                       text-[var(--color-foreground-muted)]"
+                            >
+                                #
+                            </th>
+
+                            <th
+                                class="px-6 py-3 text-left text-xs font-semibold
+                                       uppercase tracking-wider
+                                       text-[var(--color-foreground-muted)]"
+                            >
+                                Course
+                            </th>
+
+                            <th
+                                class="px-6 py-3 text-left text-xs font-semibold
+                                       uppercase tracking-wider
+                                       text-[var(--color-foreground-muted)]"
+                            >
+                                Code
+                            </th>
+
+                            <th
+                                class="px-6 py-3 text-left text-xs font-semibold
+                                       uppercase tracking-wider
+                                       text-[var(--color-foreground-muted)]"
+                            >
+                                Credits
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-[var(--color-border)]">
+                        @foreach ($department->courses as $course)
+                            <tr class="transition hover:bg-[var(--color-surface-muted)]">
+                                <td class="whitespace-nowrap px-6 py-4 text-sm text-[var(--color-foreground-muted)]">
+                                    {{ $course->id }}
+                                </td>
+
+                                <td class="whitespace-nowrap px-6 py-4">
+                                    <div class="font-medium">
+                                        {{ $course->name }}
+                                    </div>
+                                </td>
+
+                                <td class="whitespace-nowrap px-6 py-4">
+                                    <span
+                                        class="inline-flex rounded-md
+                                               bg-[var(--color-surface-muted)]
+                                               px-2.5 py-1 text-xs font-medium"
+                                    >
+                                        {{ $course->code }}
+                                    </span>
+                                </td>
+
+                                <td class="whitespace-nowrap px-6 py-4 text-sm">
+                                    {{ $course->credits ?? '—' }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @else
+            <div class="px-6 py-12 text-center">
+                <p class="text-sm font-medium">
+                    No courses found.
+                </p>
+
+                <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
+                    This department does not have any courses yet.
+                </p>
+            </div>
+        @endif
+    </div>
+
+</div>
+
+
 @endsection

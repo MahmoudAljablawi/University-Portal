@@ -44,6 +44,7 @@ class CourseController extends Controller implements HasMiddleware
             'code' => 'required|string|max:50|unique:courses,code',
             'department_id' => 'required|exists:departments,id',
             'credits' => 'required|integer|min:1',
+            'semester_level' => 'required|integer|min:1',
             'description' => 'nullable|string',
         ]);
 
@@ -89,6 +90,7 @@ class CourseController extends Controller implements HasMiddleware
             'code' => 'required|string|max:50|unique:courses,code,' . $course->id,
             'department_id' => 'required|exists:departments,id',
             'credits' => 'required|integer|min:1',
+            'semester_level' => 'required|integer|min:1',
             'description' => 'nullable|string',
         ]);
 

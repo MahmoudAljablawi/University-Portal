@@ -223,6 +223,7 @@
 
             {{-- Active Status --}}
             <div class="flex items-start gap-3">
+                 <input type="hidden" name="is_active" value="0">
                 <input
                     id="is_active"
                     name="is_active"

@@ -11,6 +11,8 @@ use App\Http\Controllers\GradeController;
 use App\Http\Controllers\AcademicRequestController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DashboardController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -34,9 +36,9 @@ Route::middleware([
     'verified',
 ])->group(function () {
 
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
 
     Route::resource('colleges', CollegeController::class);
 
@@ -101,6 +103,4 @@ Route::get('/language/{locale}', function (string $locale) {
     session(['locale' => $locale]);
 
     return redirect()->back();
-
 })->name('language.switch');
-

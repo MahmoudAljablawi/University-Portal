@@ -1,5 +1,154 @@
+
 @extends('layouts.app')
-@section('title','Enrollment')
+
+@section('title', 'Enrollment Details')
+
 @section('content')
-<div class="mx-auto max-w-4xl space-y-6"><div><a href="{{ route('enrollments.index') }}" class="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-foreground-muted)] hover:text-[var(--color-primary)]">? Back to Enrollment</a><h1 class="mt-3 text-2xl font-semibold text-[var(--color-foreground)]">Enrollment</h1><p class="mt-1 text-sm text-[var(--color-foreground-muted)]">View record details and related information.</p></div><div class="overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]"><dl class="grid gap-6 px-6 py-6 sm:grid-cols-2 sm:px-8"><div><dt class="text-xs font-medium uppercase tracking-wide text-[var(--color-foreground-muted)]">Student</dt><dd class="mt-1 break-words text-sm font-medium text-[var(--color-foreground)]">{{ optional($enrollment->student)->name ?? '?' }}</dd></div><div><dt class="text-xs font-medium uppercase tracking-wide text-[var(--color-foreground-muted)]">Course</dt><dd class="mt-1 break-words text-sm font-medium text-[var(--color-foreground)]">{{ optional(optional($enrollment->section)->course)->name ?? '?' }}</dd></div><div><dt class="text-xs font-medium uppercase tracking-wide text-[var(--color-foreground-muted)]">Section</dt><dd class="mt-1 break-words text-sm font-medium text-[var(--color-foreground)]">{{ optional($enrollment->section)->section_number ?? '?' }}</dd></div><div><dt class="text-xs font-medium uppercase tracking-wide text-[var(--color-foreground-muted)]">Status</dt><dd class="mt-1 break-words text-sm font-medium text-[var(--color-foreground)]">{{ $enrollment->status ?? '?' }}</dd></div></dl><div class="flex flex-col-reverse gap-3 border-t border-[var(--color-border)] px-6 py-5 sm:flex-row sm:justify-end sm:px-8"><a href="{{ route('enrollments.index') }}" class="rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-center text-sm">Back</a></div></div></div>
+    <div class="space-y-6">
+
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+            <div>
+                <h1 class="text-2xl font-semibold">
+                    Enrollment Details
+                </h1>
+
+                <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
+                    View enrollment and course information.
+                </p>
+            </div>
+
+            <div class="flex gap-2">
+
+                <a
+                    href="{{ route('enrollments.index') }}"
+                    class="rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium transition hover:bg-[var(--color-surface-muted)]"
+                >
+                    Back
+                </a>
+
+                <a
+                    href="{{ route('enrollments.edit', $enrollment) }}"
+                    class="rounded-lg bg-[var(--color-primary)] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-primary-hover)]"
+                >
+                    Edit
+                </a>
+
+            </div>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-2">
+
+            {{-- Enrollment Information --}}
+            <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm">
+
+                <h2 class="mb-5 text-lg font-semibold">
+                    Enrollment Information
+                </h2>
+
+                <dl class="space-y-4">
+
+                    <div>
+                        <dt class="text-sm text-[var(--color-foreground-muted)]">
+                            Enrollment ID
+                        </dt>
+
+                        <dd class="mt-1 text-sm font-medium">
+                            {{ $enrollment->id }}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-sm text-[var(--color-foreground-muted)]">
+                            Student
+                        </dt>
+
+                        <dd class="mt-1 text-sm font-medium">
+                            {{ $enrollment->student?->name ?? '—' }}
+                        </dd>
+
+                        @if ($enrollment->student?->email)
+                            <p class="mt-1 text-xs text-[var(--color-foreground-muted)]">
+                                {{ $enrollment->student->email }}
+                            </p>
+                        @endif
+                    </div>
+
+                    <div>
+                        <dt class="text-sm text-[var(--color-foreground-muted)]">
+                            Status
+                        </dt>
+
+                        <dd class="mt-2">
+                            @php
+                                $statusClasses = match ($enrollment->status) {
+                                    'enrolled' => 'bg-green-100 text-green-700',
+                                    'completed' => 'bg-blue-100 text-blue-700',
+                                    'dropped' => 'bg-red-100 text-red-700',
+                                    default => 'bg-gray-100 text-gray-700',
+                                };
+                            @endphp
+
+                            <span class="inline-flex rounded-full px-3 py-1 text-xs font-medium {{ $statusClasses }}">
+                                {{ ucfirst($enrollment->status ?? 'unknown') }}
+                            </span>
+                        </dd>
+                    </div>
+
+                </dl>
+            </div>
+
+            {{-- Course Information --}}
+            <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm">
+
+                <h2 class="mb-5 text-lg font-semibold">
+                    Course Information
+                </h2>
+
+                <dl class="space-y-4">
+
+                    <div>
+                        <dt class="text-sm text-[var(--color-foreground-muted)]">
+                            Course
+                        </dt>
+
+                        <dd class="mt-1 text-sm font-medium">
+                            {{ $enrollment->section?->course?->name ?? '—' }}
+                        </dd>
+
+                        @if ($enrollment->section?->course?->code)
+                            <p class="mt-1 text-xs text-[var(--color-foreground-muted)]">
+                                {{ $enrollment->section->course->code }}
+                            </p>
+                        @endif
+                    </div>
+
+                    <div>
+                        <dt class="text-sm text-[var(--color-foreground-muted)]">
+                            Section
+                        </dt>
+
+                        <dd class="mt-1 text-sm font-medium">
+                            {{ $enrollment->section?->section_number ?? '—' }}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-sm text-[var(--color-foreground-muted)]">
+                            Semester
+                        </dt>
+
+                        <dd class="mt-1 text-sm font-medium">
+                            {{ $enrollment->section?->semester?->name ?? '—' }}
+                        </dd>
+                    </div>
+
+                </dl>
+            </div>
+
+        </div>
+
+    </div>
 @endsection
+
+

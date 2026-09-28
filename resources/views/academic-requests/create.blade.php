@@ -1,6 +1,107 @@
-﻿@extends('layouts.app')
-@section('title','Create Academic Request')
+﻿
+@extends('layouts.app')
+
+@section('title', 'New Academic Request')
+
 @section('content')
-<div class="mx-auto max-w-3xl space-y-6"><div><a href="{{ route('academic-requests.index') }}" class="text-sm font-medium text-[var(--color-foreground-muted)] hover:text-[var(--color-primary)]">? Back to Academic Requests</a><h1 class="mt-3 text-2xl font-semibold text-[var(--color-foreground)]">Create Academic Request</h1><p class="mt-1 text-sm text-[var(--color-foreground-muted)]">Submit the request type and explain the reason clearly.</p></div>@if($errors->any())<x-validation-errors />@endif<div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]"><form action="{{ route('academic-requests.store') }}" method="POST" class="space-y-6 p-6 sm:p-8">@csrf <div><label for="request_type" class="mb-2 block text-sm font-medium">Request type</label><input id="request_type" name="request_type" required value="{{ old('request_type', '') }}" placeholder="e.g. Transcript, withdrawal" class="w-full rounded-lg border p-2.5">@error('request_type')<p class="mt-1.5 text-sm text-[var(--color-danger)]">{{ $message }}</p>@enderror</div><div><label for="reason" class="mb-2 block text-sm font-medium">Reason</label><textarea id="reason" name="reason" rows="6" required class="w-full rounded-lg border p-2.5">{{ old('reason', '') }}</textarea>@error('reason')<p class="mt-1.5 text-sm text-[var(--color-danger)]">{{ $message }}</p>@enderror</div><div class="flex justify-end gap-3 border-t border-[var(--color-border)] pt-6"><a href="{{ route('academic-requests.index') }}" class="rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm">Cancel</a><button class="rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-medium text-white">Create academic request</button></div></form></div></div>
+<div class="mx-auto max-w-3xl space-y-6">
+
+    {{-- Header --}}
+    <div>
+        <h1 class="text-2xl font-bold text-[var(--color-foreground)]">
+            New Academic Request
+        </h1>
+
+        <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
+            Submit a new academic service request.
+        </p>
+    </div>
+
+    {{-- Form --}}
+    <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
+
+        <form
+            method="POST"
+            action="{{ route('academic-requests.store') }}"
+            class="space-y-6"
+        >
+            @csrf
+
+            {{-- Request Type --}}
+            <div>
+                <label
+                    for="request_type"
+                    class="mb-2 block text-sm font-medium text-[var(--color-foreground)]"
+                >
+                    Request Type
+                </label>
+
+                <input
+                    id="request_type"
+                    name="request_type"
+                    type="text"
+                    maxlength="100"
+                    value="{{ old('request_type') }}"
+                    placeholder="e.g. University Life"
+                    required
+                    class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm text-[var(--color-foreground)] outline-none transition focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20"
+                >
+
+                @error('request_type')
+                    <p class="mt-1 text-sm text-[var(--color-danger)]">
+                        {{ $message }}
+                    </p>
+                @enderror
+            </div>
+
+            {{-- Reason --}}
+            <div>
+                <label
+                    for="reason"
+                    class="mb-2 block text-sm font-medium text-[var(--color-foreground)]"
+                >
+                    Reason
+                </label>
+
+                <textarea
+                    id="reason"
+                    name="reason"
+                    rows="6"
+                    required
+                    placeholder="Describe the reason for your request..."
+                    class="w-full resize-y rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm text-[var(--color-foreground)] outline-none transition focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20"
+                >{{ old('reason') }}</textarea>
+
+                @error('reason')
+                    <p class="mt-1 text-sm text-[var(--color-danger)]">
+                        {{ $message }}
+                    </p>
+                @enderror
+            </div>
+
+            {{-- Actions --}}
+            <div class="flex items-center justify-end gap-3 border-t border-[var(--color-border)] pt-6">
+
+                <a
+                    href="{{ route('academic-requests.index') }}"
+                    class="rounded-lg px-4 py-2.5 text-sm font-medium text-[var(--color-foreground-muted)] transition hover:bg-[var(--color-surface-muted)]"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-primary-hover)]"
+                >
+                    Submit Request
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
 @endsection
 

@@ -1,27 +1,58 @@
+
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html
+    lang="{{ str_replace('_', '-', app()->getLocale()) }}"
+    dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}"
+    data-theme="light"
+>
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+        >
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <meta
+            name="csrf-token"
+            content="{{ csrf_token() }}"
+        >
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <title>
+            @yield('title', config('app.name', 'University Portal'))
+        </title>
 
-        <!-- Styles -->
+        {{-- Theme --}}
+        <script>
+            (() => {
+                const savedTheme = localStorage.getItem('theme');
+
+                document.documentElement.dataset.theme =
+                    savedTheme === 'dark' || savedTheme === 'light'
+                        ? savedTheme
+                        : 'light';
+            })();
+        </script>
+
+        {{-- Assets --}}
+        @vite([
+            'resources/css/app.css',
+            'resources/js/app.js'
+        ])
+
+        @stack('styles')
+
         @livewireStyles
     </head>
-    <body>
-        <div class="font-sans text-gray-900 antialiased">
-            {{ $slot }}
-        </div>
+
+    <body
+        class="min-h-screen bg-[var(--color-background)] font-sans text-[var(--color-foreground)] antialiased transition-colors duration-200"
+    >
+
+        {{ $slot }}
 
         @livewireScripts
+
+        @stack('scripts')
     </body>
 </html>
