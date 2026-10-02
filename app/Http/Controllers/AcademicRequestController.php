@@ -21,13 +21,80 @@ class AcademicRequestController extends Controller implements HasMiddleware
     {
         $user = $request->user();
 
-        if ($user->role === 'admin') {
-            $requests = AcademicRequest::with('student')->get();
-        } else {
-            $requests = AcademicRequest::where('student_id', $user->id)->get();
+        $query = AcademicRequest::query()
+            ->with('student');
+
+        if ($user->role === 'student') {
+            $query->where('student_id', $user->id);
         }
-        return $request->expectsJson() ? response()->json($requests) : view('academic-requests.index', compact('requests'));
+
+
+        $search = trim((string) $request->input('search'));
+
+        if ($search !== '') {
+            $query->where(function ($query) use ($search, $user) {
+
+                // Admin can search by student information.
+                if ($user->role === 'admin') {
+                    $query->whereHas('student', function ($query) use ($search) {
+                        $query
+                            ->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
+                }
+
+                // Both admin and student can search request data.
+                $query->orWhere('request_type', 'like', "%{$search}%")
+                    ->orWhere('reason', 'like', "%{$search}%");
+            });
+        }
+
+        $query->when(
+            $request->filled('request_type'),
+            fn($query) => $query->where(
+                'request_type',
+                $request->input('request_type')
+            )
+        );
+
+        $query->when(
+            $request->filled('status'),
+            fn($query) => $query->where(
+                'status',
+                $request->input('status')
+            )
+        );
+
+
+        $requests = $query
+            ->latest('id')
+            ->paginate(10)
+            ->withQueryString();
+
+        $requestTypes = AcademicRequest::query()
+            ->select('request_type')
+            ->whereNotNull('request_type')
+            ->distinct()
+            ->orderBy('request_type')
+            ->pluck('request_type');
+
+        $statuses = AcademicRequest::query()
+            ->select('status')
+            ->whereNotNull('status')
+            ->distinct()
+            ->orderBy('status')
+            ->pluck('status');
+
+        return $request->expectsJson()
+            ? response()->json($requests)
+            : view('academic-requests.index', compact(
+                'requests',
+                'requestTypes',
+                'statuses'
+            ));
     }
+
+
     public function create()
     {
         $students = User::where('role', 'student')->get();
@@ -129,7 +196,7 @@ class AcademicRequestController extends Controller implements HasMiddleware
 
         abort_unless($request->expectsJson(), 403);
         return response()->json(['message' => 'Unauthorized'], 403);
-       // return redirect()->route('academic-requests.index')->with('success', 'Academic request updated successfully.');
+        // return redirect()->route('academic-requests.index')->with('success', 'Academic request updated successfully.');
     }
 
     public function destroy(Request $request, AcademicRequest $academicRequest)

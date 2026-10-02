@@ -20,9 +20,40 @@ class UserController extends Controller implements HasMiddleware
             new Middleware('role:admin'), // مخصص للـ admin بالكامل
         ];
     }
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::all();
+        $query = User::query();
+
+        $search = trim((string) $request->input('search'));
+
+        if ($search !== '') {
+            $query->where(function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        $query->when(
+            $request->filled('role'),
+            fn($query) => $query
+                ->where(
+                    'role',
+                    $request->input('role')
+                )
+        );
+        $query->when(
+            $request->filled('status'),
+            function ($query) use ($request) {
+                $query->where(
+                    'is_active',
+                    $request->input('status') === 'active'
+                );
+            }
+        );
+
+        $users = $query->latest('id')->paginate(15)->withQueryString();
+
         return request()->expectsJson() ? response()->json($users) : view('users.index', compact('users'));
     }
 

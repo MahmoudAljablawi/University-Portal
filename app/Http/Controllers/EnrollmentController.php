@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Enrollment;
 use App\Models\CourseSection;
+use App\Models\AcademicSemester;
+use App\Models\Course;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -22,19 +24,95 @@ class EnrollmentController extends Controller implements HasMiddleware
     {
         $user = $request->user();
 
-        if ($user->role === 'admin') {
-            $enrollments = Enrollment::with(['student', 'section.course'])->get();
-        } elseif ($user->role === 'instructor') {
-            // الأستاذ يرى تسجيلات الشعب الخاصة به فقط
-            $enrollments = Enrollment::whereHas('section', function ($query) use ($user) {
+
+        $query = Enrollment::query()
+            ->with([
+                'student',
+                'section.course',
+                'section.semester',
+            ]);
+
+
+        if ($user->role === 'instructor') {
+            $query->whereHas('section', function ($query) use ($user) {
                 $query->where('instructor_id', $user->id);
-            })->with(['student', 'section.course'])->get();
-        } else {
-            // الطالب يرى تسجيلاته الشخصية فقط
-            $enrollments = Enrollment::where('student_id', $user->id)->with(['section.course'])->get();
+            });
+        } elseif ($user->role === 'student') {
+            $query->where('student_id', $user->id);
         }
-        return $request->expectsJson() ? response()->json($enrollments) : view('enrollments.index', compact('enrollments'));
+
+
+
+        $search = trim((string) $request->input('search'));
+
+        if ($search !== '') {
+            $query->where(function ($query) use ($search, $user) {
+
+                if ($user->role !== 'student') {
+                    $query->whereHas('student', function ($query) use ($search) {
+                        $query
+                            ->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
+                }
+
+                $query->orWhereHas('section.course', function ($query) use ($search) {
+                    $query
+                        ->where('name', 'like', "%{$search}%")
+                        ->orWhere('code', 'like', "%{$search}%");
+                });
+            });
+        }
+
+   
+
+        $query->when(
+            $request->filled('course_id'),
+            fn($query) => $query->whereHas(
+                'section',
+                fn($query) => $query->where('course_id', $request->input('course_id'))
+            )
+        );
+
+        $query->when(
+            $request->filled('semester_id'),
+            fn($query) => $query->whereHas(
+                'section',
+                fn($query) => $query->where('semester_id', $request->input('semester_id'))
+            )
+        );
+
+        $query->when(
+            $request->filled('status'),
+            fn($query) => $query->where(
+                'status',
+                $request->input('status')
+            )
+        );
+
+ 
+
+        $enrollments = $query
+            ->latest('id')
+            ->paginate(10)
+            ->withQueryString();
+
+
+        $courses = Course::orderBy('name')
+            ->get(['id', 'name', 'code']);
+
+        $semesters = AcademicSemester::orderByDesc('start_date')
+            ->get(['id', 'name', 'code']);
+
+        return $request->expectsJson()
+            ? response()->json($enrollments)
+            : view('enrollments.index', compact(
+                'enrollments',
+                'courses',
+                'semesters'
+            ));
     }
+
 
     public function create()
     {

@@ -33,12 +33,14 @@ class Course extends Model
     // المتطلبات السابقة لهذا المقرر (المواد التي يجب على الطالب إنهاؤها أولاً)
     public function prerequisites()
     {
-        return $this->belongsToMany(Course::class, 'course_prerequisites', 'course_id', 'prerequisite_id');
+        return $this->belongsToMany(Course::class, 'course_prerequisites', 'course_id', 'prerequisite_id')
+            ->using(CoursePrerequisite::class);
     }
 
     // المقررات التي يعتبر هذا المقرر متطلباً سابقاً لها
     public function subsequentCourses()
     {
-        return $this->belongsToMany(Course::class, 'course_prerequisites', 'prerequisite_id', 'course_id');
+        return $this->belongsToMany(Course::class, 'course_prerequisites', 'prerequisite_id', 'course_id')
+            ->using(CoursePrerequisite::class);
     }
 }

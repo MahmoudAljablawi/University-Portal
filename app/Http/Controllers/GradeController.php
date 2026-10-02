@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Grade;
 use App\Models\CourseSection;
+use App\Models\Course;
+use App\Models\AcademicSemester;
 use App\Models\Enrollment;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -24,38 +26,101 @@ class GradeController extends Controller implements HasMiddleware
     {
         $user = $request->user();
 
-        if ($user->role === 'admin') {
-
-            $grades = Grade::with([
+        $query = Grade::query()
+            ->with([
                 'enrollment.student',
                 'enrollment.section.course',
-            ])->get();
-        } elseif ($user->role === 'instructor') {
+                'enrollment.section.semester',
+            ]);
 
-            $grades = Grade::whereHas('enrollment.section', function ($query) use ($user) {
+ 
+        if ($user->role === 'instructor') {
+            $query->whereHas('enrollment.section', function ($query) use ($user) {
                 $query->where('instructor_id', $user->id);
-            })
-                ->with([
-                    'enrollment.student',
-                    'enrollment.section.course',
-                ])
-                ->get();
-        } else {
-
-            // Students can only see published grades
-            $grades = Grade::whereHas('enrollment', function ($query) use ($user) {
+            });
+        } elseif ($user->role === 'student') {
+            $query->whereHas('enrollment', function ($query) use ($user) {
                 $query->where('student_id', $user->id);
-            })
-                ->where('is_published', true)
-                ->with([
-                    'enrollment.section.course',
-                ])
-                ->get();
+            })->where('is_published', true);
         }
+
+
+        $search = trim((string) $request->input('search'));
+
+        if ($search !== '') {
+            $query->where(function ($query) use ($search, $user) {
+
+                if ($user->role !== 'student') {
+                    $query->whereHas('enrollment.student', function ($query) use ($search) {
+                        $query
+                            ->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
+                }
+
+                $query->orWhereHas('enrollment.section.course', function ($query) use ($search) {
+                    $query
+                        ->where('name', 'like', "%{$search}%")
+                        ->orWhere('code', 'like', "%{$search}%");
+                });
+            });
+        }
+
+
+        $query->when(
+            $request->filled('course_id'),
+            fn($query) => $query->whereHas(
+                'enrollment.section',
+                fn($query) => $query->where(
+                    'course_id',
+                    $request->input('course_id')
+                )
+            )
+        );
+
+
+        $query->when(
+            $request->filled('semester_id'),
+            fn($query) => $query->whereHas(
+                'enrollment.section',
+                fn($query) => $query->where(
+                    'semester_id',
+                    $request->input('semester_id')
+                )
+            )
+        );
+
+
+
+        if ($user->role !== 'student') {
+            $query->when(
+                $request->filled('status'),
+                fn($query) => $query->where(
+                    'is_published',
+                    $request->input('status') === 'published'
+                )
+            );
+        }
+
+        $grades = $query
+            ->latest('id')
+            ->paginate(10)
+            ->withQueryString();
+
+
+        $courses = Course::orderBy('name')
+            ->get(['id', 'name', 'code']);
+
+        $semesters = AcademicSemester::orderByDesc('start_date')
+            ->get(['id', 'name', 'code']);
 
         return $request->expectsJson()
             ? response()->json($grades)
-            : view('grades.index', compact('grades'));
+            : view('grades.index', compact(
+                'grades',
+                'courses',
+                'semesters'
+            ));
     }
 
 

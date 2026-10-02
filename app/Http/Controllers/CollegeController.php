@@ -22,11 +22,33 @@ class CollegeController extends Controller implements HasMiddleware
             new Middleware('role:admin', except: ['index', 'show']),
         ];
     }
-    public function index()
+
+    public function index(Request $request)
     {
-        $colleges = College::with('departments')->get();
-        return request()->expectsJson() ? response()->json($colleges) : view('colleges.index', compact('colleges'));
+        $query = College::with('departments');
+
+        $search = trim((string) $request->input('search'));
+
+        if ($search !== '') {
+            $query->where(function ($query) use ($search) {
+                $query
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%");
+            });
+        }
+
+
+        $colleges = $query
+            ->latest('id')
+            ->paginate(10)
+            ->withQueryString();
+
+
+        return $request->expectsJson()
+            ? response()->json($colleges)
+            : view('colleges.index', compact('colleges'));
     }
+
 
     /**
      * Show the form for creating a new resource.

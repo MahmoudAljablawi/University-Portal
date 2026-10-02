@@ -23,10 +23,69 @@ class CourseSectionController extends Controller implements HasMiddleware
             new Middleware('role:admin', except: ['index', 'show']),
         ];
     }
-    public function index()
+    public function index(Request $request)
     {
-        $sections = CourseSection::with(['course', 'semester', 'instructor'])->get();
-        return request()->expectsJson() ? response()->json($sections) : view('course-sections.index', compact('sections'));
+        $query = CourseSection::with([
+            'course',
+            'semester',
+            'instructor',
+        ]);
+
+
+        $search = trim((string) $request->input('search'));
+
+        if ($search !== '') {
+            $query->where(
+                'section_number',
+                'like',
+                "%{$search}%"
+            );
+        }
+
+        $query->when(
+            $request->filled('course_id'),
+            fn($query) => $query->where(
+                'course_id',
+                $request->input('course_id')
+            )
+        );
+
+        $query->when(
+            $request->filled('semester_id'),
+            fn($query) => $query->where(
+                'semester_id',
+                $request->input('semester_id')
+            )
+        );
+
+        $query->when(
+            $request->filled('instructor_id'),
+            fn($query) => $query->where(
+                'instructor_id',
+                $request->input('instructor_id')
+            )
+        );
+
+        $sections = $query
+            ->latest('id')
+            ->paginate(10)
+            ->withQueryString();
+
+        $courses = Course::orderBy('name')->get(['id', 'name']);
+        $semesters = AcademicSemester::orderByDesc('start_date')
+            ->get(['id', 'name']);
+        $instructors = User::where('role', 'instructor')
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return $request->expectsJson()
+            ? response()->json($sections)
+            : view('course-sections.index', compact(
+                'sections',
+                'courses',
+                'semesters',
+                'instructors'
+            ));
     }
 
     /**

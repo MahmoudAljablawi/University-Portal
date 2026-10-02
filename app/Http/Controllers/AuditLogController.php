@@ -17,11 +17,77 @@ class AuditLogController extends Controller implements HasMiddleware
         ];
     }
 
-    public function index(Request $request)
-    {   $auditLogs = AuditLog::with('user')->latest()->get();
-        return $request->expectsJson() ? response()->json($auditLogs) : view('audit-logs.index', compact('auditLogs'));
 
+    public function index(Request $request)
+    {
+        $query = AuditLog::query()
+            ->with('user');
+
+
+        $search = trim((string) $request->input('search'));
+
+        if ($search !== '') {
+            $query->where(function ($query) use ($search) {
+                $query
+                    ->where('action', 'like', "%{$search}%")
+                    ->orWhere('target_table', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('ip_address', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($query) use ($search) {
+                        $query
+                            ->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+
+        $query->when(
+            $request->filled('action'),
+            fn($query) => $query->where(
+                'action',
+                $request->input('action')
+            )
+        );
+
+        $query->when(
+            $request->filled('target_table'),
+            fn($query) => $query->where(
+                'target_table',
+                $request->input('target_table')
+            )
+        );
+
+        $auditLogs = $query
+            ->latest('id')
+            ->paginate(15)
+            ->withQueryString();
+
+
+        $actions = AuditLog::query()
+            ->select('action')
+            ->whereNotNull('action')
+            ->distinct()
+            ->orderBy('action')
+            ->pluck('action');
+
+        $targetTables = AuditLog::query()
+            ->select('target_table')
+            ->whereNotNull('target_table')
+            ->distinct()
+            ->orderBy('target_table')
+            ->pluck('target_table');
+
+
+        return $request->expectsJson()
+            ? response()->json($auditLogs)
+            : view('audit-logs.index', compact(
+                'auditLogs',
+                'actions',
+                'targetTables'
+            ));
     }
+
 
     public function show(AuditLog $auditLog)
     {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
+use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -19,11 +20,42 @@ class CourseController extends Controller implements HasMiddleware
             new Middleware('role:admin', except: ['index', 'show']),
         ];
     }
-    public function index()
+
+    public function index(Request $request)
     {
-        $courses = Course::with(['department', 'prerequisites'])->get();
-        return request()->expectsJson() ? response()->json($courses) : view('courses.index', compact('courses'));
+        $query = Course::with(['department', 'prerequisites']);
+
+
+        $search = trim((string) $request->input('search'));
+
+        if ($search !== '') {
+            $query->where(function ($query) use ($search) {
+                $query
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%");
+            });
+        }
+
+        $query->when(
+            $request->filled('department_id'),
+            fn($query) => $query->where(
+                'department_id',
+                $request->input('department_id')
+            )
+        );
+
+        $courses = $query
+            ->latest('id')
+            ->paginate(10)
+            ->withQueryString();
+
+        $departments = Department::orderBy('name')->get(['id', 'name']);
+
+        return $request->expectsJson()
+            ? response()->json($courses)
+            : view('courses.index', compact('courses', 'departments'));
     }
+
 
     /**
      * Show the form for creating a new resource.

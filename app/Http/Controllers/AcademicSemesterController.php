@@ -19,11 +19,38 @@ class AcademicSemesterController extends Controller implements HasMiddleware
             new Middleware('role:admin', except: ['index', 'show']),
         ];
     }
-    public function index()
+    public function index(Request $request)
     {
-        $semesters = AcademicSemester::all();
-        return request()->expectsJson() ? response()->json($semesters) : view('academic-semesters.index', compact('semesters'));
+        $query = AcademicSemester::query();
+
+        $search = trim((string) $request->input('search'));
+
+        if ($search !== '') {
+            $query->where(function ($query) use ($search) {
+                $query
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%");
+            });
+        }
+
+        $query->when(
+            $request->filled('status'),
+            fn($query) => $query->where(
+                'is_active',
+                $request->input('status') === 'active'
+            )
+        );
+
+        $semesters = $query
+            ->latest('id')
+            ->paginate(10)
+            ->withQueryString();
+
+        return $request->expectsJson()
+            ? response()->json($semesters)
+            : view('academic-semesters.index', compact('semesters'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -55,7 +82,7 @@ class AcademicSemesterController extends Controller implements HasMiddleware
             'message' => 'Academic Semester Created Successfully',
             'data' => $semester
         ], 201);
-       // return redirect()->route('semesters.index')->with('success', 'Academic semester created successfully.');
+        // return redirect()->route('semesters.index')->with('success', 'Academic semester created successfully.');
     }
 
     /**

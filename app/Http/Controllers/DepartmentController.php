@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Department;
 use Illuminate\Http\Request;
+use App\Models\Department;
+use App\Models\College;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 
@@ -19,18 +20,47 @@ class DepartmentController extends Controller implements HasMiddleware
             new Middleware('role:admin', except: ['index', 'show']),
         ];
     }
-    public function index()
+
+    public function index(Request $request)
     {
-        $departments = Department::with('college')->get();
-        return request()->expectsJson() ? response()->json($departments) : view('departments.index', compact('departments'));
+        $query = Department::with('college');
+
+        $search = trim((string) $request->input('search'));
+
+        if ($search !== '') {
+            $query->where(function ($query) use ($search) {
+                $query
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%");
+            });
+        }
+
+        $query->when(
+            $request->filled('college_id'),
+            fn($query) => $query->where('college_id', $request->input('college_id'))
+        );
+
+
+        $departments = $query
+            ->latest('id')
+            ->paginate(10)
+            ->withQueryString();
+
+
+        $colleges = College::orderBy('name')->get(['id', 'name']);
+
+        return $request->expectsJson()
+            ? response()->json($departments)
+            : view('departments.index', compact('departments', 'colleges'));
     }
+
 
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        $colleges = \App\Models\College::all();
+        $colleges = College::all();
         return view('departments.create', compact('colleges'));
     }
 
