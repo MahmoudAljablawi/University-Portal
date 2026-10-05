@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Department Details')
+@section('title', __('Department Details'))
 
 @section('content')
 @php
@@ -19,12 +19,12 @@ $isAdmin = $user?->role === 'admin';
                     href="{{ route('departments.index') }}"
                     class="transition hover:text-[var(--color-primary)]"
                 >
-                    Departments
+                    {{ __('Departments') }}
                 </a>
 
                 <span>/</span>
 
-                <span>Details</span>
+                <span>{{ __('Details') }}</span>
             </div>
 
             <h1 class="mt-2 text-2xl font-semibold tracking-tight">
@@ -32,7 +32,7 @@ $isAdmin = $user?->role === 'admin';
             </h1>
 
             <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                Department details and related courses.
+                {{ __('Department details and related courses.') }}
             </p>
         </div>
 
@@ -44,7 +44,7 @@ $isAdmin = $user?->role === 'admin';
                        px-4 py-2.5 text-sm font-medium
                        transition hover:bg-[var(--color-surface-muted)]"
             >
-                Back
+                {{ __('Back') }}
             </a>
 
             @if ($isAdmin)
@@ -55,7 +55,7 @@ $isAdmin = $user?->role === 'admin';
                            text-white transition
                            hover:bg-[var(--color-primary-hover)]"
                 >
-                    Edit Department
+                    {{ __('Edit Department') }}
                 </a>
             @endif
         </div>
@@ -68,7 +68,7 @@ $isAdmin = $user?->role === 'admin';
     >
         <div class="border-b border-[var(--color-border)] px-6 py-4">
             <h2 class="text-base font-semibold">
-                Department Information
+                {{ __('Department Information') }}
             </h2>
         </div>
 
@@ -77,7 +77,7 @@ $isAdmin = $user?->role === 'admin';
             {{-- Name --}}
             <div>
                 <p class="text-sm text-[var(--color-foreground-muted)]">
-                    Department Name
+                    {{ __('Department Name') }}
                 </p>
 
                 <p class="mt-1 font-medium">
@@ -88,7 +88,7 @@ $isAdmin = $user?->role === 'admin';
             {{-- Code --}}
             <div>
                 <p class="text-sm text-[var(--color-foreground-muted)]">
-                    Department Code
+                    {{ __('Department Code') }}
                 </p>
 
                 <p class="mt-1">
@@ -105,7 +105,7 @@ $isAdmin = $user?->role === 'admin';
             {{-- College --}}
             <div>
                 <p class="text-sm text-[var(--color-foreground-muted)]">
-                    College
+                    {{ __('College') }}
                 </p>
 
                 @if ($department->college)
@@ -125,7 +125,7 @@ $isAdmin = $user?->role === 'admin';
                     @endif
                 @else
                     <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                        No college assigned.
+                        {{ __('No college assigned.') }}
                     </p>
                 @endif
             </div>
@@ -133,7 +133,7 @@ $isAdmin = $user?->role === 'admin';
             {{-- Courses Count --}}
             <div>
                 <p class="text-sm text-[var(--color-foreground-muted)]">
-                    Courses
+                    {{ __('Courses') }}
                 </p>
 
                 <p class="mt-1 font-medium">
@@ -155,11 +155,11 @@ $isAdmin = $user?->role === 'admin';
         >
             <div>
                 <h2 class="text-base font-semibold">
-                    Courses
+                    {{ __('Courses') }}
                 </h2>
 
                 <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                    Courses belonging to this department.
+                    {{ __('Courses belonging to this department.') }}
                 </p>
             </div>
 
@@ -189,7 +189,7 @@ $isAdmin = $user?->role === 'admin';
                                        uppercase tracking-wider
                                        text-[var(--color-foreground-muted)]"
                             >
-                                Course
+                                {{ __('Course') }}
                             </th>
 
                             <th
@@ -197,7 +197,7 @@ $isAdmin = $user?->role === 'admin';
                                        uppercase tracking-wider
                                        text-[var(--color-foreground-muted)]"
                             >
-                                Code
+                                {{ __('Code') }}
                             </th>
 
                             <th
@@ -205,7 +205,7 @@ $isAdmin = $user?->role === 'admin';
                                        uppercase tracking-wider
                                        text-[var(--color-foreground-muted)]"
                             >
-                                Credits
+                                {{ __('Credits') }}
                             </th>
                         </tr>
                     </thead>
@@ -244,11 +244,11 @@ $isAdmin = $user?->role === 'admin';
         @else
             <div class="px-6 py-12 text-center">
                 <p class="text-sm font-medium">
-                    No courses found.
+                    {{ __('No courses found.') }}
                 </p>
 
                 <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                    This department does not have any courses yet.
+                    {{ __('This department does not have any courses yet.') }}
                 </p>
             </div>
         @endif

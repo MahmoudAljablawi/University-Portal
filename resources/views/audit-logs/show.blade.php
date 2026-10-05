@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Audit Log Details')
+@section('title', __('Audit Log Details'))
 
 @section('content') <div class="mx-auto max-w-4xl space-y-6">
 
@@ -9,11 +9,11 @@
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h1 class="text-2xl font-semibold text-[var(--color-foreground)]">
-                Audit Log Details
+                {{ __('Audit Log Details') }}
             </h1>
 
             <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                View the details of a recorded system activity.
+                {{ __('View the details of a recorded system activity.') }}
             </p>
         </div>
 
@@ -21,7 +21,7 @@
             href="{{ route('audit-logs.index') }}"
             class="inline-flex items-center justify-center rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm font-medium text-[var(--color-foreground)] transition hover:bg-[var(--color-surface-muted)]"
         >
-            Back to Audit Logs
+            {{ __('Back to Audit Logs') }}
         </a>
     </div>
 
@@ -32,11 +32,11 @@
             <div class="flex items-center justify-between gap-4">
                 <div>
                     <h2 class="text-lg font-semibold text-[var(--color-foreground)]">
-                        Activity Information
+                        {{ __('Activity Information') }}
                     </h2>
 
                     <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                        Recorded audit information for this activity.
+                        {{ __('Recorded audit information for this activity.') }}
                     </p>
                 </div>
 
@@ -51,7 +51,7 @@
             {{-- User --}}
             <div>
                 <p class="text-sm text-[var(--color-foreground-muted)]">
-                    User
+                    {{ __('User') }}
                 </p>
 
                 @if($auditLog->user)
@@ -66,7 +66,7 @@
                     </div>
                 @else
                     <p class="mt-1 font-medium text-[var(--color-foreground)]">
-                        System
+                        {{ __('System') }}
                     </p>
                 @endif
             </div>
@@ -74,7 +74,7 @@
             {{-- Action --}}
             <div>
                 <p class="text-sm text-[var(--color-foreground-muted)]">
-                    Action
+                    {{ __('Action') }}
                 </p>
 
                 <p class="mt-1 font-medium text-[var(--color-foreground)]">
@@ -85,7 +85,7 @@
             {{-- IP Address --}}
             <div>
                 <p class="text-sm text-[var(--color-foreground-muted)]">
-                    IP Address
+                    {{ __('IP Address') }}
                 </p>
 
                 <p class="mt-1 font-mono text-sm text-[var(--color-foreground)]">
@@ -96,7 +96,7 @@
             {{-- Created At --}}
             <div>
                 <p class="text-sm text-[var(--color-foreground-muted)]">
-                    Created At
+                    {{ __('Created At') }}
                 </p>
 
                 <p class="mt-1 text-sm text-[var(--color-foreground)]">
@@ -107,7 +107,7 @@
             {{-- Updated At --}}
             <div>
                 <p class="text-sm text-[var(--color-foreground-muted)]">
-                    Updated At
+                    {{ __('Updated At') }}
                 </p>
 
                 <p class="mt-1 text-sm text-[var(--color-foreground)]">
@@ -120,7 +120,7 @@
         {{-- Description --}}
         <div class="border-t border-[var(--color-border)] p-6">
             <p class="text-sm text-[var(--color-foreground-muted)]">
-                Description
+                {{ __('Description') }}
             </p>
 
             <div class="mt-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-muted)] p-4">

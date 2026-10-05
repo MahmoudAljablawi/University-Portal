@@ -1,7 +1,7 @@
 
 @extends('layouts.app')
 
-@section('title', 'Enrollment Details')
+@section('title', __('Enrollment Details'))
 
 @section('content')
     <div class="space-y-6">
@@ -10,11 +10,11 @@
 
             <div>
                 <h1 class="text-2xl font-semibold">
-                    Enrollment Details
+                    {{ __('Enrollment Details') }}
                 </h1>
 
                 <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                    View enrollment and course information.
+                    {{ __('View enrollment and course information.') }}
                 </p>
             </div>
 
@@ -24,14 +24,14 @@
                     href="{{ route('enrollments.index') }}"
                     class="rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium transition hover:bg-[var(--color-surface-muted)]"
                 >
-                    Back
+                    {{ __('Back') }}
                 </a>
 
                 <a
                     href="{{ route('enrollments.edit', $enrollment) }}"
                     class="rounded-lg bg-[var(--color-primary)] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-primary-hover)]"
                 >
-                    Edit
+                    {{ __('Edit') }}
                 </a>
 
             </div>
@@ -43,14 +43,14 @@
             <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm">
 
                 <h2 class="mb-5 text-lg font-semibold">
-                    Enrollment Information
+                    {{ __('Enrollment Information') }}
                 </h2>
 
                 <dl class="space-y-4">
 
                     <div>
                         <dt class="text-sm text-[var(--color-foreground-muted)]">
-                            Enrollment ID
+                            {{ __('Enrollment ID') }}
                         </dt>
 
                         <dd class="mt-1 text-sm font-medium">
@@ -60,7 +60,7 @@
 
                     <div>
                         <dt class="text-sm text-[var(--color-foreground-muted)]">
-                            Student
+                            {{ __('Student') }}
                         </dt>
 
                         <dd class="mt-1 text-sm font-medium">
@@ -76,7 +76,7 @@
 
                     <div>
                         <dt class="text-sm text-[var(--color-foreground-muted)]">
-                            Status
+                            {{ __('Status') }}
                         </dt>
 
                         <dd class="mt-2">
@@ -90,7 +90,7 @@
                             @endphp
 
                             <span class="inline-flex rounded-full px-3 py-1 text-xs font-medium {{ $statusClasses }}">
-                                {{ ucfirst($enrollment->status ?? 'unknown') }}
+                                {{ __(ucfirst($enrollment->status ?? 'unknown')) }}
                             </span>
                         </dd>
                     </div>
@@ -102,14 +102,14 @@
             <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm">
 
                 <h2 class="mb-5 text-lg font-semibold">
-                    Course Information
+                    {{ __('Course Information') }}
                 </h2>
 
                 <dl class="space-y-4">
 
                     <div>
                         <dt class="text-sm text-[var(--color-foreground-muted)]">
-                            Course
+                            {{ __('Course') }}
                         </dt>
 
                         <dd class="mt-1 text-sm font-medium">
@@ -125,7 +125,7 @@
 
                     <div>
                         <dt class="text-sm text-[var(--color-foreground-muted)]">
-                            Section
+                            {{ __('Section') }}
                         </dt>
 
                         <dd class="mt-1 text-sm font-medium">
@@ -135,7 +135,7 @@
 
                     <div>
                         <dt class="text-sm text-[var(--color-foreground-muted)]">
-                            Semester
+                            {{ __('Semester') }}
                         </dt>
 
                         <dd class="mt-1 text-sm font-medium">
@@ -150,5 +150,4 @@
 
     </div>
 @endsection
-
 

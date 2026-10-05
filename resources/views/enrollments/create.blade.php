@@ -1,18 +1,18 @@
 ﻿
 @extends('layouts.app')
 
-@section('title', 'Create Enrollment')
+@section('title', __('Create Enrollment'))
 
 @section('content')
     <div class="mx-auto max-w-3xl space-y-6">
 
         <div>
             <h1 class="text-2xl font-semibold">
-                Create Enrollment
+                {{ __('Create Enrollment') }}
             </h1>
 
             <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                Register a student in a course section.
+                {{ __('Register a student in a course section.') }}
             </p>
         </div>
 
@@ -42,7 +42,7 @@
                             for="student_id"
                             class="mb-2 block text-sm font-medium"
                         >
-                            Student
+                            {{ __('Student') }}
                         </label>
 
                         <select
@@ -51,7 +51,7 @@
                             required
                             class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--color-primary)]"
                         >
-                            <option value="">Select Student</option>
+                            <option value="">{{ __('Select Student') }}</option>
 
                             @foreach ($students as $student)
                                 <option
@@ -72,7 +72,7 @@
                 @else
                     <div class="rounded-lg bg-[var(--color-surface-muted)] p-4">
                         <p class="text-sm text-[var(--color-foreground-muted)]">
-                            You are creating an enrollment for your own account.
+                            {{ __('You are creating an enrollment for your own account.') }}
                         </p>
                     </div>
                 @endif
@@ -83,7 +83,7 @@
                         for="section_id"
                         class="mb-2 block text-sm font-medium"
                     >
-                        Course Section
+                        {{ __('Course Section') }}
                     </label>
 
                     <select
@@ -92,7 +92,7 @@
                         required
                         class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--color-primary)]"
                     >
-                        <option value="">Select Course Section</option>
+                        <option value="">{{ __('Select Course Section') }}</option>
 
                         @foreach ($sections as $section)
                             <option
@@ -121,14 +121,14 @@
                         href="{{ route('enrollments.index') }}"
                         class="rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium transition hover:bg-[var(--color-surface-muted)]"
                     >
-                        Cancel
+                        {{ __('Cancel') }}
                     </a>
 
                     <button
                         type="submit"
                         class="rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-primary-hover)]"
                     >
-                        Enroll
+                        {{ __('Enroll') }}
                     </button>
 
                 </div>

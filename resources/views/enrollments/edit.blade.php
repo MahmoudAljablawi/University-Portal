@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Enrollment')
+@section('title', __('Edit Enrollment'))
 
 @section('content')
     <div class="mx-auto max-w-3xl space-y-6">
 
         <div>
             <h1 class="text-2xl font-semibold">
-                Edit Enrollment
+                {{ __('Edit Enrollment') }}
             </h1>
 
             <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                Update the enrollment information and status.
+                {{ __('Update the enrollment information and status.') }}
             </p>
         </div>
 
@@ -41,7 +41,7 @@
                         for="student_id"
                         class="mb-2 block text-sm font-medium text-[var(--color-foreground)]"
                     >
-                        Student
+                        {{ __('Student') }}
                     </label>
 
                     {{-- عرض معلومات الطالب بدون إمكانية التعديل --}}
@@ -68,7 +68,7 @@
                         for="section_id"
                         class="mb-2 block text-sm font-medium text-[var(--color-foreground)]"
                     >
-                        Course Section
+                        {{ __('Course Section') }}
                     </label>
 
                     <select
@@ -77,7 +77,7 @@
                         required
                         class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20"
                     >
-                        <option value="">Select Course Section</option>
+                        <option value="">{{ __('Select Course Section') }}</option>
 
                         @foreach ($sections as $section)
                             <option
@@ -106,7 +106,7 @@
                         for="status"
                         class="mb-2 block text-sm font-medium text-[var(--color-foreground)]"
                     >
-                        Status
+                        {{ __('Status') }}
                     </label>
 
                     <select
@@ -119,21 +119,21 @@
                             value="enrolled"
                             @selected(old('status', $enrollment->status) === 'enrolled')
                         >
-                            Enrolled
+                            {{ __('Enrolled') }}
                         </option>
 
                         <option
                             value="completed"
                             @selected(old('status', $enrollment->status) === 'completed')
                         >
-                            Completed
+                            {{ __('Completed') }}
                         </option>
 
                         <option
                             value="dropped"
                             @selected(old('status', $enrollment->status) === 'dropped')
                         >
-                            Dropped
+                            {{ __('Dropped') }}
                         </option>
                     </select>
 
@@ -150,14 +150,14 @@
                         href="{{ route('enrollments.show', $enrollment) }}"
                         class="rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium transition hover:bg-[var(--color-surface-muted)]"
                     >
-                        Cancel
+                        {{ __('Cancel') }}
                     </a>
 
                     <button
                         type="submit"
                         class="rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-primary-hover)]"
                     >
-                        Update Enrollment
+                        {{ __('Update Enrollment') }}
                     </button>
 
                 </div>

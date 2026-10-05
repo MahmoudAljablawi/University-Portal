@@ -1,9 +1,9 @@
 @props([
     'route',
-    'itemName' => 'item',
+    'itemName' => __('item'),
     'class' => '',
-    'confirmText' => 'Are you sure?',
-    'buttonText' => 'Delete',
+    'confirmText' => __('Are you sure?'),
+    'buttonText' => __('Delete'),
     'buttonClass' => 'inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-700',
     'showIcon' => true,
     'svgOnly' => false,
@@ -50,4 +50,3 @@
         {{ $buttonText }}
     </button>
 </form>
-

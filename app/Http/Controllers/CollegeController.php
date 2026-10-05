@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\College;
+use App\Support\DataScope;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -25,7 +26,13 @@ class CollegeController extends Controller implements HasMiddleware
 
     public function index(Request $request)
     {
-        $query = College::with('departments');
+        $user = $request->user();
+        $query = DataScope::colleges($user)->with([
+            'departments' => fn ($departments) => $departments->whereIn(
+                'departments.id',
+                DataScope::departments($user)->select('departments.id')
+            ),
+        ]);
 
         $search = trim((string) $request->input('search'));
 
@@ -71,13 +78,13 @@ class CollegeController extends Controller implements HasMiddleware
         $college = College::create($validated);
 
         if (! $request->expectsJson()) {
-            return redirect()->route('colleges.index')->with('success', 'College created successfully.');
+            return redirect()->route('colleges.index')->with('success', __('College created successfully.'));
         }
         return response()->json([
-            'message' => 'College Created Successfully',
+            'message' => __('College Created Successfully'),
             'data' => $college
         ], 201);
-        //return redirect()->route('colleges.index')->with('success', 'College created successfully.');
+        //return redirect()->route('colleges.index')->with('success', __('College created successfully.'));
     }
 
     /**
@@ -85,7 +92,18 @@ class CollegeController extends Controller implements HasMiddleware
      */
     public function show(College $college)
     {
-        return request()->expectsJson() ? response()->json($college->load('departments')) : view('colleges.show', compact('college'));
+        $user = request()->user();
+        DataScope::ensureVisible($user, $college);
+        $college->load([
+            'departments' => fn ($departments) => $departments->whereIn(
+                'departments.id',
+                DataScope::departments($user)->select('departments.id')
+            ),
+        ]);
+
+        return request()->expectsJson()
+            ? response()->json($college)
+            : view('colleges.show', compact('college'));
     }
 
     /**
@@ -109,13 +127,13 @@ class CollegeController extends Controller implements HasMiddleware
         $college->update($validated);
 
         if (! $request->expectsJson()) {
-            return redirect()->route('colleges.index')->with('success', 'College updated successfully.');
+            return redirect()->route('colleges.index')->with('success', __('College updated successfully.'));
         }
         return response()->json([
-            'message' => 'Data Of College Updated Successfully',
+            'message' => __('Data Of College Updated Successfully'),
             'data' => $college
         ]);
-        //return redirect()->route('colleges.index')->with('success', 'College updated successfully.');
+        //return redirect()->route('colleges.index')->with('success', __('College updated successfully.'));
     }
 
     /**
@@ -126,11 +144,11 @@ class CollegeController extends Controller implements HasMiddleware
         $college->delete();
 
         if (! request()->expectsJson()) {
-            return redirect()->route('colleges.index')->with('success', 'College deleted successfully.');
+            return redirect()->route('colleges.index')->with('success', __('College deleted successfully.'));
         }
         return response()->json([
-            'message' => 'College Deleted Successfully'
+            'message' => __('College Deleted Successfully')
         ]);
-        //return redirect()->route('colleges.index')->with('success', 'College deleted successfully.');
+        //return redirect()->route('colleges.index')->with('success', __('College deleted successfully.'));
     }
 }

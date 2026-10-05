@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Create Course')
+@section('title', __('Create Course'))
 
 @section('content')
 <div class="mx-auto max-w-3xl space-y-6">
@@ -8,11 +8,11 @@
     {{-- Header --}}
     <div>
         <h1 class="text-2xl font-semibold">
-            Create Course
+            {{ __('Create Course') }}
         </h1>
 
         <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-            Add a new course to the university academic system.
+            {{ __('Add a new course to the university academic system.') }}
         </p>
     </div>
 
@@ -41,7 +41,7 @@
                 <label
                     for="name"
                     class="mb-2 block text-sm font-medium">
-                    Course Name
+                    {{ __('Course Name') }}
                 </label>
 
                 <input
@@ -52,7 +52,7 @@
                     required
                     maxlength="255"
                     class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--color-primary)]"
-                    placeholder="Enter course name">
+                    placeholder="{{ __('Enter course name') }}">
 
                 @error('name')
                 <p class="mt-1 text-sm text-[var(--color-danger)]">
@@ -66,7 +66,7 @@
                 <label
                     for="code"
                     class="mb-2 block text-sm font-medium">
-                    Course Code
+                    {{ __('Course Code') }}
                 </label>
 
                 <input
@@ -77,7 +77,7 @@
                     required
                     maxlength="50"
                     class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm uppercase outline-none transition focus:border-[var(--color-primary)]"
-                    placeholder="e.g. CS101">
+                    placeholder="{{ __('e.g. CS101') }}">
 
                 @error('code')
                 <p class="mt-1 text-sm text-[var(--color-danger)]">
@@ -92,7 +92,7 @@
                 <label
                     for="semester_level"
                     class="mb-2 block text-sm font-medium">
-                    Semester Level
+                    {{ __('Semester Level') }}
                 </label>
 
                 <input
@@ -104,7 +104,7 @@
                     min="1"
                     max="20"
                     class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--color-primary)]"
-                    placeholder="e.g. 1">
+                    placeholder="{{ __('e.g. 1') }}">
 
                 @error('semester_level')
                 <p class="mt-1 text-sm text-[var(--color-danger)]">
@@ -120,7 +120,7 @@
                 <label
                     for="department_id"
                     class="mb-2 block text-sm font-medium">
-                    Department
+                    {{ __('Department') }}
                 </label>
 
                 <select
@@ -128,7 +128,7 @@
                     name="department_id"
                     required
                     class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--color-primary)]">
-                    <option value="">Select Department</option>
+                    <option value="">{{ __('Select Department') }}</option>
 
                     @foreach ($departments as $department)
                     <option
@@ -152,7 +152,7 @@
                 <label
                     for="credits"
                     class="mb-2 block text-sm font-medium">
-                    Credits
+                    {{ __('Credits') }}
                 </label>
 
                 <input
@@ -163,7 +163,7 @@
                     required
                     min="1"
                     class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--color-primary)]"
-                    placeholder="e.g. 3">
+                    placeholder="{{ __('e.g. 3') }}">
 
                 @error('credits')
                 <p class="mt-1 text-sm text-[var(--color-danger)]">
@@ -177,7 +177,7 @@
                 <label
                     for="description"
                     class="mb-2 block text-sm font-medium">
-                    Description
+                    {{ __('Description') }}
                 </label>
 
                 <textarea
@@ -185,7 +185,7 @@
                     name="description"
                     rows="4"
                     class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--color-primary)]"
-                    placeholder="Enter course description">{{ old('description') }}</textarea>
+                    placeholder="{{ __('Enter course description') }}">{{ old('description') }}</textarea>
 
                 @error('description')
                 <p class="mt-1 text-sm text-[var(--color-danger)]">
@@ -200,13 +200,13 @@
                 <a
                     href="{{ route('courses.index') }}"
                     class="rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium transition hover:bg-[var(--color-surface-muted)]">
-                    Cancel
+                    {{ __('Cancel') }}
                 </a>
 
                 <button
                     type="submit"
                     class="rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-primary-hover)]">
-                    Create Course
+                    {{ __('Create Course') }}
                 </button>
 
             </div>

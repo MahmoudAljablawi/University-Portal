@@ -13,12 +13,46 @@ return new class extends Migration
     {
         Schema::create('grades', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('enrollment_id')->constrained('enrollments')->onDelete('cascade'); // ربط الدرجة بتسجيل الطالب في الشعبة
-            $table->decimal('midterm_grade', 5, 2)->nullable(); // درجة أعمال السنة / الفحص النصفي
-            $table->decimal('final_grade', 5, 2)->nullable(); // درجة الامتحان النهائي
-            $table->decimal('total_grade', 5, 2)->nullable(); // المجموع الكلي
-            $table->string('letter_grade')->nullable(); // التقدير الحرفي (A, B, C...)
-            $table->boolean('is_published')->default(false); // حالة الدرجة للطلاب
+
+            $table->foreignId('enrollment_id')
+                ->unique()
+                ->constrained('enrollments')
+                ->cascadeOnDelete();
+
+            $table->decimal('practical_grade', 5, 2)->nullable();
+            $table->decimal('theoretical_grade', 5, 2)->nullable();
+
+            $table->enum('status', [
+                'draft',
+                'submitted',
+                'reviewed',
+                'approved',
+                'rejected',
+                'published',
+            ])->default('draft');
+
+            // Rejection information
+            $table->text('rejection_reason')->nullable();
+
+            // Employee review
+            $table->foreignId('reviewed_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+
+            $table->timestamp('reviewed_at')->nullable();
+
+            // Administration approval
+            $table->foreignId('approved_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+
+            $table->timestamp('approved_at')->nullable();
+
+            // Publication
+            $table->timestamp('published_at')->nullable();
+
             $table->timestamps();
         });
     }

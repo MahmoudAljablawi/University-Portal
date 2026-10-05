@@ -1,11 +1,17 @@
 ﻿@extends('layouts.app')
 
-@section('title', 'Course Sections')
+@section('title', __('Course Sections'))
 
 @section('content')
 @php
 $user = auth()->user();
+
+
 $isAdmin = $user?->role === 'admin';
+$isInstructor = $user?->role === 'instructor';
+$isEmployee = $user?->role === 'employee';
+
+
 @endphp
 
 <div class="space-y-6">
@@ -13,13 +19,20 @@ $isAdmin = $user?->role === 'admin';
 
     {{-- Page Header --}}
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
         <div>
             <h1 class="text-2xl font-semibold tracking-tight">
-                Course Sections
+                {{ $isInstructor ? 'My Course Sections' : 'Course Sections' }}
             </h1>
 
             <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
+                @if ($isInstructor)
+                View the course sections assigned to you.
+                @elseif ($isEmployee)
+                View course sections within your college.
+                @else
                 Manage course sections, instructors, semesters, and capacities.
+                @endif
             </p>
         </div>
 
@@ -29,6 +42,7 @@ $isAdmin = $user?->role === 'admin';
             class="inline-flex items-center justify-center gap-2 rounded-lg
                    bg-[var(--color-primary)] px-4 py-2.5 text-sm font-medium
                    text-white transition hover:bg-[var(--color-primary-hover)]">
+
             <svg
                 class="h-5 w-5"
                 fill="none"
@@ -41,7 +55,7 @@ $isAdmin = $user?->role === 'admin';
                     d="M12 4v16m8-8H4" />
             </svg>
 
-            Add Course Section
+            {{ __('Add Course Section') }}
         </a>
         @endif
     </div>
@@ -57,14 +71,16 @@ $isAdmin = $user?->role === 'admin';
             class="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-5 xl:items-end">
 
             {{-- Search --}}
-            <div class="xl:col-span-2">
+            <div class="{{ $isAdmin ? 'xl:col-span-2' : 'xl:col-span-3' }}">
+
                 <label
                     for="search"
                     class="mb-2 block text-sm font-medium">
-                    Search
+                    {{ __('Search') }}
                 </label>
 
                 <div class="relative">
+
                     <svg
                         class="pointer-events-none absolute start-3 top-1/2 h-5 w-5
                            -translate-y-1/2 text-[var(--color-foreground-muted)]"
@@ -83,7 +99,7 @@ $isAdmin = $user?->role === 'admin';
                         type="search"
                         name="search"
                         value="{{ request('search') }}"
-                        placeholder="Search by section number..."
+                        placeholder="{{ __('Search by section number...') }}"
                         class="w-full rounded-lg border border-[var(--color-border)]
                            bg-[var(--color-background)] py-2.5 ps-10 pe-4
                            text-sm outline-none transition
@@ -97,7 +113,7 @@ $isAdmin = $user?->role === 'admin';
                 <label
                     for="course_id"
                     class="mb-2 block text-sm font-medium">
-                    Course
+                    {{ __('Course') }}
                 </label>
 
                 <select
@@ -109,7 +125,7 @@ $isAdmin = $user?->role === 'admin';
                        focus:border-[var(--color-primary)]
                        focus:ring-2 focus:ring-[var(--color-primary)]/20">
 
-                    <option value="">All Courses</option>
+                    <option value="">{{ __('All Courses') }}</option>
 
                     @foreach ($courses as $course)
                     <option
@@ -118,6 +134,7 @@ $isAdmin = $user?->role === 'admin';
                         {{ $course->code }} — {{ $course->name }}
                     </option>
                     @endforeach
+
                 </select>
             </div>
 
@@ -126,7 +143,7 @@ $isAdmin = $user?->role === 'admin';
                 <label
                     for="semester_id"
                     class="mb-2 block text-sm font-medium">
-                    Semester
+                    {{ __('Semester') }}
                 </label>
 
                 <select
@@ -138,7 +155,7 @@ $isAdmin = $user?->role === 'admin';
                        focus:border-[var(--color-primary)]
                        focus:ring-2 focus:ring-[var(--color-primary)]/20">
 
-                    <option value="">All Semesters</option>
+                    <option value="">{{ __('All Semesters') }}</option>
 
                     @foreach ($semesters as $semester)
                     <option
@@ -147,27 +164,29 @@ $isAdmin = $user?->role === 'admin';
                         {{ $semester->name }}
                     </option>
                     @endforeach
+
                 </select>
             </div>
 
-            {{-- Instructor Filter --}}
+            {{-- Instructor Filter: Admin Only For Now --}}
+            @if ($isAdmin)
             <div>
                 <label
                     for="instructor_id"
                     class="mb-2 block text-sm font-medium">
-                    Instructor
+                    {{ __('Instructor') }}
                 </label>
 
                 <select
                     id="instructor_id"
                     name="instructor_id"
                     class="w-full rounded-lg border border-[var(--color-border)]
-                       bg-[var(--color-background)] px-3 py-2.5 text-sm
-                       outline-none transition
-                       focus:border-[var(--color-primary)]
-                       focus:ring-2 focus:ring-[var(--color-primary)]/20">
+                           bg-[var(--color-background)] px-3 py-2.5 text-sm
+                           outline-none transition
+                           focus:border-[var(--color-primary)]
+                           focus:ring-2 focus:ring-[var(--color-primary)]/20">
 
-                    <option value="">All Instructors</option>
+                    <option value="">{{ __('All Instructors') }}</option>
 
                     @foreach ($instructors as $instructor)
                     <option
@@ -176,17 +195,21 @@ $isAdmin = $user?->role === 'admin';
                         {{ $instructor->name }}
                     </option>
                     @endforeach
+
                 </select>
             </div>
+            @endif
 
             {{-- Actions --}}
             <div class="flex gap-2 xl:col-span-5 xl:justify-end">
+
                 <button
                     type="submit"
                     class="inline-flex items-center justify-center gap-2 rounded-lg
                        bg-[var(--color-primary)] px-4 py-2.5 text-sm font-medium
                        text-white transition
                        hover:bg-[var(--color-primary-hover)]">
+
                     <svg
                         class="h-4 w-4"
                         fill="none"
@@ -199,7 +222,7 @@ $isAdmin = $user?->role === 'admin';
                             d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" />
                     </svg>
 
-                    Search
+                    {{ __('Search') }}
                 </button>
 
                 @if (
@@ -215,29 +238,31 @@ $isAdmin = $user?->role === 'admin';
                            bg-[var(--color-surface)] px-4 py-2.5 text-sm
                            font-medium transition
                            hover:bg-[var(--color-surface-muted)]">
-                    Reset
+                    {{ __('Reset') }}
                 </a>
                 @endif
+
             </div>
+
         </form>
     </div>
 
     {{-- Results Summary --}}
     <div>
         <p class="text-sm text-[var(--color-foreground-muted)]">
-            Showing
+            {{ __('Showing') }}
             <span class="font-medium text-[var(--color-foreground)]">
                 {{ $sections->firstItem() ?? 0 }}
             </span>
-            to
+            {{ __('to') }}
             <span class="font-medium text-[var(--color-foreground)]">
                 {{ $sections->lastItem() ?? 0 }}
             </span>
-            of
+            {{ __('of') }}
             <span class="font-medium text-[var(--color-foreground)]">
                 {{ $sections->total() }}
             </span>
-            course sections
+            {{ __('course sections') }}
         </p>
     </div>
 
@@ -247,119 +272,141 @@ $isAdmin = $user?->role === 'admin';
            bg-[var(--color-surface)] shadow-sm">
 
         <div class="overflow-x-auto">
+
             <table class="min-w-full divide-y divide-[var(--color-border)]">
 
                 <thead class="bg-[var(--color-surface-muted)]">
+
                     <tr>
-                        <th
-                            scope="col"
-                            class="px-6 py-4 text-start text-xs font-semibold
+
+                        <th class="px-6 py-4 text-start text-xs font-semibold
                                uppercase tracking-wider
                                text-[var(--color-foreground-muted)]">
                             #
                         </th>
 
-                        <th
-                            scope="col"
-                            class="px-6 py-4 text-start text-xs font-semibold
+                        <th class="px-6 py-4 text-start text-xs font-semibold
                                uppercase tracking-wider
                                text-[var(--color-foreground-muted)]">
-                            Course
+                            {{ __('Course') }}
                         </th>
 
-                        <th
-                            scope="col"
-                            class="px-6 py-4 text-start text-xs font-semibold
+                        <th class="px-6 py-4 text-start text-xs font-semibold
                                uppercase tracking-wider
                                text-[var(--color-foreground-muted)]">
-                            Section
+                            {{ __('Section') }}
                         </th>
 
-                        <th
-                            scope="col"
-                            class="px-6 py-4 text-start text-xs font-semibold
+                        <th class="px-6 py-4 text-start text-xs font-semibold
                                uppercase tracking-wider
                                text-[var(--color-foreground-muted)]">
-                            Semester
+                            {{ __('Semester') }}
                         </th>
 
-                        <th
-                            scope="col"
-                            class="px-6 py-4 text-start text-xs font-semibold
+                        <th class="px-6 py-4 text-start text-xs font-semibold
                                uppercase tracking-wider
                                text-[var(--color-foreground-muted)]">
-                            Instructor
+                            {{ __('Instructor') }}
                         </th>
 
-                        <th
-                            scope="col"
-                            class="px-6 py-4 text-start text-xs font-semibold
+                        <th class="px-6 py-4 text-start text-xs font-semibold
                                uppercase tracking-wider
                                text-[var(--color-foreground-muted)]">
-                            Capacity
+                            {{ __('Capacity') }}
                         </th>
 
-                        <th
-                            scope="col"
-                            class="px-6 py-4 text-end text-xs font-semibold
+                        <th class="px-6 py-4 text-end text-xs font-semibold
                                uppercase tracking-wider
                                text-[var(--color-foreground-muted)]">
-                            Actions
+                            {{ __('Actions') }}
                         </th>
+
                     </tr>
+
                 </thead>
 
                 <tbody class="divide-y divide-[var(--color-border)]">
 
                     @forelse ($sections as $section)
+
                     <tr class="transition hover:bg-[var(--color-surface-muted)]">
 
-                        <td
-                            class="whitespace-nowrap px-6 py-4 text-sm
+                        {{-- ID --}}
+                        <td class="whitespace-nowrap px-6 py-4 text-sm
                                    text-[var(--color-foreground-muted)]">
                             {{ $section->id }}
                         </td>
 
+                        {{-- Course --}}
                         <td class="px-6 py-4 text-sm">
+
                             <div class="font-medium">
                                 {{ $section->course?->name ?? '—' }}
                             </div>
 
                             @if ($section->course?->code)
-                            <div
-                                class="mt-1 text-xs
-                                           text-[var(--color-foreground-muted)]">
+                            <div class="mt-1 text-xs
+                                            text-[var(--color-foreground-muted)]">
                                 {{ $section->course->code }}
                             </div>
                             @endif
+
+                            {{-- Department --}}
+                            @if ($section->course?->department)
+                            <div class="mt-2 text-xs
+                                            text-[var(--color-foreground-muted)]">
+                                {{ __('Department:') }}
+                                <span class="font-medium">
+                                    {{ $section->course->department->name }}
+                                </span>
+                            </div>
+                            @endif
+
+                            {{-- College --}}
+                            @if ($section->course?->department?->college)
+                            <div class="mt-1 text-xs
+                                            text-[var(--color-foreground-muted)]">
+                                {{ __('College:') }}
+                                <span class="font-medium">
+                                    {{ $section->course->department->college->name }}
+                                </span>
+                            </div>
+                            @endif
+
                         </td>
 
+                        {{-- Section --}}
                         <td class="whitespace-nowrap px-6 py-4 text-sm">
                             {{ $section->section_number }}
                         </td>
 
+                        {{-- Semester --}}
                         <td class="px-6 py-4 text-sm">
+
                             <div class="font-medium">
                                 {{ $section->semester?->name ?? '—' }}
                             </div>
 
                             @if ($section->semester?->code)
-                            <div
-                                class="mt-1 text-xs
-                                           text-[var(--color-foreground-muted)]">
+                            <div class="mt-1 text-xs
+                                            text-[var(--color-foreground-muted)]">
                                 {{ $section->semester->code }}
                             </div>
                             @endif
+
                         </td>
 
+                        {{-- Instructor --}}
                         <td class="px-6 py-4 text-sm">
                             {{ $section->instructor?->name ?? '—' }}
                         </td>
 
+                        {{-- Capacity --}}
                         <td class="whitespace-nowrap px-6 py-4 text-sm">
                             {{ $section->capacity }}
                         </td>
 
+                        {{-- Actions --}}
                         <x-table-actions
                             :model="$section"
                             :itemName="$section->course
@@ -375,10 +422,10 @@ $isAdmin = $user?->role === 'admin';
                     </tr>
 
                     @empty
+
                     <tr>
-                        <td
-                            colspan="7"
-                            class="px-6 py-12 text-center">
+
+                        <td colspan="7" class="px-6 py-12 text-center">
 
                             <div class="flex flex-col items-center justify-center">
 
@@ -396,85 +443,111 @@ $isAdmin = $user?->role === 'admin';
                                 </svg>
 
                                 <p class="text-sm font-medium">
-                                    No course sections found.
+                                    {{ __('No course sections found.') }}
                                 </p>
 
                                 @if ($isAdmin)
-                                <p
-                                    class="mt-1 text-sm
-                                               text-[var(--color-foreground-muted)]">
-                                    Create your first course section to get started.
+
+                                <p class="mt-1 text-sm
+                                              text-[var(--color-foreground-muted)]">
+                                    {{ __('Create your first course section to get started.') }}
                                 </p>
+
+                                @elseif ($isInstructor)
+
+                                <p class="mt-1 text-sm
+                                              text-[var(--color-foreground-muted)]">
+                                    {{ __('No course sections are currently assigned to you.') }}
+                                </p>
+
+                                @elseif ($isEmployee)
+
+                                <p class="mt-1 text-sm
+                                              text-[var(--color-foreground-muted)]">
+                                    {{ __('No course sections were found within your college.') }}
+                                </p>
+
                                 @endif
 
                             </div>
 
                         </td>
+
                     </tr>
+
                     @endforelse
 
                 </tbody>
+
             </table>
+
         </div>
 
         {{-- Pagination --}}
         @if ($sections->hasPages())
-        <div
-            class="border-t border-[var(--color-border)]
-                   px-4 py-4 sm:px-6">
 
-            <div
-                class="flex flex-col gap-4 sm:flex-row
-                       sm:items-center sm:justify-between">
+        <div class="border-t border-[var(--color-border)] px-4 py-4 sm:px-6">
+
+            <div class="flex flex-col gap-4 sm:flex-row
+                        sm:items-center sm:justify-between">
 
                 <p class="text-sm text-[var(--color-foreground-muted)]">
-                    Page
+
+                    {{ __('Page') }}
                     <span class="font-medium text-[var(--color-foreground)]">
                         {{ $sections->currentPage() }}
                     </span>
-                    of
+                    {{ __('of') }}
                     <span class="font-medium text-[var(--color-foreground)]">
                         {{ $sections->lastPage() }}
                     </span>
+
                 </p>
 
                 <div class="flex items-center gap-1">
 
-                    {{-- Previous --}}
                     @if ($sections->onFirstPage())
+
                     <span
                         class="inline-flex h-9 min-w-9 items-center justify-center
                                    rounded-lg border border-[var(--color-border)]
                                    px-3 text-sm
                                    text-[var(--color-foreground-muted)]
                                    opacity-50">
-                        Previous
+                        {{ __('Previous') }}
                     </span>
+
                     @else
+
                     <a
                         href="{{ $sections->previousPageUrl() }}"
                         class="inline-flex h-9 min-w-9 items-center justify-center
                                    rounded-lg border border-[var(--color-border)]
                                    px-3 text-sm transition
                                    hover:bg-[var(--color-surface-muted)]">
-                        Previous
+                        {{ __('Previous') }}
                     </a>
+
                     @endif
 
-                    {{-- Page Numbers --}}
-                    @foreach ($sections->getUrlRange(
+                    @foreach (
+                    $sections->getUrlRange(
                     max(1, $sections->currentPage() - 2),
                     min($sections->lastPage(), $sections->currentPage() + 2)
-                    ) as $page => $url)
+                    ) as $page => $url
+                    )
 
                     @if ($page == $sections->currentPage())
+
                     <span
                         class="inline-flex h-9 min-w-9 items-center justify-center
                                        rounded-lg bg-[var(--color-primary)]
                                        px-3 text-sm font-medium text-white">
                         {{ $page }}
                     </span>
+
                     @else
+
                     <a
                         href="{{ $url }}"
                         class="inline-flex h-9 min-w-9 items-center justify-center
@@ -483,37 +556,45 @@ $isAdmin = $user?->role === 'admin';
                                        hover:bg-[var(--color-surface-muted)]">
                         {{ $page }}
                     </a>
+
                     @endif
 
                     @endforeach
 
-                    {{-- Next --}}
                     @if ($sections->hasMorePages())
+
                     <a
                         href="{{ $sections->nextPageUrl() }}"
                         class="inline-flex h-9 min-w-9 items-center justify-center
                                    rounded-lg border border-[var(--color-border)]
                                    px-3 text-sm transition
                                    hover:bg-[var(--color-surface-muted)]">
-                        Next
+                        {{ __('Next') }}
                     </a>
+
                     @else
+
                     <span
                         class="inline-flex h-9 min-w-9 items-center justify-center
                                    rounded-lg border border-[var(--color-border)]
                                    px-3 text-sm
                                    text-[var(--color-foreground-muted)]
                                    opacity-50">
-                        Next
+                        {{ __('Next') }}
                     </span>
+
                     @endif
 
                 </div>
+
             </div>
+
         </div>
+
         @endif
 
     </div>
+
 
 </div>
 @endsection

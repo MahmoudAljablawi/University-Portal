@@ -1,6 +1,6 @@
 ﻿@extends('layouts.app')
 
-@section('title', 'Enrollments')
+@section('title', __('Enrollments'))
 
 @section('content')
 @php
@@ -16,11 +16,11 @@ $isStudent = $user?->role === 'student';
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h1 class="text-2xl font-semibold tracking-tight">
-                Enrollments
+                {{ __('Enrollments') }}
             </h1>
 
             <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                View and manage course enrollments.
+                {{ __('View and manage course enrollments.') }}
             </p>
         </div>
 
@@ -43,7 +43,7 @@ $isStudent = $user?->role === 'student';
                     d="M12 4v16m8-8H4" />
             </svg>
 
-            Add Enrollment
+            {{ __('Add Enrollment') }}
         </a>
         @endif
     </div>
@@ -63,7 +63,7 @@ $isStudent = $user?->role === 'student';
                 <label
                     for="search"
                     class="mb-2 block text-sm font-medium">
-                    Search
+                    {{ __('Search') }}
                 </label>
 
                 <div class="relative">
@@ -102,7 +102,7 @@ $isStudent = $user?->role === 'student';
                 <label
                     for="course_id"
                     class="mb-2 block text-sm font-medium">
-                    Course
+                    {{ __('Course') }}
                 </label>
 
                 <select
@@ -114,7 +114,7 @@ $isStudent = $user?->role === 'student';
                        focus:border-[var(--color-primary)]
                        focus:ring-2 focus:ring-[var(--color-primary)]/20">
 
-                    <option value="">All Courses</option>
+                    <option value="">{{ __('All Courses') }}</option>
 
                     @foreach ($courses as $course)
                     <option
@@ -131,7 +131,7 @@ $isStudent = $user?->role === 'student';
                 <label
                     for="semester_id"
                     class="mb-2 block text-sm font-medium">
-                    Semester
+                    {{ __('Semester') }}
                 </label>
 
                 <select
@@ -143,7 +143,7 @@ $isStudent = $user?->role === 'student';
                        focus:border-[var(--color-primary)]
                        focus:ring-2 focus:ring-[var(--color-primary)]/20">
 
-                    <option value="">All Semesters</option>
+                    <option value="">{{ __('All Semesters') }}</option>
 
                     @foreach ($semesters as $semester)
                     <option
@@ -163,7 +163,7 @@ $isStudent = $user?->role === 'student';
                 <label
                     for="status"
                     class="mb-2 block text-sm font-medium">
-                    Status
+                    {{ __('Status') }}
                 </label>
 
                 <select
@@ -175,24 +175,24 @@ $isStudent = $user?->role === 'student';
                        focus:border-[var(--color-primary)]
                        focus:ring-2 focus:ring-[var(--color-primary)]/20">
 
-                    <option value="">All Statuses</option>
+                    <option value="">{{ __('All Statuses') }}</option>
 
                     <option
                         value="enrolled"
                         @selected(request('status')==='enrolled' )>
-                        Enrolled
+                        {{ __('Enrolled') }}
                     </option>
 
                     <option
                         value="completed"
                         @selected(request('status')==='completed' )>
-                        Completed
+                        {{ __('Completed') }}
                     </option>
 
                     <option
                         value="dropped"
                         @selected(request('status')==='dropped' )>
-                        Dropped
+                        {{ __('Dropped') }}
                     </option>
                 </select>
             </div>
@@ -219,7 +219,7 @@ $isStudent = $user?->role === 'student';
                             d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" />
                     </svg>
 
-                    Search
+                    {{ __('Search') }}
                 </button>
 
                 @if (
@@ -235,7 +235,7 @@ $isStudent = $user?->role === 'student';
                            bg-[var(--color-surface)] px-4 py-2.5 text-sm
                            font-medium transition
                            hover:bg-[var(--color-surface-muted)]">
-                    Reset
+                    {{ __('Reset') }}
                 </a>
                 @endif
             </div>
@@ -245,19 +245,19 @@ $isStudent = $user?->role === 'student';
     {{-- Results Summary --}}
     <div>
         <p class="text-sm text-[var(--color-foreground-muted)]">
-            Showing
+            {{ __('Showing') }}
             <span class="font-medium text-[var(--color-foreground)]">
                 {{ $enrollments->firstItem() ?? 0 }}
             </span>
-            to
+            {{ __('to') }}
             <span class="font-medium text-[var(--color-foreground)]">
                 {{ $enrollments->lastItem() ?? 0 }}
             </span>
-            of
+            {{ __('of') }}
             <span class="font-medium text-[var(--color-foreground)]">
                 {{ $enrollments->total() }}
             </span>
-            enrollments
+            {{ __('enrollments') }}
         </p>
     </div>
 
@@ -284,7 +284,7 @@ $isStudent = $user?->role === 'student';
                             class="px-6 py-4 text-start text-xs font-semibold
                                uppercase tracking-wider
                                text-[var(--color-foreground-muted)]">
-                            Student
+                            {{ __('Student') }}
                         </th>
 
                         <th
@@ -292,7 +292,7 @@ $isStudent = $user?->role === 'student';
                             class="px-6 py-4 text-start text-xs font-semibold
                                uppercase tracking-wider
                                text-[var(--color-foreground-muted)]">
-                            Course
+                            {{ __('Course') }}
                         </th>
 
                         <th
@@ -300,7 +300,7 @@ $isStudent = $user?->role === 'student';
                             class="px-6 py-4 text-start text-xs font-semibold
                                uppercase tracking-wider
                                text-[var(--color-foreground-muted)]">
-                            Section
+                            {{ __('Section') }}
                         </th>
 
                         <th
@@ -308,7 +308,7 @@ $isStudent = $user?->role === 'student';
                             class="px-6 py-4 text-start text-xs font-semibold
                                uppercase tracking-wider
                                text-[var(--color-foreground-muted)]">
-                            Semester
+                            {{ __('Semester') }}
                         </th>
 
                         <th
@@ -316,7 +316,7 @@ $isStudent = $user?->role === 'student';
                             class="px-6 py-4 text-start text-xs font-semibold
                                uppercase tracking-wider
                                text-[var(--color-foreground-muted)]">
-                            Status
+                            {{ __('Status') }}
                         </th>
 
                         <th
@@ -324,7 +324,7 @@ $isStudent = $user?->role === 'student';
                             class="px-6 py-4 text-end text-xs font-semibold
                                uppercase tracking-wider
                                text-[var(--color-foreground-muted)]">
-                            Actions
+                            {{ __('Actions') }}
                         </th>
                     </tr>
                 </thead>
@@ -400,7 +400,7 @@ $isStudent = $user?->role === 'student';
                             <span
                                 class="inline-flex rounded-full px-3 py-1 text-xs
                                        font-medium {{ $statusClasses }}">
-                                {{ ucfirst($enrollment->status ?? 'unknown') }}
+                                {{ __(ucfirst($enrollment->status ?? 'unknown')) }}
                             </span>
                         </td>
 
@@ -441,13 +441,13 @@ $isStudent = $user?->role === 'student';
                                 </svg>
 
                                 <p class="text-sm font-medium">
-                                    No enrollments found.
+                                    {{ __('No enrollments found.') }}
                                 </p>
 
                                 <p
                                     class="mt-1 text-sm
                                            text-[var(--color-foreground-muted)]">
-                                    Try adjusting your search or filters.
+                                    {{ __('Try adjusting your search or filters.') }}
                                 </p>
 
                             </div>
@@ -472,11 +472,11 @@ $isStudent = $user?->role === 'student';
                        sm:items-center sm:justify-between">
 
                 <p class="text-sm text-[var(--color-foreground-muted)]">
-                    Page
+                    {{ __('Page') }}
                     <span class="font-medium text-[var(--color-foreground)]">
                         {{ $enrollments->currentPage() }}
                     </span>
-                    of
+                    {{ __('of') }}
                     <span class="font-medium text-[var(--color-foreground)]">
                         {{ $enrollments->lastPage() }}
                     </span>
@@ -492,7 +492,7 @@ $isStudent = $user?->role === 'student';
                                    px-3 text-sm
                                    text-[var(--color-foreground-muted)]
                                    opacity-50">
-                        Previous
+                        {{ __('Previous') }}
                     </span>
                     @else
                     <a
@@ -501,7 +501,7 @@ $isStudent = $user?->role === 'student';
                                    rounded-lg border border-[var(--color-border)]
                                    px-3 text-sm transition
                                    hover:bg-[var(--color-surface-muted)]">
-                        Previous
+                        {{ __('Previous') }}
                     </a>
                     @endif
 
@@ -539,7 +539,7 @@ $isStudent = $user?->role === 'student';
                                    rounded-lg border border-[var(--color-border)]
                                    px-3 text-sm transition
                                    hover:bg-[var(--color-surface-muted)]">
-                        Next
+                        {{ __('Next') }}
                     </a>
                     @else
                     <span
@@ -548,7 +548,7 @@ $isStudent = $user?->role === 'student';
                                    px-3 text-sm
                                    text-[var(--color-foreground-muted)]
                                    opacity-50">
-                        Next
+                        {{ __('Next') }}
                     </span>
                     @endif
 

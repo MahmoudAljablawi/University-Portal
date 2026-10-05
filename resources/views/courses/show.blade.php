@@ -20,7 +20,7 @@
                 </div>
 
                 <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                    Course details and academic information.
+                    {{ __('Course details and academic information.') }}
                 </p>
             </div>
 
@@ -29,7 +29,7 @@
                     href="{{ route('courses.index') }}"
                     class="rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium transition hover:bg-[var(--color-surface-muted)]"
                 >
-                    Back
+                    {{ __('Back') }}
                 </a>
 
                 @if (auth()->user()->role === 'admin')
@@ -37,7 +37,7 @@
                         href="{{ route('courses.edit', $course) }}"
                         class="rounded-lg bg-[var(--color-primary)] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-primary-hover)]"
                     >
-                        Edit
+                        {{ __('Edit') }}
                     </a>
                 @endif
             </div>
@@ -48,14 +48,14 @@
 
             <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm">
                 <h2 class="mb-5 text-lg font-semibold">
-                    Course Information
+                    {{ __('Course Information') }}
                 </h2>
 
                 <dl class="space-y-4">
 
                     <div class="flex items-center justify-between gap-4">
                         <dt class="text-sm text-[var(--color-foreground-muted)]">
-                            Course Name
+                            {{ __('Course Name') }}
                         </dt>
                         <dd class="text-sm font-medium">
                             {{ $course->name }}
@@ -64,7 +64,7 @@
 
                     <div class="flex items-center justify-between gap-4">
                         <dt class="text-sm text-[var(--color-foreground-muted)]">
-                            Code
+                            {{ __('Code') }}
                         </dt>
                         <dd class="text-sm font-medium">
                             {{ $course->code }}
@@ -73,7 +73,7 @@
 
                     <div class="flex items-center justify-between gap-4">
                         <dt class="text-sm text-[var(--color-foreground-muted)]">
-                            Credits
+                            {{ __('Credits') }}
                         </dt>
                         <dd class="text-sm font-medium">
                             {{ $course->credits }}
@@ -82,7 +82,7 @@
 
                     <div class="flex items-center justify-between gap-4">
                         <dt class="text-sm text-[var(--color-foreground-muted)]">
-                            Department
+                            {{ __('Department') }}
                         </dt>
                         <dd class="text-sm font-medium">
                             {{ $course->department?->name ?? '—' }}
@@ -91,7 +91,7 @@
 
                     <div class="flex items-center justify-between gap-4">
                         <dt class="text-sm text-[var(--color-foreground-muted)]">
-                            Sections
+                            {{ __('Sections') }}
                         </dt>
                         <dd class="text-sm font-medium">
                             {{ $course->sections->count() }}
@@ -104,7 +104,7 @@
             {{-- Description --}}
             <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm">
                 <h2 class="mb-5 text-lg font-semibold">
-                    Description
+                    {{ __('Description') }}
                 </h2>
 
                 @if ($course->description)
@@ -113,7 +113,7 @@
                     </p>
                 @else
                     <p class="text-sm text-[var(--color-foreground-muted)]">
-                        No description available.
+                        {{ __('No description available.') }}
                     </p>
                 @endif
             </div>
@@ -126,11 +126,11 @@
             <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h2 class="text-lg font-semibold">
-                        Prerequisites
+                        {{ __('Prerequisites') }}
                     </h2>
 
                     <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                        Courses that should be completed before taking this course.
+                        {{ __('Courses that should be completed before taking this course.') }}
                     </p>
                 </div>
             </div>
@@ -149,7 +149,7 @@
                         required
                         class="flex-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none focus:border-[var(--color-primary)]"
                     >
-                        <option value="">Select prerequisite course</option>
+                        <option value="">{{ __('Select prerequisite course') }}</option>
 
                         @foreach ($allCourses as $availableCourse)
                             @if (!$course->prerequisites->contains('id', $availableCourse->id))
@@ -164,7 +164,7 @@
                         type="submit"
                         class="rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-primary-hover)]"
                     >
-                        Add Prerequisite
+                        {{ __('Add Prerequisite') }}
                     </button>
                 </form>
             @endif
@@ -176,16 +176,16 @@
                         <thead class="bg-[var(--color-surface-muted)]">
                             <tr>
                                 <th class="px-5 py-3 text-start text-xs font-semibold uppercase tracking-wider">
-                                    Code
+                                    {{ __('Code') }}
                                 </th>
 
                                 <th class="px-5 py-3 text-start text-xs font-semibold uppercase tracking-wider">
-                                    Course
+                                    {{ __('Course') }}
                                 </th>
 
                                 @if (auth()->user()->role === 'admin')
                                     <th class="px-5 py-3 text-end text-xs font-semibold uppercase tracking-wider">
-                                        Action
+                                        {{ __('Action') }}
                                     </th>
                                 @endif
                             </tr>
@@ -222,7 +222,7 @@
                                                     type="submit"
                                                     class="text-sm font-medium text-[var(--color-danger)] hover:underline"
                                                 >
-                                                    Remove
+                                                    {{ __('Remove') }}
                                                 </button>
                                             </form>
                                         </td>
@@ -235,7 +235,7 @@
             @else
                 <div class="rounded-lg bg-[var(--color-surface-muted)] px-5 py-8 text-center">
                     <p class="text-sm text-[var(--color-foreground-muted)]">
-                        No prerequisites have been added.
+                        {{ __('No prerequisites have been added.') }}
                     </p>
                 </div>
             @endif

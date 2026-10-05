@@ -1,18 +1,18 @@
 @extends('layouts.app')
 
-@section('title', 'UI Components')
+@section('title', __('UI Components'))
 
 @section('content')
 
     <div class="space-y-8">
 
         <x-page-header
-            title="UI Components"
+            title="{{ __('UI Components') }}"
             description="Testing the frontend component system."
         >
             <x-slot:actions>
                 <x-button>
-                    Add Student
+                    {{ __('Add Student') }}
                 </x-button>
             </x-slot:actions>
         </x-page-header>
@@ -20,32 +20,32 @@
 
         <div class="flex flex-wrap gap-3">
             <x-button>
-                Primary
+                {{ __('Primary') }}
             </x-button>
 
             <x-button variant="secondary">
-                Secondary
+                {{ __('Secondary') }}
             </x-button>
 
             <x-button variant="success">
-                Success
+                {{ __('Success') }}
             </x-button>
 
             <x-button variant="danger">
-                Delete
+                {{ __('Delete') }}
             </x-button>
 
             <x-button variant="ghost">
-                Cancel
+                {{ __('Cancel') }}
             </x-button>
         </div>
 
 
         <div class="flex flex-wrap gap-3">
-            <x-badge type="primary">Pending</x-badge>
-            <x-badge type="success">Approved</x-badge>
-            <x-badge type="warning">Waiting</x-badge>
-            <x-badge type="danger">Rejected</x-badge>
+            <x-badge type="primary">{{ __('Pending') }}</x-badge>
+            <x-badge type="success">{{ __('Approved') }}</x-badge>
+            <x-badge type="warning">{{ __('Waiting') }}</x-badge>
+            <x-badge type="danger">{{ __('Rejected') }}</x-badge>
         </div>
 
 
@@ -62,13 +62,13 @@
 
                 <td class="px-4 py-4">
                     <x-badge type="success">
-                        Active
+                        {{ __('Active') }}
                     </x-badge>
                 </td>
 
                 <td class="px-4 py-4">
                     <x-button variant="ghost">
-                        Edit
+                        {{ __('Edit') }}
                     </x-button>
                 </td>
             </tr>
@@ -84,13 +84,13 @@
 
                 <td class="px-4 py-4">
                     <x-badge type="warning">
-                        Pending
+                        {{ __('Pending') }}
                     </x-badge>
                 </td>
 
                 <td class="px-4 py-4">
                     <x-button variant="ghost">
-                        Edit
+                        {{ __('Edit') }}
                     </x-button>
                 </td>
             </tr>

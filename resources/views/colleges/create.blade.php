@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Add College')
+@section('title', __('Add College'))
 
 @section('content') <div class="mx-auto max-w-3xl space-y-6">
 
@@ -22,15 +22,15 @@
                 <path d="M12 19l-7-7 7-7"/>
             </svg>
 
-            Back to Colleges
+            {{ __('Back to Colleges') }}
         </a>
 
         <h2 class="text-2xl font-semibold text-[var(--color-foreground)]">
-            Add College
+            {{ __('Add College') }}
         </h2>
 
         <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-            Create a new college in the university.
+            {{ __('Create a new college in the university.') }}
         </p>
     </div>
 
@@ -54,7 +54,7 @@
 
                 <div>
                     <p class="text-sm font-medium text-[var(--color-danger)]">
-                        Please correct the following errors:
+                        {{ __('Please correct the following errors:') }}
                     </p>
 
                     <ul class="mt-2 list-inside list-disc space-y-1 text-sm text-[var(--color-danger)]">
@@ -84,7 +84,7 @@
                     for="name"
                     class="mb-2 block text-sm font-medium text-[var(--color-foreground)]"
                 >
-                    College Name
+                    {{ __('College Name') }}
                 </label>
 
                 <input
@@ -94,7 +94,7 @@
                     value="{{ old('name') }}"
                     required
                     autofocus
-                    placeholder="Enter college name"
+                    placeholder="{{ __('Enter college name') }}"
                     class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm text-[var(--color-foreground)] outline-none transition placeholder:text-[var(--color-foreground-muted)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20"
                 >
 
@@ -111,7 +111,7 @@
                     for="code"
                     class="mb-2 block text-sm font-medium text-[var(--color-foreground)]"
                 >
-                    College Code
+                    {{ __('College Code') }}
                 </label>
 
                 <input
@@ -120,7 +120,7 @@
                     type="text"
                     value="{{ old('code') }}"
                     required
-                    placeholder="Enter college code"
+                    placeholder="{{ __('Enter college code') }}"
                     class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm uppercase text-[var(--color-foreground)] outline-none transition placeholder:text-[var(--color-foreground-muted)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20"
                 >
 
@@ -139,14 +139,14 @@
                     href="{{ route('colleges.index') }}"
                     class="inline-flex items-center justify-center rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium text-[var(--color-foreground)] transition hover:bg-[var(--color-surface-muted)]"
                 >
-                    Cancel
+                    {{ __('Cancel') }}
                 </a>
 
                 <button
                     type="submit"
                     class="inline-flex items-center justify-center rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-primary-hover)]"
                 >
-                    Create College
+                    {{ __('Create College') }}
                 </button>
             </div>
 

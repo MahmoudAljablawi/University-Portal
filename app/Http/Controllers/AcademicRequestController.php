@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AcademicRequest;
-use App\Models\User;
+use App\Support\DataScope;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -20,14 +20,14 @@ class AcademicRequestController extends Controller implements HasMiddleware
     public function index(Request $request)
     {
         $user = $request->user();
+        abort_unless(
+            in_array($user->role, ['admin', 'employee', 'student']),
+            403
+        );
 
-        $query = AcademicRequest::query()
+        $scope = DataScope::academicRequests($user);
+        $query = (clone $scope)
             ->with('student');
-
-        if ($user->role === 'student') {
-            $query->where('student_id', $user->id);
-        }
-
 
         $search = trim((string) $request->input('search'));
 
@@ -35,7 +35,7 @@ class AcademicRequestController extends Controller implements HasMiddleware
             $query->where(function ($query) use ($search, $user) {
 
                 // Admin can search by student information.
-                if ($user->role === 'admin') {
+                if (in_array($user->role, ['admin', 'employee'])) {
                     $query->whereHas('student', function ($query) use ($search) {
                         $query
                             ->where('name', 'like', "%{$search}%")
@@ -71,14 +71,14 @@ class AcademicRequestController extends Controller implements HasMiddleware
             ->paginate(10)
             ->withQueryString();
 
-        $requestTypes = AcademicRequest::query()
+        $requestTypes = (clone $scope)
             ->select('request_type')
             ->whereNotNull('request_type')
             ->distinct()
             ->orderBy('request_type')
             ->pluck('request_type');
 
-        $statuses = AcademicRequest::query()
+        $statuses = (clone $scope)
             ->select('status')
             ->whereNotNull('status')
             ->distinct()
@@ -95,127 +95,229 @@ class AcademicRequestController extends Controller implements HasMiddleware
     }
 
 
-    public function create()
+    public function create(Request $request)
     {
-        $students = User::where('role', 'student')->get();
-        return view('academic-requests.create', compact('students'));
+        abort_unless(
+            $request->user()->role === 'student',
+            403
+        );
+
+        return view('academic-requests.create');
     }
 
     public function store(Request $request)
     {
         $user = $request->user();
 
-        if ($user->role !== 'student') {
-            abort_unless($request->expectsJson(), 403);
-            return response()->json(['message' => 'Only students can submit academic requests.'], 403);
-        }
+        abort_unless(
+            $user->role === 'student',
+            403
+        );
 
         $validated = $request->validate([
-            'request_type' => 'required|string|max:100',
-            'reason' => 'required|string',
+            'request_type' => [
+                'required',
+                'in:grade_inquiry,enrollment_pause,objection',
+            ],
+            'reason' => [
+                'required',
+                'string',
+            ],
         ]);
 
         $academicRequest = AcademicRequest::create([
             'student_id' => $user->id,
             'request_type' => $validated['request_type'],
             'reason' => $validated['reason'],
-            'status' => 'pending', // الحالة الافتراضية قيد الانتظار
+            'status' => 'pending',
         ]);
 
         if (! $request->expectsJson()) {
-            return redirect()->route('academic-requests.index')->with('success', 'Academic request created successfully.');
+            return redirect()
+                ->route('academic-requests.index')
+                ->with('success', __('Academic request created successfully.'));
         }
+
         return response()->json([
-            'message' => 'Academic Request Submitted Successfully',
-            'data' => $academicRequest->load('student')
+            'message' => __('Academic Request Submitted Successfully'),
+            'data' => $academicRequest->load('student'),
         ], 201);
-        //return redirect()->route('academic-requests.index')->with('success', 'Academic request created successfully.');
     }
 
     public function show(Request $request, AcademicRequest $academicRequest)
     {
         $user = $request->user();
+
+        abort_unless(
+            in_array($user->role, ['admin', 'employee', 'student']),
+            403
+        );
+        DataScope::ensureVisible($user, $academicRequest);
+
         $academicRequest->load('student');
-        if ($user->role === 'student' && $user->id !== $academicRequest->student_id) {
-            abort_unless($request->expectsJson(), 403);
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-        return $request->expectsJson() ? response()->json($academicRequest->load('student')) : view('academic-requests.show', compact('academicRequest'));
-    }
-    public function edit(AcademicRequest $academicRequest)
-    {
-        $students = User::where('role', 'student')->get();
-        return view('academic-requests.edit', compact('academicRequest', 'students'));
+
+        return $request->expectsJson()
+            ? response()->json($academicRequest)
+            : view('academic-requests.show', compact('academicRequest'));
     }
 
-    public function update(Request $request, AcademicRequest $academicRequest)
+    public function edit(Request $request, AcademicRequest $academicRequest)
+    {
+        $user = $request->user();
+        DataScope::ensureVisible($user, $academicRequest);
+
+        abort_unless(
+            $user->role === 'student' &&
+                $user->id === $academicRequest->student_id,
+            403
+        );
+
+        abort_unless(
+            $academicRequest->status === 'pending',
+            422,
+            'Cannot modify a processed request.'
+        );
+
+        return view('academic-requests.edit', compact('academicRequest'));
+    }
+
+    public function update(
+        Request $request,
+        AcademicRequest $academicRequest
+    ) {
+        $user = $request->user();
+        DataScope::ensureVisible($user, $academicRequest);
+
+        abort_unless(
+            $user->role === 'student' &&
+                $user->id === $academicRequest->student_id,
+            403
+        );
+
+        abort_unless(
+            $academicRequest->status === 'pending',
+            422,
+            'Cannot modify a processed request.'
+        );
+
+        $validated = $request->validate([
+            'request_type' => [
+                'required',
+                'in:grade_inquiry,enrollment_pause,objection',
+            ],
+            'reason' => [
+                'required',
+                'string',
+            ],
+        ]);
+
+        $academicRequest->update($validated);
+
+        if (! $request->expectsJson()) {
+            return redirect()
+                ->route('academic-requests.index')
+                ->with('success', __('Academic request updated successfully.'));
+        }
+
+        return response()->json([
+            'message' => __('Academic Request Updated Successfully'),
+            'data' => $academicRequest->load('student'),
+        ]);
+    }
+
+    public function destroy(
+        Request $request,
+        AcademicRequest $academicRequest
+    ) {
+        $user = $request->user();
+        DataScope::ensureVisible($user, $academicRequest);
+
+        abort_unless(
+            $user->role === 'student' &&
+                $user->id === $academicRequest->student_id,
+            403
+        );
+
+        abort_unless(
+            $academicRequest->status === 'pending',
+            422,
+            'Cannot delete a processed request.'
+        );
+
+        $academicRequest->delete();
+
+        if (! $request->expectsJson()) {
+            return redirect()
+                ->route('academic-requests.index')
+                ->with('success', __('Academic request deleted successfully.'));
+        }
+
+        return response()->json([
+            'message' => __('Academic Request Deleted Successfully'),
+        ]);
+    }
+
+    public function approve(Request $request, AcademicRequest $academicRequest)
     {
         $user = $request->user();
 
-        // الـ Admin فقط هو من يمكنه تغيير حالة الطلب (قبول/رفض)
-        if ($user->role === 'admin') {
-            $validated = $request->validate([
-                'status' => 'required|in:pending,approved,rejected',
-                'admin_notes' => 'nullable|string|max:255',
-            ]);
+        abort_unless(
+            in_array($user->role, ['employee', 'admin']),
+            403
+        );
+        DataScope::ensureVisible($user, $academicRequest);
 
-            $academicRequest->update($validated);
+        abort_unless(
+            $academicRequest->status === 'pending',
+            422,
+            'Only pending requests can be approved.'
+        );
 
-            if (! $request->expectsJson()) {
-                return redirect()->route('academic-requests.index')->with('success', 'Academic request updated successfully.');
-            }
-            return response()->json([
-                'message' => 'Academic Request Status Updated Successfully',
-                'data' => $academicRequest->load('student')
-            ]);
+        $academicRequest->update([
+            'status' => 'approved',
+        ]);
+
+        if (! $request->expectsJson()) {
+            return redirect()
+                ->route('academic-requests.index')
+                ->with('success', __('Academic request approved successfully.'));
         }
 
-        if ($user->role === 'student' && $user->id === $academicRequest->student_id) {
-            if ($academicRequest->status !== 'pending') {
-                if (! $request->expectsJson()) {
-                    return back()->withErrors(['status' => 'Cannot modify a processed request.']);
-                }
-                return response()->json(['message' => 'Cannot modify a processed request.'], 422);
-            }
-
-            $validated = $request->validate([
-                'request_type' => 'sometimes|string|max:100',
-                'reason' => 'sometimes|string',
-            ]);
-
-            $academicRequest->update($validated);
-
-            if (! $request->expectsJson()) {
-                return redirect()->route('academic-requests.index')->with('success', 'Academic request updated successfully.');
-            }
-            return response()->json([
-                'message' => 'Academic Request Updated Successfully',
-                'data' => $academicRequest
-            ]);
-        }
-
-        abort_unless($request->expectsJson(), 403);
-        return response()->json(['message' => 'Unauthorized'], 403);
-        // return redirect()->route('academic-requests.index')->with('success', 'Academic request updated successfully.');
+        return response()->json([
+            'message' => __('Academic Request Approved Successfully'),
+            'data' => $academicRequest->load('student'),
+        ]);
     }
 
-    public function destroy(Request $request, AcademicRequest $academicRequest)
+    public function reject(Request $request, AcademicRequest $academicRequest)
     {
         $user = $request->user();
 
-        if ($user->role === 'admin' || ($user->id === $academicRequest->student_id && $academicRequest->status === 'pending')) {
-            $academicRequest->delete();
+        abort_unless(
+            in_array($user->role, ['employee', 'admin']),
+            403
+        );
+        DataScope::ensureVisible($user, $academicRequest);
 
-            if (! $request->expectsJson()) {
-                return redirect()->route('academic-requests.index')->with('success', 'Academic request deleted successfully.');
-            }
-            return response()->json([
-                'message' => 'Academic Request Deleted Successfully'
-            ]);
+        abort_unless(
+            $academicRequest->status === 'pending',
+            422,
+            'Only pending requests can be rejected.'
+        );
+
+        $academicRequest->update([
+            'status' => 'rejected',
+        ]);
+
+        if (! $request->expectsJson()) {
+            return redirect()
+                ->route('academic-requests.index')
+                ->with('success', __('Academic request rejected successfully.'));
         }
 
-        abort_unless($request->expectsJson(), 403);
-        return response()->json(['message' => 'Unauthorized'], 403);
-        //return redirect()->route('academic-requests.index')->with('success', 'Academic request deleted successfully.');
+        return response()->json([
+            'message' => __('Academic Request Rejected Successfully'),
+            'data' => $academicRequest->load('student'),
+        ]);
     }
 }

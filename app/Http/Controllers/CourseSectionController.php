@@ -6,6 +6,7 @@ use App\Models\AcademicSemester;
 use App\Models\Course;
 use App\Models\CourseSection;
 use App\Models\User;
+use App\Support\DataScope;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -25,7 +26,8 @@ class CourseSectionController extends Controller implements HasMiddleware
     }
     public function index(Request $request)
     {
-        $query = CourseSection::with([
+        $user = $request->user();
+        $query = DataScope::courseSections($user)->with([
             'course',
             'semester',
             'instructor',
@@ -71,10 +73,17 @@ class CourseSectionController extends Controller implements HasMiddleware
             ->paginate(10)
             ->withQueryString();
 
-        $courses = Course::orderBy('name')->get(['id', 'name']);
-        $semesters = AcademicSemester::orderByDesc('start_date')
+        $courses = DataScope::courses($user)->orderBy('name')->get(['id', 'name']);
+        $semesters = DataScope::semesters($user)->orderByDesc('start_date')
             ->get(['id', 'name']);
-        $instructors = User::where('role', 'instructor')
+        $instructors = User::query()
+            ->where('role', 'instructor')
+            ->whereIn(
+                'id',
+                DataScope::courseSections($user)
+                    ->whereNotNull('instructor_id')
+                    ->select('instructor_id')
+            )
             ->orderBy('name')
             ->get(['id', 'name']);
 
@@ -120,13 +129,13 @@ class CourseSectionController extends Controller implements HasMiddleware
         $section = CourseSection::create($validated);
 
         if (! $request->expectsJson()) {
-            return redirect()->route('course-sections.index')->with('success', 'Course section created successfully.');
+            return redirect()->route('course-sections.index')->with('success', __('Course section created successfully.'));
         }
         return response()->json([
-            'message' => 'Course Section Created Successfully',
+            'message' => __('Course Section Created Successfully'),
             'data' => $section->load(['course', 'semester', 'instructor'])
         ], 201);
-        //return redirect()->route('course-sections.index')->with('success', 'Course section created successfully.');
+        //return redirect()->route('course-sections.index')->with('success', __('Course section created successfully.'));
     }
 
     /**
@@ -134,7 +143,17 @@ class CourseSectionController extends Controller implements HasMiddleware
      */
     public function show(CourseSection $courseSection)
     {
-        $crsSec = $courseSection->load(['course', 'semester', 'instructor', 'enrollments.student']);
+        $user = request()->user();
+        DataScope::ensureVisible($user, $courseSection);
+        $crsSec = $courseSection->load([
+            'course.department.college',
+            'semester',
+            'instructor',
+            'enrollments' => fn ($enrollments) => $enrollments
+                ->whereIn('enrollments.id', DataScope::enrollments($user)->select('enrollments.id'))
+                ->with('student'),
+        ]);
+
         return request()->expectsJson() ? response()->json($crsSec) : view('course-sections.show', compact('crsSec'));
     }
 
@@ -165,13 +184,13 @@ class CourseSectionController extends Controller implements HasMiddleware
         $courseSection->update($validated);
 
         if (! $request->expectsJson()) {
-            return redirect()->route('course-sections.index')->with('success', 'Course section updated successfully.');
+            return redirect()->route('course-sections.index')->with('success', __('Course section updated successfully.'));
         }
         return response()->json([
-            'message' => 'Data Of Course Section Updated Successfully',
+            'message' => __('Data Of Course Section Updated Successfully'),
             'data' => $courseSection->load(['course', 'semester', 'instructor'])
         ]);
-        //return redirect()->route('course-sections.index')->with('success', 'Course section updated successfully.');
+        //return redirect()->route('course-sections.index')->with('success', __('Course section updated successfully.'));
     }
 
     /**
@@ -182,11 +201,11 @@ class CourseSectionController extends Controller implements HasMiddleware
         $courseSection->delete();
 
         if (! request()->expectsJson()) {
-            return redirect()->route('course-sections.index')->with('success', 'Course section deleted successfully.');
+            return redirect()->route('course-sections.index')->with('success', __('Course section deleted successfully.'));
         }
         return response()->json([
-            'message' => 'Course Section Deleted Successfully'
+            'message' => __('Course Section Deleted Successfully')
         ]);
-        //return redirect()->route('course-sections.index')->with('success', 'Course section deleted successfully.');
+        //return redirect()->route('course-sections.index')->with('success', __('Course section deleted successfully.'));
     }
 }

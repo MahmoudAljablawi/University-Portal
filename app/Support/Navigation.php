@@ -11,7 +11,7 @@ class Navigation
                 'label' => 'navigation.dashboard',
                 'route' => 'dashboard',
                 'url' => 'dashboard',
-                'roles' => ['admin', 'instructor', 'student'],
+                'roles' => ['admin', 'instructor', 'student','employee'],
                 'icon' => 'dashboard',
             ],
 
@@ -43,7 +43,7 @@ class Navigation
                 'label' => 'navigation.academic_semesters',
                 'route' => 'academic-semesters.*',
                 'url' => 'academic-semesters.index',
-                'roles' => ['admin', 'instructor', 'student'],
+                'roles' => ['admin', 'instructor', 'student','employee'],
                 'icon' => 'academic-semesters',
             ],
 
@@ -51,7 +51,7 @@ class Navigation
                 'label' => 'navigation.courses',
                 'route' => 'courses.*',
                 'url' => 'courses.index',
-                'roles' => ['admin', 'instructor', 'student'],
+                'roles' => ['admin', 'instructor', 'student','employee'],
                 'icon' => 'courses',
             ],
 
@@ -59,7 +59,7 @@ class Navigation
                 'label' => 'navigation.course_sections',
                 'route' => 'course-sections.*',
                 'url' => 'course-sections.index',
-                'roles' => ['admin', 'instructor', 'student'],
+                'roles' => ['admin', 'instructor', 'student','employee'],
                 'icon' => 'course-sections',
             ],
 
@@ -67,7 +67,7 @@ class Navigation
                 'label' => 'navigation.enrollments',
                 'route' => 'enrollments.*',
                 'url' => 'enrollments.index',
-                'roles' => ['admin', 'instructor', 'student'],
+                'roles' => ['admin', 'instructor', 'student','employee'],
                 'icon' => 'enrollments',
             ],
 
@@ -75,7 +75,7 @@ class Navigation
                 'label' => 'navigation.grades',
                 'route' => 'grades.*',
                 'url' => 'grades.index',
-                'roles' => ['admin', 'instructor', 'student'],
+                'roles' => ['admin', 'instructor', 'student','employee'],
                 'icon' => 'grades',
             ],
 
@@ -83,7 +83,7 @@ class Navigation
                 'label' => 'navigation.academic_requests',
                 'route' => 'academic-requests.*',
                 'url' => 'academic-requests.index',
-                'roles' => ['admin', 'student'],
+                'roles' => ['admin', 'student','employee'],
                 'icon' => 'academic-requests',
             ],
 

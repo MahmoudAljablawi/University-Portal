@@ -7,7 +7,7 @@
     'showView' => true,
     'showEdit' => true,
     'showDelete' => true,
-    'deleteConfirm' => 'Are you sure?',
+    'deleteConfirm' => __('Are you sure?'),
 ])
 
 <td class="whitespace-nowrap px-6 py-4">
@@ -18,7 +18,7 @@
             <a
                 href="{{ route($showRoute, $model) }}"
                 class="rounded-lg p-2 text-[var(--color-foreground-muted)] transition hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-foreground)]"
-                title="View">
+                title="{{ __('View') }}">
                 <svg
                     class="h-4 w-4"
                     viewBox="0 0 24 24"
@@ -36,7 +36,7 @@
             <a
                 href="{{ route($editRoute, $model) }}"
                 class="rounded-lg p-2 text-[var(--color-foreground-muted)] transition hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-primary)]"
-                title="Edit">
+                title="{{ __('Edit') }}">
                 <svg
                     class="h-4 w-4"
                     viewBox="0 0 24 24"
@@ -58,7 +58,7 @@
                 :confirmText="$deleteConfirm"
                 buttonClass="rounded-lg p-2 text-[var(--color-foreground-muted)] transition hover:bg-[color-mix(in_srgb,var(--color-danger)_10%,transparent)] hover:text-[var(--color-danger)]"
                 svgOnly="true"
-                title="Delete"
+                title="{{ __('Delete') }}"
             />
         @endif
 

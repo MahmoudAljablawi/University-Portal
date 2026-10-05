@@ -19,7 +19,7 @@
         >
 
         <title>
-            @yield('title', config('app.name', 'University Portal'))
+            @yield('title', __(config('app.name', 'University Portal')))
         </title>
 
         {{-- Theme --}}
@@ -48,6 +48,13 @@
     <body
         class="min-h-screen bg-[var(--color-background)] font-sans text-[var(--color-foreground)] antialiased transition-colors duration-200"
     >
+        <a
+            href="{{ route('language.switch', app()->getLocale() === 'en' ? 'ar' : 'en') }}"
+            class="fixed end-4 top-4 z-50 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm font-medium"
+            lang="{{ app()->getLocale() === 'en' ? 'ar' : 'en' }}"
+        >
+            {{ __('navigation.language') }}
+        </a>
 
         {{ $slot }}
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use App\Models\Department;
+use App\Support\DataScope;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -23,7 +24,14 @@ class CourseController extends Controller implements HasMiddleware
 
     public function index(Request $request)
     {
-        $query = Course::with(['department', 'prerequisites']);
+        $user = $request->user();
+        $query = DataScope::courses($user)->with([
+            'department',
+            'prerequisites' => fn ($courses) => $courses->whereIn(
+                'courses.id',
+                DataScope::courses($user)->select('courses.id')
+            ),
+        ]);
 
 
         $search = trim((string) $request->input('search'));
@@ -49,7 +57,7 @@ class CourseController extends Controller implements HasMiddleware
             ->paginate(10)
             ->withQueryString();
 
-        $departments = Department::orderBy('name')->get(['id', 'name']);
+        $departments = DataScope::departments($user)->orderBy('name')->get(['id', 'name']);
 
         return $request->expectsJson()
             ? response()->json($courses)
@@ -83,13 +91,13 @@ class CourseController extends Controller implements HasMiddleware
         $course = Course::create($validated);
 
         if (! $request->expectsJson()) {
-            return redirect()->route('courses.index')->with('success', 'Course created successfully.');
+            return redirect()->route('courses.index')->with('success', __('Course created successfully.'));
         }
         return response()->json([
-            'message' => 'Course Created Successfully',
+            'message' => __('Course Created Successfully'),
             'data' => $course->load('department')
         ], 201);
-        //return redirect()->route('courses.index')->with('success', 'Course created successfully.');
+        //return redirect()->route('courses.index')->with('success', __('Course created successfully.'));
     }
 
     /**
@@ -97,9 +105,22 @@ class CourseController extends Controller implements HasMiddleware
      */
     public function show(Course $course)
     {
-        $crs = $course->load(['department', 'prerequisites', 'sections']);
-        // جلب جميع المقررات الأخرى لكي يختار منها المستخدم متطلباً سابقاً إذا أراد في صفحة التفاصيل
-        $allCourses = Course::where('id', '!=', $course->id)->get();
+        $user = request()->user();
+        DataScope::ensureVisible($user, $course);
+        $crs = $course->load([
+            'department',
+            'prerequisites' => fn ($courses) => $courses->whereIn(
+                'courses.id',
+                DataScope::courses($user)->select('courses.id')
+            ),
+            'sections' => fn ($sections) => $sections->whereIn(
+                'course_sections.id',
+                DataScope::courseSections($user)->select('course_sections.id')
+            ),
+        ]);
+        $allCourses = DataScope::courses($user)
+            ->where('courses.id', '!=', $course->id)
+            ->get();
         return request()->expectsJson() ? response()->json($crs) : view('courses.show', compact('course', 'allCourses'));
     }
 
@@ -129,13 +150,13 @@ class CourseController extends Controller implements HasMiddleware
         $course->update($validated);
 
         if (! $request->expectsJson()) {
-            return redirect()->route('courses.index')->with('success', 'Course updated successfully.');
+            return redirect()->route('courses.index')->with('success', __('Course updated successfully.'));
         }
         return response()->json([
-            'message' => 'Data Of Course Updated Successfully',
+            'message' => __('Data Of Course Updated Successfully'),
             'data' => $course->load('department')
         ]);
-        //return redirect()->route('courses.index')->with('success', 'Course updated successfully.');
+        //return redirect()->route('courses.index')->with('success', __('Course updated successfully.'));
     }
 
     /**
@@ -146,12 +167,12 @@ class CourseController extends Controller implements HasMiddleware
         $course->delete();
 
         if (! request()->expectsJson()) {
-            return redirect()->route('courses.index')->with('success', 'Course deleted successfully.');
+            return redirect()->route('courses.index')->with('success', __('Course deleted successfully.'));
         }
         return response()->json([
-            'message' => 'Course Deleted Successfully'
+            'message' => __('Course Deleted Successfully')
         ]);
-        //return redirect()->route('courses.index')->with('success', 'Course deleted successfully.');
+        //return redirect()->route('courses.index')->with('success', __('Course deleted successfully.'));
     }
     public function addPrerequisite(Request $request, Course $course)
     {
@@ -163,10 +184,10 @@ class CourseController extends Controller implements HasMiddleware
         $course->prerequisites()->syncWithoutDetaching($validated['prerequisite_id']);
 
         if (! $request->expectsJson()) {
-            return back()->with('success', 'Prerequisite added successfully.');
+            return back()->with('success', __('Prerequisite added successfully.'));
         }
         return response()->json([
-            'message' => 'تم إضافة المتطلب السابق بنجاح',
+            'message' => __('Prerequisite added successfully.'),
             'data' => $course->load('prerequisites')
         ]);
         //return back()->with('success', 'Prerequisite added successfully.');
@@ -180,10 +201,10 @@ class CourseController extends Controller implements HasMiddleware
         $course->prerequisites()->detach($validated['prerequisite_id']);
 
         if (! $request->expectsJson()) {
-            return back()->with('success', 'Prerequisite removed successfully.');
+            return back()->with('success', __('Prerequisite removed successfully.'));
         }
         return response()->json([
-            'message' => 'تم إزالة المتطلب السابق بنجاح',
+            'message' => __('Prerequisite removed successfully.'),
             'data' => $course->load('prerequisites')
         ]);
         //return back()->with('success', 'Prerequisite removed successfully.');

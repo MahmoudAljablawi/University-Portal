@@ -3,13 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Enrollment;
-use App\Models\CourseSection;
-use App\Models\AcademicSemester;
-use App\Models\Course;
-use App\Models\User;
+use App\Support\DataScope;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Validation\Rule;
 
 class EnrollmentController extends Controller implements HasMiddleware
 {
@@ -24,24 +22,12 @@ class EnrollmentController extends Controller implements HasMiddleware
     {
         $user = $request->user();
 
-
-        $query = Enrollment::query()
+        $query = DataScope::enrollments($user)
             ->with([
                 'student',
                 'section.course',
                 'section.semester',
             ]);
-
-
-        if ($user->role === 'instructor') {
-            $query->whereHas('section', function ($query) use ($user) {
-                $query->where('instructor_id', $user->id);
-            });
-        } elseif ($user->role === 'student') {
-            $query->where('student_id', $user->id);
-        }
-
-
 
         $search = trim((string) $request->input('search'));
 
@@ -98,10 +84,10 @@ class EnrollmentController extends Controller implements HasMiddleware
             ->withQueryString();
 
 
-        $courses = Course::orderBy('name')
+        $courses = DataScope::courses($user)->orderBy('name')
             ->get(['id', 'name', 'code']);
 
-        $semesters = AcademicSemester::orderByDesc('start_date')
+        $semesters = DataScope::semesters($user)->orderByDesc('start_date')
             ->get(['id', 'name', 'code']);
 
         return $request->expectsJson()
@@ -116,8 +102,9 @@ class EnrollmentController extends Controller implements HasMiddleware
 
     public function create()
     {
-        $students = User::where('role', 'student')->get();
-        $sections = CourseSection::with(['course', 'semester'])->get();
+        $user = request()->user();
+        $students = DataScope::users($user)->where('role', 'student')->get();
+        $sections = DataScope::courseSections($user)->with(['course', 'semester'])->get();
         return view('enrollments.create', compact('students', 'sections'));
     }
     public function store(Request $request)
@@ -126,8 +113,15 @@ class EnrollmentController extends Controller implements HasMiddleware
 
         $validated = $request->validate([
             'section_id' => 'required|exists:course_sections,id',
-            'student_id' => $user->role === 'admin' ? 'required|exists:users,id' : 'prohibited',
+            'student_id' => $user->role === 'admin'
+                ? ['required', Rule::exists('users', 'id')->where('role', 'student')]
+                : 'prohibited',
         ]);
+
+        abort_unless(
+            DataScope::courseSections($user)->whereKey($validated['section_id'])->exists(),
+            404
+        );
 
         $studentId = $user->role === 'admin' ? $validated['student_id'] : $user->id;
 
@@ -141,7 +135,7 @@ class EnrollmentController extends Controller implements HasMiddleware
                 return back()->withErrors(['section_id' => 'Student is already enrolled in this section.']);
             }
             return response()->json([
-                'message' => 'Student is already enrolled in this section.'
+                'message' => __('Student is already enrolled in this section.')
             ], 422);
         }
 
@@ -152,65 +146,84 @@ class EnrollmentController extends Controller implements HasMiddleware
         ]);
 
         if (! $request->expectsJson()) {
-            return redirect()->route('enrollments.index')->with('success', 'Student enrolled successfully.');
+            return redirect()->route('enrollments.index')->with('success', __('Student enrolled successfully.'));
         }
         return response()->json([
-            'message' => 'Enrollment Created Successfully',
+            'message' => __('Enrollment Created Successfully'),
             'data' => $enrollment->load(['section.course', 'student'])
         ], 201);
-        //return redirect()->route('enrollments.index')->with('success', 'Student enrolled successfully.');
+        //return redirect()->route('enrollments.index')->with('success', __('Student enrolled successfully.'));
     }
 
     public function show(Request $request, Enrollment $enrollment)
     {
         $user = $request->user();
+        DataScope::ensureVisible($user, $enrollment);
 
-        if ($user->role !== 'admin' && $user->id !== $enrollment->student_id) {
-            abort_unless($request->expectsJson(), 403);
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
         return $request->expectsJson()
             ? response()->json($enrollment->load(['student', 'section.course']))
             : view('enrollments.show', compact('enrollment'));
     }
 
-    public function edit(Enrollment $enrollment)
+    public function edit(Request $request, Enrollment $enrollment)
     {
-        $students = User::where('role', 'student')->get();
-        $sections = CourseSection::with(['course', 'semester'])->get();
+        $user = $request->user();
+        DataScope::ensureVisible($user, $enrollment);
+        $students = DataScope::users($user)->where('role', 'student')->get();
+        $sections = DataScope::courseSections($user)->with(['course', 'semester'])->get();
         return view('enrollments.edit', compact('enrollment', 'students', 'sections'));
     }
 
     public function update(Request $request, Enrollment $enrollment)
     {
+        $user = $request->user();
+        DataScope::ensureVisible($user, $enrollment);
+
         $validated = $request->validate([
-            'student_id' => 'required|exists:users,id',
-            'section_id' => 'required|exists:course_sections,id',
+            'student_id' => [
+                'required',
+                Rule::exists('users', 'id')->where('role', 'student'),
+            ],
+            'section_id' => [
+                'required',
+                'exists:course_sections,id',
+                function ($attribute, $value, $fail) use ($user) {
+                    if (! DataScope::courseSections($user)->whereKey($value)->exists()) {
+                        $fail(__('The selected section is outside your data scope.'));
+                    }
+                },
+            ],
             'status' => 'required|string|in:enrolled,dropped,completed',
         ]);
+
+        if ($user->role !== 'admin') {
+            abort_unless((int) $validated['student_id'] === $enrollment->student_id, 403);
+        }
 
         $enrollment->update($validated);
 
         return redirect()->route('enrollments.index')
-            ->with('success', 'Enrollment updated successfully.');
+            ->with('success', __('Enrollment updated successfully.'));
     }
 
     public function destroy(Request $request, Enrollment $enrollment)
     {
         $user = $request->user();
-
-        if ($user->role !== 'admin' && $user->id !== $enrollment->student_id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        DataScope::ensureVisible($user, $enrollment);
+        abort_unless(
+            $user->role === 'admin' ||
+                ($user->role === 'student' && $enrollment->student_id === $user->id),
+            403
+        );
 
         $enrollment->delete();
 
         if (! $request->expectsJson()) {
-            return redirect()->route('enrollments.index')->with('success', 'Enrollment deleted successfully.');
+            return redirect()->route('enrollments.index')->with('success', __('Enrollment deleted successfully.'));
         }
         return response()->json([
-            'message' => 'Enrollment Dropped Successfully'
+            'message' => __('Enrollment Dropped Successfully')
         ]);
-        //return redirect()->route('enrollments.index')->with('success', 'Enrollment deleted successfully.');
+        //return redirect()->route('enrollments.index')->with('success', __('Enrollment deleted successfully.'));
     }
 }

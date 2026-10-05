@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Colleges')
+@section('title', __('Colleges'))
 
 @section('content')
 <div class="space-y-6">
@@ -9,11 +9,11 @@
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h2 class="text-2xl font-semibold text-[var(--color-foreground)]">
-                Colleges
+                {{ __('Colleges') }}
             </h2>
 
             <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                Manage the university colleges and their academic departments.
+                {{ __('Manage the university colleges and their academic departments.') }}
             </p>
         </div>
 
@@ -32,7 +32,7 @@
                     <path d="M12 5v14M5 12h14" />
                 </svg>
 
-                Add College
+                {{ __('Add College') }}
             </a>
         @endif
     </div>
@@ -51,7 +51,7 @@
                     for="search"
                     class="mb-2 block text-sm font-medium text-[var(--color-foreground)]"
                 >
-                    Search
+                    {{ __('Search') }}
                 </label>
 
                 <div class="relative">
@@ -75,7 +75,7 @@
                         type="text"
                         name="search"
                         value="{{ request('search') }}"
-                        placeholder="Search by college name or code..."
+                        placeholder="{{ __('Search by college name or code...') }}"
                         class="block w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] py-2.5 ps-10 pe-4 text-sm text-[var(--color-foreground)] outline-none transition placeholder:text-[var(--color-foreground-muted)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20"
                     >
                 </div>
@@ -97,7 +97,7 @@
                         <path d="m20 20-4-4" />
                     </svg>
 
-                    Search
+                    {{ __('Search') }}
                 </button>
 
                 @if(request()->filled('search'))
@@ -105,7 +105,7 @@
                         href="{{ route('colleges.index') }}"
                         class="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm font-medium text-[var(--color-foreground)] transition hover:bg-[var(--color-surface-muted)]"
                     >
-                        Reset
+                        {{ __('Reset') }}
                     </a>
                 @endif
             </div>
@@ -115,19 +115,19 @@
     {{-- Results Summary --}}
     <div class="flex items-center justify-between">
         <p class="text-sm text-[var(--color-foreground-muted)]">
-            Showing
+            {{ __('Showing') }}
             <span class="font-medium text-[var(--color-foreground)]">
                 {{ $colleges->firstItem() ?? 0 }}
             </span>
-            to
+            {{ __('to') }}
             <span class="font-medium text-[var(--color-foreground)]">
                 {{ $colleges->lastItem() ?? 0 }}
             </span>
-            of
+            {{ __('of') }}
             <span class="font-medium text-[var(--color-foreground)]">
                 {{ $colleges->total() }}
             </span>
-            colleges
+            {{ __('colleges') }}
         </p>
     </div>
 
@@ -144,28 +144,28 @@
                             scope="col"
                             class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider text-[var(--color-foreground-muted)]"
                         >
-                            College
+                            {{ __('College') }}
                         </th>
 
                         <th
                             scope="col"
                             class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider text-[var(--color-foreground-muted)]"
                         >
-                            Code
+                            {{ __('Code') }}
                         </th>
 
                         <th
                             scope="col"
                             class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider text-[var(--color-foreground-muted)]"
                         >
-                            Departments
+                            {{ __('Departments') }}
                         </th>
 
                         <th
                             scope="col"
                             class="px-6 py-4 text-end text-xs font-semibold uppercase tracking-wider text-[var(--color-foreground-muted)]"
                         >
-                            Actions
+                            {{ __('Actions') }}
                         </th>
                     </tr>
                 </thead>
@@ -256,7 +256,7 @@
                                     </svg>
 
                                     <p class="text-sm font-medium text-[var(--color-foreground)]">
-                                        No colleges found
+                                        {{ __('No colleges found') }}
                                     </p>
 
                                     <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
@@ -272,7 +272,7 @@
                                             href="{{ route('colleges.index') }}"
                                             class="mt-4 text-sm font-medium text-[var(--color-primary)] hover:underline"
                                         >
-                                            Clear search
+                                            {{ __('Clear search') }}
                                         </a>
                                     @endif
 
@@ -293,11 +293,11 @@
                 class="flex flex-col gap-4 border-t border-[var(--color-border)] px-6 py-4 sm:flex-row sm:items-center sm:justify-between"
             >
                 <p class="text-sm text-[var(--color-foreground-muted)]">
-                    Page
+                    {{ __('Page') }}
                     <span class="font-medium text-[var(--color-foreground)]">
                         {{ $colleges->currentPage() }}
                     </span>
-                    of
+                    {{ __('of') }}
                     <span class="font-medium text-[var(--color-foreground)]">
                         {{ $colleges->lastPage() }}
                     </span>
@@ -310,14 +310,14 @@
                         <span
                             class="inline-flex h-9 items-center justify-center rounded-lg border border-[var(--color-border)] px-3 text-sm text-[var(--color-foreground-muted)] opacity-50"
                         >
-                            Previous
+                            {{ __('Previous') }}
                         </span>
                     @else
                         <a
                             href="{{ $colleges->previousPageUrl() }}"
                             class="inline-flex h-9 items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm font-medium text-[var(--color-foreground)] transition hover:bg-[var(--color-surface-muted)]"
                         >
-                            Previous
+                            {{ __('Previous') }}
                         </a>
                     @endif
 
@@ -350,13 +350,13 @@
                             href="{{ $colleges->nextPageUrl() }}"
                             class="inline-flex h-9 items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm font-medium text-[var(--color-foreground)] transition hover:bg-[var(--color-surface-muted)]"
                         >
-                            Next
+                            {{ __('Next') }}
                         </a>
                     @else
                         <span
                             class="inline-flex h-9 items-center justify-center rounded-lg border border-[var(--color-border)] px-3 text-sm text-[var(--color-foreground-muted)] opacity-50"
                         >
-                            Next
+                            {{ __('Next') }}
                         </span>
                     @endif
 

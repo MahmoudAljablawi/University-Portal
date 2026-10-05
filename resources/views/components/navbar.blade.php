@@ -102,14 +102,15 @@
                 $user = auth()->user();
 
                 $roleLabels = [
-                    'admin' => 'Administrator',
-                    'teacher' => 'Instructor',
-                    'employee' => 'Employee',
-                    'student' => 'Student',
+                    'admin' => __('Administrator'),
+                    'teacher' => __('Instructor'),
+                    'instructor' => __('Instructor'),
+                    'employee' => __('Employee'),
+                    'student' => __('Student'),
                 ];
 
                 $roleLabel = $roleLabels[$user->role]
-                    ?? ucfirst($user->role);
+                    ?? __(ucfirst($user->role));
             @endphp
 
             <div

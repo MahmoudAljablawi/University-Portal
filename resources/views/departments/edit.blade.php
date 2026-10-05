@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Department')
+@section('title', __('Edit Department'))
 
 @section('content') <div class="mx-auto max-w-3xl space-y-6">
 
@@ -12,20 +12,20 @@
                 href="{{ route('departments.index') }}"
                 class="transition hover:text-[var(--color-primary)]"
             >
-                Departments
+                {{ __('Departments') }}
             </a>
 
             <span>/</span>
 
-            <span>Edit</span>
+            <span>{{ __('Edit') }}</span>
         </div>
 
         <h1 class="mt-2 text-2xl font-semibold tracking-tight">
-            Edit Department
+            {{ __('Edit Department') }}
         </h1>
 
         <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-            Update the department information.
+            {{ __('Update the department information.') }}
         </p>
     </div>
 
@@ -36,7 +36,7 @@
                    bg-red-50 p-4 dark:bg-red-950/20"
         >
             <p class="font-medium text-[var(--color-danger)]">
-                Please correct the following errors:
+                {{ __('Please correct the following errors:') }}
             </p>
 
             <ul class="mt-2 list-inside list-disc space-y-1 text-sm text-[var(--color-danger)]">
@@ -66,7 +66,7 @@
                     for="name"
                     class="mb-2 block text-sm font-medium"
                 >
-                    Department Name
+                    {{ __('Department Name') }}
                 </label>
 
                 <input
@@ -97,7 +97,7 @@
                     for="code"
                     class="mb-2 block text-sm font-medium"
                 >
-                    Department Code
+                    {{ __('Department Code') }}
                 </label>
 
                 <input
@@ -127,7 +127,7 @@
                     for="college_id"
                     class="mb-2 block text-sm font-medium"
                 >
-                    College
+                    {{ __('College') }}
                 </label>
 
                 <select
@@ -140,7 +140,7 @@
                            focus:border-[var(--color-primary)]
                            focus:ring-2 focus:ring-[var(--color-primary)]/20"
                 >
-                    <option value="">Select a college</option>
+                    <option value="">{{ __('Select a college') }}</option>
 
                     @foreach ($colleges as $college)
                         <option
@@ -177,7 +177,7 @@
                            px-4 py-2.5 text-sm font-medium
                            transition hover:bg-[var(--color-surface-muted)]"
                 >
-                    Cancel
+                    {{ __('Cancel') }}
                 </a>
 
                 <button
@@ -187,7 +187,7 @@
                            text-white transition
                            hover:bg-[var(--color-primary-hover)]"
                 >
-                    Update Department
+                    {{ __('Update Department') }}
                 </button>
             </div>
         </form>

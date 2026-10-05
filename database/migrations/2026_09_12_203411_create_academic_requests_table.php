@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('academic_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained('users')->onDelete('cascade'); // الطالب صاحب الطلب
-            $table->string('request_type'); // نوع الطلب (مثل: كشف علامات، إيقاف تسسجيل، اعتراض)
+            $table->enum('request_type', ['grade_inquiry', 'enrollment_pause', 'objection'])->nullable(); // نوع الطلب (مثل: كشف علامات، إيقاف تسسجيل، اعتراض)
             $table->text('reason')->nullable(); // سبب الطلب أو تفاصيله
-            $table->string('status')->default('pending'); // حالة الطلب (pending, approved, rejected)
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending'); // حالة الطلب (pending, approved, rejected)
             $table->string('qr_code_token')->nullable()->unique(); // رمز التحقق الخاص بالوثيقة المرتبطة بالطلب
             $table->timestamps();
         });

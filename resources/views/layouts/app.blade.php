@@ -18,7 +18,7 @@
     >
 
     <title>
-        @yield('title', config('app.name', 'University Portal'))
+        @yield('title', __(config('app.name', 'University Portal')))
     </title>
 
     {{-- Vite --}}

@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Edit College')
+@section('title', __('Edit College'))
 
 @section('content') <div class="mx-auto max-w-3xl space-y-6">
 
     {{-- Header --}}
     <div>
         <h1 class="text-2xl font-semibold text-[var(--color-foreground)]">
-            Edit College
+            {{ __('Edit College') }}
         </h1>
 
         <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-            Update the college information.
+            {{ __('Update the college information.') }}
         </p>
     </div>
 
@@ -42,7 +42,7 @@
                     for="name"
                     class="mb-2 block text-sm font-medium text-[var(--color-foreground)]"
                 >
-                    College Name
+                    {{ __('College Name') }}
                 </label>
 
                 <input
@@ -68,7 +68,7 @@
                     for="code"
                     class="mb-2 block text-sm font-medium text-[var(--color-foreground)]"
                 >
-                    College Code
+                    {{ __('College Code') }}
                 </label>
 
                 <input
@@ -94,14 +94,14 @@
                     href="{{ route('colleges.index') }}"
                     class="rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium text-[var(--color-foreground)] transition hover:bg-[var(--color-surface-muted)]"
                 >
-                    Cancel
+                    {{ __('Cancel') }}
                 </a>
 
                 <button
                     type="submit"
                     class="rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-primary-hover)]"
                 >
-                    Update College
+                    {{ __('Update College') }}
                 </button>
             </div>
         </form>

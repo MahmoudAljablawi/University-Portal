@@ -1,7 +1,7 @@
 
 @extends('layouts.app')
 
-@section('title', 'Edit Course')
+@section('title', __('Edit Course'))
 
 @section('content')
     <div class="mx-auto max-w-3xl space-y-6">
@@ -10,11 +10,11 @@
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-2xl font-semibold">
-                    Edit Course
+                    {{ __('Edit Course') }}
                 </h1>
 
                 <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                    Update the academic information for {{ $course->name }}.
+                    {{ __('Update the academic information for :course.', ['course' => $course->name]) }}
                 </p>
             </div>
 
@@ -22,7 +22,7 @@
                 href="{{ route('courses.show', $course) }}"
                 class="text-sm font-medium text-[var(--color-primary)] hover:underline"
             >
-                View Course
+                {{ __('View Course') }}
             </a>
         </div>
 
@@ -54,7 +54,7 @@
                         for="name"
                         class="mb-2 block text-sm font-medium"
                     >
-                        Course Name
+                        {{ __('Course Name') }}
                     </label>
 
                     <input
@@ -80,7 +80,7 @@
                         for="code"
                         class="mb-2 block text-sm font-medium"
                     >
-                        Course Code
+                        {{ __('Course Code') }}
                     </label>
 
                     <input
@@ -106,7 +106,7 @@
                         for="semester_level"
                         class="mb-2 block text-sm font-medium"
                     >
-                        Semester Level
+                        {{ __('Semester Level') }}
                     </label>
 
                     <input
@@ -132,7 +132,7 @@
                         for="department_id"
                         class="mb-2 block text-sm font-medium"
                     >
-                        Department
+                        {{ __('Department') }}
                     </label>
 
                     <select
@@ -141,7 +141,7 @@
                         required
                         class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--color-primary)]"
                     >
-                        <option value="">Select Department</option>
+                        <option value="">{{ __('Select Department') }}</option>
 
                         @foreach ($departments as $department)
                             <option
@@ -166,7 +166,7 @@
                         for="credits"
                         class="mb-2 block text-sm font-medium"
                     >
-                        Credits
+                        {{ __('Credits') }}
                     </label>
 
                     <input
@@ -192,7 +192,7 @@
                         for="description"
                         class="mb-2 block text-sm font-medium"
                     >
-                        Description
+                        {{ __('Description') }}
                     </label>
 
                     <textarea
@@ -216,14 +216,14 @@
                         href="{{ route('courses.show', $course) }}"
                         class="rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium transition hover:bg-[var(--color-surface-muted)]"
                     >
-                        Cancel
+                        {{ __('Cancel') }}
                     </a>
 
                     <button
                         type="submit"
                         class="rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-primary-hover)]"
                     >
-                        Update Course
+                        {{ __('Update Course') }}
                     </button>
 
                 </div>

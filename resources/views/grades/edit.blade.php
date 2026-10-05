@@ -1,246 +1,273 @@
-
 @extends('layouts.app')
 
-@section('title', 'Edit Grade')
+@section('title', __('Edit Grade'))
 
 @section('content')
+
 <div class="mx-auto max-w-4xl space-y-6">
 
-    {{-- Header --}}
-    <div>
-        <h1 class="text-2xl font-bold text-[var(--color-foreground)]">
-            Edit Grade
-        </h1>
 
-        <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-            Update the recorded grade.
-        </p>
-    </div>
+{{-- Header --}}
+<div>
+    <h1 class="text-2xl font-bold text-[var(--color-foreground)]">
+        {{ __('Edit Grade') }}
+    </h1>
 
-    {{-- Enrollment Information --}}
-    <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
+    <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
+        {{ __('Update the recorded grade.') }}
+    </p>
+</div>
 
-        <h2 class="text-lg font-semibold text-[var(--color-foreground)]">
-            Student Enrollment
-        </h2>
+{{-- Enrollment Information --}}
+<div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
 
-        <div class="mt-6 grid gap-6 sm:grid-cols-2">
+    <h2 class="text-lg font-semibold text-[var(--color-foreground)]">
+        {{ __('Student Enrollment') }}
+    </h2>
 
-            <div>
-                <p class="text-xs font-medium uppercase tracking-wide text-[var(--color-foreground-muted)]">
-                    Student
-                </p>
+    <div class="mt-6 grid gap-6 sm:grid-cols-2">
 
-                <p class="mt-1 text-sm font-medium text-[var(--color-foreground)]">
-                    {{ $grade->enrollment?->student?->name ?? '—' }}
-                </p>
-            </div>
+        <div>
+            <p class="text-xs font-medium uppercase tracking-wide text-[var(--color-foreground-muted)]">
+                {{ __('Student') }}
+            </p>
 
-            <div>
-                <p class="text-xs font-medium uppercase tracking-wide text-[var(--color-foreground-muted)]">
-                    Course
-                </p>
+            <p class="mt-1 text-sm font-medium text-[var(--color-foreground)]">
+                {{ $grade->enrollment?->student?->name ?? '—' }}
+            </p>
+        </div>
 
-                <p class="mt-1 text-sm font-medium text-[var(--color-foreground)]">
-                    {{ $grade->enrollment?->section?->course?->name ?? '—' }}
-                </p>
+        <div>
+            <p class="text-xs font-medium uppercase tracking-wide text-[var(--color-foreground-muted)]">
+                {{ __('Course') }}
+            </p>
 
-                <p class="mt-1 text-xs text-[var(--color-foreground-muted)]">
-                    {{ $grade->enrollment?->section?->course?->code ?? '—' }}
-                </p>
-            </div>
+            <p class="mt-1 text-sm font-medium text-[var(--color-foreground)]">
+                {{ $grade->enrollment?->section?->course?->name ?? '—' }}
+            </p>
 
-            <div>
-                <p class="text-xs font-medium uppercase tracking-wide text-[var(--color-foreground-muted)]">
-                    Section
-                </p>
+            <p class="mt-1 text-xs text-[var(--color-foreground-muted)]">
+                {{ $grade->enrollment?->section?->course?->code ?? '—' }}
+            </p>
+        </div>
 
-                <p class="mt-1 text-sm font-medium text-[var(--color-foreground)]">
-                    {{ $grade->enrollment?->section?->section_number ?? '—' }}
-                </p>
-            </div>
+        <div>
+            <p class="text-xs font-medium uppercase tracking-wide text-[var(--color-foreground-muted)]">
+                {{ __('Section') }}
+            </p>
 
-            <div>
-                <p class="text-xs font-medium uppercase tracking-wide text-[var(--color-foreground-muted)]">
-                    Semester
-                </p>
+            <p class="mt-1 text-sm font-medium text-[var(--color-foreground)]">
+                {{ $grade->enrollment?->section?->section_number ?? '—' }}
+            </p>
+        </div>
 
-                <p class="mt-1 text-sm font-medium text-[var(--color-foreground)]">
-                    {{ $grade->enrollment?->section?->semester?->name ?? '—' }}
-                </p>
-            </div>
+        <div>
+            <p class="text-xs font-medium uppercase tracking-wide text-[var(--color-foreground-muted)]">
+                {{ __('Semester') }}
+            </p>
 
+            <p class="mt-1 text-sm font-medium text-[var(--color-foreground)]">
+                {{ $grade->enrollment?->section?->semester?->name ?? '—' }}
+            </p>
         </div>
 
     </div>
 
-    {{-- Form --}}
-    <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
+</div>
 
-        <form
-            method="POST"
-            action="{{ route('grades.update', $grade) }}"
-            class="space-y-6"
+{{-- Grade Information --}}
+<div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
+
+    <div class="flex items-center justify-between gap-4">
+        <div>
+            <h2 class="text-lg font-semibold text-[var(--color-foreground)]">
+                {{ __('Grade Information') }}
+            </h2>
+
+            <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
+                {{ __('Update the practical and theoretical grades.') }}
+            </p>
+        </div>
+
+        {{-- Current Status --}}
+        <span
+            class="rounded-full px-3 py-1 text-xs font-semibold
+            @switch($grade->status)
+                @case('draft')
+                    bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300
+                    @break
+                @case('submitted')
+                    bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300
+                    @break
+                @case('reviewed')
+                    bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300
+                    @break
+                @case('approved')
+                    bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300
+                    @break
+                @case('rejected')
+                    bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300
+                    @break
+                @case('published')
+                    bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300
+                    @break
+                @default
+                    bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300
+            @endswitch
+            "
         >
-            @csrf
-            @method('PUT')
-
-            <div class="grid gap-6 sm:grid-cols-2">
-
-                {{-- Midterm --}}
-                <div>
-                    <label
-                        for="midterm_grade"
-                        class="mb-2 block text-sm font-medium text-[var(--color-foreground)]"
-                    >
-                        Midterm Grade
-                    </label>
-
-                    <input
-                        id="midterm_grade"
-                        name="midterm_grade"
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="0.01"
-                        value="{{ old('midterm_grade', $grade->midterm_grade) }}"
-                        class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm text-[var(--color-foreground)] outline-none transition focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20"
-                    >
-
-                    @error('midterm_grade')
-                        <p class="mt-1 text-sm text-[var(--color-danger)]">
-                            {{ $message }}
-                        </p>
-                    @enderror
-                </div>
-
-                {{-- Final --}}
-                <div>
-                    <label
-                        for="final_grade"
-                        class="mb-2 block text-sm font-medium text-[var(--color-foreground)]"
-                    >
-                        Final Grade
-                    </label>
-
-                    <input
-                        id="final_grade"
-                        name="final_grade"
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="0.01"
-                        value="{{ old('final_grade', $grade->final_grade) }}"
-                        class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm text-[var(--color-foreground)] outline-none transition focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20"
-                    >
-
-                    @error('final_grade')
-                        <p class="mt-1 text-sm text-[var(--color-danger)]">
-                            {{ $message }}
-                        </p>
-                    @enderror
-                </div>
-
-                {{-- Total --}}
-                <div>
-                    <label
-                        for="total_grade"
-                        class="mb-2 block text-sm font-medium text-[var(--color-foreground)]"
-                    >
-                        Total Grade
-                    </label>
-
-                    <input
-                        id="total_grade"
-                        name="total_grade"
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="0.01"
-                        value="{{ old('total_grade', $grade->total_grade) }}"
-                        class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm text-[var(--color-foreground)] outline-none transition focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20"
-                    >
-
-                    @error('total_grade')
-                        <p class="mt-1 text-sm text-[var(--color-danger)]">
-                            {{ $message }}
-                        </p>
-                    @enderror
-                </div>
-
-                {{-- Letter --}}
-                <div>
-                    <label
-                        for="letter_grade"
-                        class="mb-2 block text-sm font-medium text-[var(--color-foreground)]"
-                    >
-                        Letter Grade
-                    </label>
-
-                    <input
-                        id="letter_grade"
-                        name="letter_grade"
-                        type="text"
-                        maxlength="5"
-                        value="{{ old('letter_grade', $grade->letter_grade) }}"
-                        placeholder="e.g. A"
-                        class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm text-[var(--color-foreground)] outline-none transition focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20"
-                    >
-
-                    @error('letter_grade')
-                        <p class="mt-1 text-sm text-[var(--color-danger)]">
-                            {{ $message }}
-                        </p>
-                    @enderror
-                </div>
-
-            </div>
-
-            {{-- Published --}}
-            <label class="flex cursor-pointer items-center gap-3">
-                <input type="hidden" name="is_published" value="0">
-                <input
-                    type="checkbox"
-                    name="is_published"
-                    value="1"
-                    @checked(old('is_published', $grade->is_published))
-                    class="h-4 w-4 rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
-                >
-
-                <span class="text-sm font-medium text-[var(--color-foreground)]">
-                    Publish grade to student
-                </span>
-            </label>
-
-            @error('is_published')
-                <p class="text-sm text-[var(--color-danger)]">
-                    {{ $message }}
-                </p>
-            @enderror
-
-            {{-- Actions --}}
-            <div class="flex items-center justify-end gap-3 border-t border-[var(--color-border)] pt-6">
-
-                <a
-                    href="{{ route('grades.show', $grade) }}"
-                    class="rounded-lg px-4 py-2.5 text-sm font-medium text-[var(--color-foreground-muted)] transition hover:bg-[var(--color-surface-muted)]"
-                >
-                    Cancel
-                </a>
-
-                <button
-                    type="submit"
-                    class="rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-primary-hover)]"
-                >
-                    Update Grade
-                </button>
-
-            </div>
-
-        </form>
-
+            {{ __(ucfirst($grade->status)) }}
+        </span>
     </div>
+
+    {{-- Rejection Reason --}}
+    @if ($grade->status === 'rejected' && $grade->rejection_reason)
+        <div class="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-900/20">
+            <p class="text-sm font-semibold text-red-800 dark:text-red-300">
+                {{ __('Rejection Reason') }}
+            </p>
+
+            <p class="mt-1 text-sm text-red-700 dark:text-red-400">
+                {{ $grade->rejection_reason }}
+            </p>
+        </div>
+    @endif
+
+    <form
+        method="POST"
+        action="{{ route('grades.update', $grade) }}"
+        class="mt-6 space-y-6"
+    >
+        @csrf
+        @method('PUT')
+
+        <div class="grid gap-6 sm:grid-cols-2">
+
+            {{-- Practical --}}
+            <div>
+                <label
+                    for="practical_grade"
+                    class="mb-2 block text-sm font-medium text-[var(--color-foreground)]"
+                >
+                    {{ __('Practical Grade') }}
+                    <span class="text-xs text-[var(--color-foreground-muted)]">
+                        (30%)
+                    </span>
+                </label>
+
+                <input
+                    id="practical_grade"
+                    name="practical_grade"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    value="{{ old('practical_grade', $grade->practical_grade) }}"
+                    class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm text-[var(--color-foreground)] outline-none transition focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20"
+                >
+
+                @error('practical_grade')
+                    <p class="mt-1 text-sm text-[var(--color-danger)]">
+                        {{ $message }}
+                    </p>
+                @enderror
+            </div>
+
+            {{-- Theoretical --}}
+            <div>
+                <label
+                    for="theoretical_grade"
+                    class="mb-2 block text-sm font-medium text-[var(--color-foreground)]"
+                >
+                    {{ __('Theoretical Grade') }}
+                    <span class="text-xs text-[var(--color-foreground-muted)]">
+                        (70%)
+                    </span>
+                </label>
+
+                <input
+                    id="theoretical_grade"
+                    name="theoretical_grade"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    value="{{ old('theoretical_grade', $grade->theoretical_grade) }}"
+                    class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm text-[var(--color-foreground)] outline-none transition focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20"
+                >
+
+                @error('theoretical_grade')
+                    <p class="mt-1 text-sm text-[var(--color-danger)]">
+                        {{ $message }}
+                    </p>
+                @enderror
+            </div>
+
+        </div>
+
+        {{-- Total Grade --}}
+        <div class="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-muted)] p-4">
+
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <p class="text-sm font-medium text-[var(--color-foreground)]">
+                        {{ __('Current Total Grade') }}
+                    </p>
+
+                    <p class="mt-1 text-xs text-[var(--color-foreground-muted)]">
+                        {{ __('Calculated automatically from practical and theoretical grades.') }}
+                    </p>
+                </div>
+
+                <span class="text-xl font-bold text-[var(--color-foreground)]">
+                    {{ $grade->total_grade !== null ? number_format($grade->total_grade, 2) : '—' }}
+                </span>
+            </div>
+
+        </div>
+
+        {{-- Workflow Information --}}
+        <div class="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-muted)] p-4">
+            <p class="text-sm font-medium text-[var(--color-foreground)]">
+                {{ __('Grade Workflow') }}
+            </p>
+
+            <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
+                {{ __('Grades can be edited while they are in') }}
+                <span class="font-medium text-[var(--color-foreground)]">
+                    {{ __('Draft') }}
+                </span>
+                or
+                <span class="font-medium text-[var(--color-foreground)]">
+                    {{ __('Rejected') }}
+                </span>
+                status.
+            </p>
+        </div>
+
+        {{-- Actions --}}
+        <div class="flex items-center justify-end gap-3 border-t border-[var(--color-border)] pt-6">
+
+            <a
+                href="{{ route('grades.show', $grade) }}"
+                class="rounded-lg px-4 py-2.5 text-sm font-medium text-[var(--color-foreground-muted)] transition hover:bg-[var(--color-surface-muted)]"
+            >
+                {{ __('Cancel') }}
+            </a>
+
+            <button
+                type="submit"
+                class="rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-primary-hover)]"
+            >
+                {{ __('Update Grade') }}
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
 
 </div>
 @endsection
-

@@ -31,7 +31,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'message' => 'Register for ' . $user->name . ' is done',
+            'message' => __('Register for :name is done', ['name' => $user->name]),
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => $user
@@ -48,7 +48,7 @@ class AuthController extends Controller
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['بيانات الاعتماد المدخلة غير مطابقة لسجلاتنا.'],
+                'email' => [__('The provided credentials are incorrect.')],
             ]);
         }
 
@@ -58,7 +58,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'message' => 'login for' . $user->name . ' is done',
+            'message' => __('Login for :name is done', ['name' => $user->name]),
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => $user
@@ -77,7 +77,7 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Logout for ' . $request->user()->name . ' is done'
+            'message' => __('Logout for :name is done', ['name' => $request->user()->name])
         ]);
     }
 }

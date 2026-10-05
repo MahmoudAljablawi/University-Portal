@@ -13,7 +13,7 @@
             </h1>
 
             <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                College details and departments
+                {{ __('College details and departments') }}
             </p>
         </div>
 
@@ -22,7 +22,7 @@
                 href="{{ route('colleges.index') }}"
                 class="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm font-medium text-[var(--color-foreground)] transition hover:bg-[var(--color-surface-muted)]"
             >
-                Back
+                {{ __('Back') }}
             </a>
 
             @if(auth()->user()->role === 'admin')
@@ -30,7 +30,7 @@
                     href="{{ route('colleges.edit', $college) }}"
                     class="rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-white transition hover:bg-[var(--color-primary-hover)]"
                 >
-                    Edit College
+                    {{ __('Edit College') }}
                 </a>
             @endif
         </div>
@@ -39,13 +39,13 @@
     {{-- College Information --}}
     <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm">
         <h2 class="text-lg font-semibold text-[var(--color-foreground)]">
-            College Information
+            {{ __('College Information') }}
         </h2>
 
         <div class="mt-6 grid gap-6 sm:grid-cols-2">
             <div>
                 <p class="text-sm text-[var(--color-foreground-muted)]">
-                    Name
+                    {{ __('Name') }}
                 </p>
 
                 <p class="mt-1 font-medium text-[var(--color-foreground)]">
@@ -55,7 +55,7 @@
 
             <div>
                 <p class="text-sm text-[var(--color-foreground-muted)]">
-                    Code
+                    {{ __('Code') }}
                 </p>
 
                 <p class="mt-1 font-medium text-[var(--color-foreground)]">
@@ -65,7 +65,7 @@
 
             <div>
                 <p class="text-sm text-[var(--color-foreground-muted)]">
-                    Departments
+                    {{ __('Departments') }}
                 </p>
 
                 <p class="mt-1 font-medium text-[var(--color-foreground)]">
@@ -79,11 +79,11 @@
     <div class="overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm">
         <div class="border-b border-[var(--color-border)] px-6 py-4">
             <h2 class="text-lg font-semibold text-[var(--color-foreground)]">
-                Departments
+                {{ __('Departments') }}
             </h2>
 
             <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                Departments belonging to this college
+                {{ __('Departments belonging to this college') }}
             </p>
         </div>
 
@@ -93,15 +93,15 @@
                     <thead class="bg-[var(--color-surface-muted)]">
                         <tr>
                             <th class="px-6 py-3 text-start text-xs font-semibold uppercase tracking-wider text-[var(--color-foreground-muted)]">
-                                ID
+                                {{ __('ID') }}
                             </th>
 
                             <th class="px-6 py-3 text-start text-xs font-semibold uppercase tracking-wider text-[var(--color-foreground-muted)]">
-                                Name
+                                {{ __('Name') }}
                             </th>
 
                             <th class="px-6 py-3 text-start text-xs font-semibold uppercase tracking-wider text-[var(--color-foreground-muted)]">
-                                Code
+                                {{ __('Code') }}
                             </th>
                         </tr>
                     </thead>
@@ -128,11 +128,11 @@
         @else
             <div class="px-6 py-12 text-center">
                 <p class="text-sm font-medium text-[var(--color-foreground)]">
-                    No departments found
+                    {{ __('No departments found') }}
                 </p>
 
                 <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                    This college does not have any departments yet.
+                    {{ __('This college does not have any departments yet.') }}
                 </p>
             </div>
         @endif

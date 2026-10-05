@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Create Department')
+@section('title', __('Create Department'))
 
 @section('content') <div class="mx-auto max-w-3xl space-y-6">
 
@@ -12,20 +12,20 @@
                 href="{{ route('departments.index') }}"
                 class="transition hover:text-[var(--color-primary)]"
             >
-                Departments
+                {{ __('Departments') }}
             </a>
 
             <span>/</span>
 
-            <span>Create</span>
+            <span>{{ __('Create') }}</span>
         </div>
 
         <h1 class="mt-2 text-2xl font-semibold tracking-tight">
-            Create Department
+            {{ __('Create Department') }}
         </h1>
 
         <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-            Add a new department to a college.
+            {{ __('Add a new department to a college.') }}
         </p>
     </div>
 
@@ -36,7 +36,7 @@
                    bg-red-50 p-4 dark:bg-red-950/20"
         >
             <p class="font-medium text-[var(--color-danger)]">
-                Please correct the following errors:
+                {{ __('Please correct the following errors:') }}
             </p>
 
             <ul class="mt-2 list-inside list-disc space-y-1 text-sm text-[var(--color-danger)]">
@@ -65,7 +65,7 @@
                     for="name"
                     class="mb-2 block text-sm font-medium"
                 >
-                    Department Name
+                    {{ __('Department Name') }}
                 </label>
 
                 <input
@@ -76,7 +76,7 @@
                     required
                     autofocus
                     maxlength="255"
-                    placeholder="e.g. Computer Science"
+                    placeholder="{{ __('e.g. Computer Science') }}"
                     class="block w-full rounded-lg border border-[var(--color-border)]
                            bg-[var(--color-background)] px-4 py-2.5 text-sm
                            outline-none transition
@@ -97,7 +97,7 @@
                     for="code"
                     class="mb-2 block text-sm font-medium"
                 >
-                    Department Code
+                    {{ __('Department Code') }}
                 </label>
 
                 <input
@@ -107,7 +107,7 @@
                     value="{{ old('code') }}"
                     required
                     maxlength="50"
-                    placeholder="e.g. CS"
+                    placeholder="{{ __('e.g. CS') }}"
                     class="block w-full rounded-lg border border-[var(--color-border)]
                            bg-[var(--color-background)] px-4 py-2.5 text-sm
                            uppercase outline-none transition
@@ -128,7 +128,7 @@
                     for="college_id"
                     class="mb-2 block text-sm font-medium"
                 >
-                    College
+                    {{ __('College') }}
                 </label>
 
                 <select
@@ -141,7 +141,7 @@
                            focus:border-[var(--color-primary)]
                            focus:ring-2 focus:ring-[var(--color-primary)]/20"
                 >
-                    <option value="">Select a college</option>
+                    <option value="">{{ __('Select a college') }}</option>
 
                     @foreach ($colleges as $college)
                         <option
@@ -164,7 +164,7 @@
 
                 @if ($colleges->isEmpty())
                     <p class="mt-2 text-sm text-[var(--color-foreground-muted)]">
-                        No colleges are available. Create a college first.
+                        {{ __('No colleges are available. Create a college first.') }}
                     </p>
                 @endif
             </div>
@@ -181,7 +181,7 @@
                            px-4 py-2.5 text-sm font-medium
                            transition hover:bg-[var(--color-surface-muted)]"
                 >
-                    Cancel
+                    {{ __('Cancel') }}
                 </a>
 
                 <button
@@ -193,7 +193,7 @@
                            hover:bg-[var(--color-primary-hover)]
                            disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                    Create Department
+                    {{ __('Create Department') }}
                 </button>
             </div>
         </form>

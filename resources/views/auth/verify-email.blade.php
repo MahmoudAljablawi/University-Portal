@@ -9,7 +9,7 @@
                     <x-authentication-card-logo />
                 </div>
                 <h2 class="text-2xl font-bold tracking-tight text-[var(--color-foreground)] sm:text-3xl">
-                    {{ __('تأكيد البريد الإلكتروني') }}
+                    {{ __('Verify Your Email Address') }}
                 </h2>
                 <p class="mt-2 text-sm text-[var(--color-foreground-muted)] leading-relaxed">
                     {{ __('Before continuing, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}

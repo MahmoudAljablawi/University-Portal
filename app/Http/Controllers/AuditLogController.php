@@ -101,7 +101,7 @@ class AuditLogController extends Controller implements HasMiddleware
         $auditLog->delete();
 
         return response()->json([
-            'message' => 'Audit Log Deleted Successfully'
+            'message' => __('Audit Log Deleted Successfully')
         ]);
     }
 }

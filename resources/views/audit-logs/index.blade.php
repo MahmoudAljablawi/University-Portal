@@ -1,18 +1,18 @@
 ﻿@extends('layouts.app')
 
-@section('title', 'Audit Logs')
+@section('title', __('Audit Logs'))
 
 @section('content')
-<div class="mx-auto max-w-7xl space-y-6">
+<div class="mx-au{{ __('to') }} max-w-7xl space-y-6">
 
     {{-- Header --}}
     <div>
         <h1 class="text-2xl font-semibold text-[var(--color-foreground)]">
-            Audit Logs
+            {{ __('Audit Logs') }}
         </h1>
 
         <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-            Review system activities and recorded user actions.
+            {{ __('Review system activities and recorded user actions.') }}
         </p>
     </div>
 
@@ -29,7 +29,7 @@
                 <label
                     for="search"
                     class="mb-1.5 block text-sm font-medium text-[var(--color-foreground)]">
-                    Search
+                    {{ __('Search') }}
                 </label>
 
                 <input
@@ -37,7 +37,7 @@
                     type="text"
                     name="search"
                     value="{{ request('search') }}"
-                    placeholder="Search action, table, description, IP, user name or email..."
+                    placeholder="{{ __('Search action, table, description, IP, user name or email...') }}"
                     class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 text-sm text-[var(--color-foreground)] outline-none transition placeholder:text-[var(--color-foreground-muted)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20">
             </div>
 
@@ -46,7 +46,7 @@
                 <label
                     for="action"
                     class="mb-1.5 block text-sm font-medium text-[var(--color-foreground)]">
-                    Action
+                    {{ __('Action') }}
                 </label>
 
                 <select
@@ -55,7 +55,7 @@
                     class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 text-sm text-[var(--color-foreground)] outline-none transition focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20">
 
                     <option value="">
-                        All Actions
+                        {{ __('All Actions') }}
                     </option>
 
                     @foreach ($actions as $action)
@@ -74,7 +74,7 @@
                 <label
                     for="target_table"
                     class="mb-1.5 block text-sm font-medium text-[var(--color-foreground)]">
-                    Target Table
+                    {{ __('Target Table') }}
                 </label>
 
                 <select
@@ -83,7 +83,7 @@
                     class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 text-sm text-[var(--color-foreground)] outline-none transition focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20">
 
                     <option value="">
-                        All Tables
+                        {{ __('All Tables') }}
                     </option>
 
                     @foreach ($targetTables as $table)
@@ -103,13 +103,13 @@
                 <button
                     type="submit"
                     class="inline-flex items-center justify-center rounded-lg bg-[var(--color-primary)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-primary-hover)]">
-                    Search
+                    {{ __('Search') }}
                 </button>
 
                 <a
                     href="{{ route('audit-logs.index') }}"
                     class="inline-flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm font-semibold text-[var(--color-foreground)] transition hover:bg-[var(--color-surface-muted)]">
-                    Reset
+                    {{ __('Reset') }}
                 </a>
 
             </div>
@@ -120,7 +120,7 @@
     {{-- Results Summary --}}
     <div>
         <p class="text-sm text-[var(--color-foreground-muted)]">
-            Showing
+            {{ __('Showing') }}
             <span class="font-semibold text-[var(--color-foreground)]">
                 {{ $auditLogs->firstItem() ?? 0 }}
             </span>
@@ -128,11 +128,11 @@
             <span class="font-semibold text-[var(--color-foreground)]">
                 {{ $auditLogs->lastItem() ?? 0 }}
             </span>
-            of
+            {{ __('of') }}
             <span class="font-semibold text-[var(--color-foreground)]">
                 {{ $auditLogs->total() }}
             </span>
-            audit logs
+            {{ __('audit logs') }}
         </p>
     </div>
 
@@ -148,31 +148,31 @@
                     <tr>
 
                         <th class="px-6 py-3 text-start text-xs font-semibold uppercase tracking-wider text-[var(--color-foreground-muted)]">
-                            ID
+                            {{ __('ID') }}
                         </th>
 
                         <th class="px-6 py-3 text-start text-xs font-semibold uppercase tracking-wider text-[var(--color-foreground-muted)]">
-                            User
+                            {{ __('User') }}
                         </th>
 
                         <th class="px-6 py-3 text-start text-xs font-semibold uppercase tracking-wider text-[var(--color-foreground-muted)]">
-                            Action
+                            {{ __('Action') }}
                         </th>
 
                         <th class="px-6 py-3 text-start text-xs font-semibold uppercase tracking-wider text-[var(--color-foreground-muted)]">
-                            Target
+                            {{ __('Target') }}
                         </th>
 
                         <th class="px-6 py-3 text-start text-xs font-semibold uppercase tracking-wider text-[var(--color-foreground-muted)]">
-                            IP Address
+                            {{ __('IP Address') }}
                         </th>
 
                         <th class="px-6 py-3 text-start text-xs font-semibold uppercase tracking-wider text-[var(--color-foreground-muted)]">
-                            Date
+                            {{ __('Date') }}
                         </th>
 
                         <th class="px-6 py-3 text-end text-xs font-semibold uppercase tracking-wider text-[var(--color-foreground-muted)]">
-                            Actions
+                            {{ __('Actions') }}
                         </th>
 
                     </tr>
@@ -207,7 +207,7 @@
                             @else
 
                             <span class="text-sm text-[var(--color-foreground-muted)]">
-                                System
+                                {{ __('System') }}
                             </span>
 
                             @endif
@@ -268,7 +268,7 @@
                             <a
                                 href="{{ route('audit-logs.show', $auditLog) }}"
                                 class="text-sm font-medium text-[var(--color-primary)] transition hover:text-[var(--color-primary-hover)]">
-                                View
+                                {{ __('View') }}
                             </a>
 
                         </td>
@@ -288,11 +288,11 @@
         <div class="px-6 py-16 text-center">
 
             <h3 class="text-sm font-semibold text-[var(--color-foreground)]">
-                No audit logs found
+                {{ __('No audit logs found') }}
             </h3>
 
             <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                Try changing your search or filter criteria.
+                {{ __('Try changing your search or filter criteria.') }}
             </p>
 
         </div>

@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\College;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller implements HasMiddleware
 {
@@ -62,7 +64,9 @@ class UserController extends Controller implements HasMiddleware
      */
     public function create()
     {
-        return view('users.create');
+        $colleges = College::orderBy('name')->get();
+
+        return view('users.create', compact('colleges'));
     }
 
     /**
@@ -75,22 +79,30 @@ class UserController extends Controller implements HasMiddleware
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
             'phone' => 'nullable|string|max:50',
-            'role' => 'required|in:admin,instructor,student',
+            'role' => 'required|in:admin,instructor,student,employee',
             'is_active' => 'boolean',
+            'college_id' => [
+                'nullable',
+                'exists:colleges,id',
+                Rule::requiredIf(fn() => $request->input('role') === 'employee'),
+            ],
         ]);
+        if ($validated['role'] !== 'employee') {
+            $validated['college_id'] = null;
+        }
 
         $validated['password'] = Hash::make($validated['password']);
 
         $user = User::create($validated);
 
         if (! $request->expectsJson()) {
-            return redirect()->route('users.index')->with('success', 'User created successfully.');
+            return redirect()->route('users.index')->with('success', __('User created successfully.'));
         }
         return response()->json([
-            'message' => 'User Created Successfully',
+            'message' => __('User Created Successfully'),
             'data' => $user
         ], 201);
-        //return redirect()->route('users.index')->with('success', 'User created successfully.');
+        //return redirect()->route('users.index')->with('success', __('User created successfully.'));
     }
 
     /**
@@ -106,7 +118,9 @@ class UserController extends Controller implements HasMiddleware
      */
     public function edit(User $user)
     {
-        return view('users.edit', compact('user'));
+        $colleges = College::orderBy('name')->get();
+
+        return view('users.edit', compact('user', 'colleges'));
     }
 
     /**
@@ -118,9 +132,18 @@ class UserController extends Controller implements HasMiddleware
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'phone' => 'nullable|string|max:50',
-            'role' => 'required|in:admin,instructor,student',
+            'role' => 'required|in:admin,instructor,student,employee',
             'is_active' => 'boolean',
+            'college_id' => [
+                'nullable',
+                'exists:colleges,id',
+                Rule::requiredIf(fn() => $request->input('role') === 'employee'),
+            ],
         ]);
+
+        if ($validated['role'] !== 'employee') {
+            $validated['college_id'] = null;
+        }
 
         if ($request->filled('password')) {
             $validated['password'] = Hash::make($request->password);
@@ -129,13 +152,13 @@ class UserController extends Controller implements HasMiddleware
         $user->update($validated);
 
         if (! $request->expectsJson()) {
-            return redirect()->route('users.index')->with('success', 'User updated successfully.');
+            return redirect()->route('users.index')->with('success', __('User updated successfully.'));
         }
         return response()->json([
-            'message' => 'Data Of User Updated Successfully',
+            'message' => __('Data Of User Updated Successfully'),
             'data' => $user
         ]);
-        //return redirect()->route('users.index')->with('success', 'User updated successfully.');
+        //return redirect()->route('users.index')->with('success', __('User updated successfully.'));
     }
 
     /**
@@ -146,11 +169,11 @@ class UserController extends Controller implements HasMiddleware
         $user->delete();
 
         if (! request()->expectsJson()) {
-            return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+            return redirect()->route('users.index')->with('success', __('User deleted successfully.'));
         }
         return response()->json([
-            'message' => 'User Deleted Successfully'
+            'message' => __('User Deleted Successfully')
         ]);
-        //return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+        //return redirect()->route('users.index')->with('success', __('User deleted successfully.'));
     }
 }

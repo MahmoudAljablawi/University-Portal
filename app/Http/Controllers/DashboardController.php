@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\AcademicRequest;
 use App\Models\Course;
 use App\Models\CourseSection;
-use App\Models\Enrollment;
 use App\Models\Grade;
 use App\Models\User;
+use App\Support\DataScope;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -19,29 +19,13 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        $stats = [];
-
-        switch ($user->role) {
-            case 'admin':
-                $stats = $this->adminStats();
-
-                break;
-
-            case 'instructor':
-                $stats = $this->instructorStats($user->id);
-
-                break;
-
-            case 'student':
-                $stats = $this->studentStats($user->id);
-
-                break;
-
-            case 'employee':
-                $stats = $this->employeeStats();
-
-                break;
-        }
+        $stats = match ($user->role) {
+            'admin' => $this->adminStats(),
+            'instructor' => $this->instructorStats($user),
+            'student' => $this->studentStats($user),
+            'employee' => $this->employeeStats($user),
+            default => [],
+        };
 
         return view('dashboard', [
             'user' => $user,
@@ -61,26 +45,42 @@ class DashboardController extends Controller
 
             'sections' => CourseSection::count(),
 
-            'requests' => AcademicRequest::where('status', 'pending')->count(),
+            'requests' => AcademicRequest::where('status', 'pending')
+                ->count(),
+
+            'pending_grade_approvals' => Grade::where('status', 'reviewed')
+                ->count(),
+
+            'approved_grades' => Grade::where('status', 'approved')
+                ->count(),
+
+            'published_grades' => Grade::where('status', 'published')
+                ->count(),
         ];
     }
 
     /**
      * Instructor dashboard statistics.
      */
-    private function instructorStats(int $instructorId): array
+    private function instructorStats(User $user): array
     {
-        $sectionIds = CourseSection::where('instructor_id', $instructorId)
+        $sectionIds = DataScope::courseSections($user)
             ->pluck('id');
 
-        $studentCount = Enrollment::whereIn('section_id', $sectionIds)
+        $studentCount = DataScope::enrollments($user)
             ->distinct('student_id')
             ->count('student_id');
 
-        $pendingGrades = Grade::whereHas('enrollment', function ($query) use ($sectionIds) {
-            $query->whereIn('section_id', $sectionIds);
-        })
-            ->where('is_published', false)
+        $draftGrades = DataScope::grades($user)
+            ->where('status', 'draft')
+            ->count();
+
+        $rejectedGrades = DataScope::grades($user)
+            ->where('status', 'rejected')
+            ->count();
+
+        $submittedGrades = DataScope::grades($user)
+            ->where('status', 'submitted')
             ->count();
 
         return [
@@ -88,27 +88,30 @@ class DashboardController extends Controller
 
             'students' => $studentCount,
 
-            'pending_grades' => $pendingGrades,
+            'pending_grades' => $draftGrades + $rejectedGrades,
+
+            'draft_grades' => $draftGrades,
+
+            'rejected_grades' => $rejectedGrades,
+
+            'submitted_grades' => $submittedGrades,
         ];
     }
 
     /**
      * Student dashboard statistics.
      */
-    private function studentStats(int $studentId): array
+    private function studentStats(User $user): array
     {
         return [
-            'courses' => Enrollment::where('student_id', $studentId)
+            'courses' => DataScope::enrollments($user)
                 ->where('status', 'enrolled')
                 ->count(),
 
-            'grades' => Grade::whereHas('enrollment', function ($query) use ($studentId) {
-                $query->where('student_id', $studentId);
-            })
-                ->where('is_published', true)
+            'grades' => DataScope::grades($user)
                 ->count(),
 
-            'requests' => AcademicRequest::where('student_id', $studentId)
+            'requests' => DataScope::academicRequests($user)
                 ->where('status', 'pending')
                 ->count(),
         ];
@@ -116,19 +119,21 @@ class DashboardController extends Controller
 
     /**
      * Employee dashboard statistics.
-     *
-     * Employee functionality is not fully represented
-     * in the current backend, so keep this section safe
-     * until its workflow is implemented.
      */
-    private function employeeStats(): array
+    private function employeeStats(User $user): array
     {
         return [
-            'pending_grade_reviews' => 0,
+            'pending_grade_reviews' => DataScope::grades($user)
+                ->where('status', 'submitted')
+                ->count(),
 
-            'requests' => AcademicRequest::where('status', 'pending')->count(),
+            'requests' => DataScope::academicRequests($user)
+                ->where('status', 'pending')
+                ->count(),
 
-            'completed_reviews' => 0,
+            'completed_reviews' => DataScope::grades($user)
+                ->where('status', 'reviewed')
+                ->count(),
         ];
     }
 }

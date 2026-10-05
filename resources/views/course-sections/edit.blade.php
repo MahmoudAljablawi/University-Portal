@@ -1,18 +1,18 @@
 
 @extends('layouts.app')
 
-@section('title', 'Edit Course Section')
+@section('title', __('Edit Course Section'))
 
 @section('content')
     <div class="mx-auto max-w-3xl space-y-6">
 
         <div>
             <h1 class="text-2xl font-semibold">
-                Edit Course Section
+                {{ __('Edit Course Section') }}
             </h1>
 
             <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                Update the course section information.
+                {{ __('Update the course section information.') }}
             </p>
         </div>
 
@@ -42,7 +42,7 @@
                         for="course_id"
                         class="mb-2 block text-sm font-medium"
                     >
-                        Course
+                        {{ __('Course') }}
                     </label>
 
                     <select
@@ -51,7 +51,7 @@
                         required
                         class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--color-primary)]"
                     >
-                        <option value="">Select Course</option>
+                        <option value="">{{ __('Select Course') }}</option>
 
                         @foreach ($courses as $course)
                             <option
@@ -76,7 +76,7 @@
                         for="semester_id"
                         class="mb-2 block text-sm font-medium"
                     >
-                        Academic Semester
+                        {{ __('Academic Semester') }}
                     </label>
 
                     <select
@@ -85,7 +85,7 @@
                         required
                         class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--color-primary)]"
                     >
-                        <option value="">Select Academic Semester</option>
+                        <option value="">{{ __('Select Academic Semester') }}</option>
 
                         @foreach ($semesters as $semester)
                             <option
@@ -110,7 +110,7 @@
                         for="instructor_id"
                         class="mb-2 block text-sm font-medium"
                     >
-                        Instructor
+                        {{ __('Instructor') }}
                     </label>
 
                     <select
@@ -119,7 +119,7 @@
                         required
                         class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--color-primary)]"
                     >
-                        <option value="">Select Instructor</option>
+                        <option value="">{{ __('Select Instructor') }}</option>
 
                         @foreach ($instructors as $instructor)
                             <option
@@ -144,7 +144,7 @@
                         for="section_number"
                         class="mb-2 block text-sm font-medium"
                     >
-                        Section Number
+                        {{ __('Section Number') }}
                     </label>
 
                     <input
@@ -170,7 +170,7 @@
                         for="capacity"
                         class="mb-2 block text-sm font-medium"
                     >
-                        Capacity
+                        {{ __('Capacity') }}
                     </label>
 
                     <input
@@ -197,14 +197,14 @@
                         href="{{ route('course-sections.show', $courseSection) }}"
                         class="rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium transition hover:bg-[var(--color-surface-muted)]"
                     >
-                        Cancel
+                        {{ __('Cancel') }}
                     </a>
 
                     <button
                         type="submit"
                         class="rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-primary-hover)]"
                     >
-                        Update Section
+                        {{ __('Update Section') }}
                     </button>
 
                 </div>

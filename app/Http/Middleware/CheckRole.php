@@ -17,7 +17,7 @@ class CheckRole
     {
         if (! $request->user() || ! in_array($request->user()->role, $roles)) {
             return response()->json([
-                'message' => 'عذراً، لا تملك الصلاحية للوصول إلى هذه الصفحة.'
+                'message' => __('Sorry, you are not authorized to access this page.'),
             ], 403); // 403 Forbidden
         }
         return $next($request);

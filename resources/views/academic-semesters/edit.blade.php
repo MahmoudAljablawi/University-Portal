@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Academic Semester')
+@section('title', __('Edit Academic Semester'))
 
 @section('content') <div class="mx-auto max-w-3xl space-y-6">
 
@@ -12,20 +12,20 @@
                 href="{{ route('academic-semesters.index') }}"
                 class="transition hover:text-[var(--color-primary)]"
             >
-                Academic Semesters
+                {{ __('Academic Semesters') }}
             </a>
 
             <span>/</span>
 
-            <span>Edit</span>
+            <span>{{ __('Edit') }}</span>
         </div>
 
         <h1 class="mt-2 text-2xl font-semibold tracking-tight">
-            Edit Academic Semester
+            {{ __('Edit Academic Semester') }}
         </h1>
 
         <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-            Update the academic semester information.
+            {{ __('Update the academic semester information.') }}
         </p>
     </div>
 
@@ -36,7 +36,7 @@
                    bg-red-50 p-4 dark:bg-red-950/20"
         >
             <p class="font-medium text-[var(--color-danger)]">
-                Please correct the following errors:
+                {{ __('Please correct the following errors:') }}
             </p>
 
             <ul class="mt-2 list-inside list-disc space-y-1 text-sm text-[var(--color-danger)]">
@@ -66,7 +66,7 @@
                     for="name"
                     class="mb-2 block text-sm font-medium"
                 >
-                    Semester Name
+                    {{ __('Semester Name') }}
                 </label>
 
                 <input
@@ -97,7 +97,7 @@
                     for="code"
                     class="mb-2 block text-sm font-medium"
                 >
-                    Semester Code
+                    {{ __('Semester Code') }}
                 </label>
 
                 <input
@@ -130,7 +130,7 @@
                         for="start_date"
                         class="mb-2 block text-sm font-medium"
                     >
-                        Start Date
+                        {{ __('Start Date') }}
                     </label>
 
                     <input
@@ -159,7 +159,7 @@
                         for="end_date"
                         class="mb-2 block text-sm font-medium"
                     >
-                        End Date
+                        {{ __('End Date') }}
                     </label>
 
                     <input
@@ -204,11 +204,11 @@
 
                     <span>
                         <span class="block text-sm font-medium">
-                            Active Semester
+                            {{ __('Active Semester') }}
                         </span>
 
                         <span class="mt-1 block text-sm text-[var(--color-foreground-muted)]">
-                            Mark this semester as active.
+                            {{ __('Mark this semester as active.') }}
                         </span>
                     </span>
                 </label>
@@ -232,7 +232,7 @@
                            px-4 py-2.5 text-sm font-medium
                            transition hover:bg-[var(--color-surface-muted)]"
                 >
-                    Cancel
+                    {{ __('Cancel') }}
                 </a>
 
                 <button
@@ -242,7 +242,7 @@
                            text-white transition
                            hover:bg-[var(--color-primary-hover)]"
                 >
-                    Update Semester
+                    {{ __('Update Semester') }}
                 </button>
             </div>
         </form>

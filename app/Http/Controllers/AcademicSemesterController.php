@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AcademicSemester;
+use App\Support\DataScope;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -21,7 +22,7 @@ class AcademicSemesterController extends Controller implements HasMiddleware
     }
     public function index(Request $request)
     {
-        $query = AcademicSemester::query();
+        $query = DataScope::semesters($request->user());
 
         $search = trim((string) $request->input('search'));
 
@@ -76,13 +77,13 @@ class AcademicSemesterController extends Controller implements HasMiddleware
         $semester = AcademicSemester::create($validated);
 
         if (! $request->expectsJson()) {
-            return redirect()->route('academic-semesters.index')->with('success', 'Academic semester created successfully.');
+            return redirect()->route('academic-semesters.index')->with('success', __('Academic semester created successfully.'));
         }
         return response()->json([
-            'message' => 'Academic Semester Created Successfully',
+            'message' => __('Academic Semester Created Successfully'),
             'data' => $semester
         ], 201);
-        // return redirect()->route('semesters.index')->with('success', 'Academic semester created successfully.');
+        // return redirect()->route('semesters.index')->with('success', __('Academic semester created successfully.'));
     }
 
     /**
@@ -90,8 +91,17 @@ class AcademicSemesterController extends Controller implements HasMiddleware
      */
     public function show(AcademicSemester $academicSemester)
     {
-        $academicSemester->load('courseSections.course');
-        return request()->expectsJson() ? response()->json($academicSemester->load('sections.course')) : view('academic-semesters.show', compact('academicSemester'));
+        $user = request()->user();
+        DataScope::ensureVisible($user, $academicSemester);
+        $academicSemester->load([
+            'courseSections' => fn ($sections) => $sections
+                ->whereIn('course_sections.id', DataScope::courseSections($user)->select('course_sections.id'))
+                ->with('course'),
+        ]);
+
+        return request()->expectsJson()
+            ? response()->json($academicSemester)
+            : view('academic-semesters.show', compact('academicSemester'));
     }
 
     /**
@@ -118,13 +128,13 @@ class AcademicSemesterController extends Controller implements HasMiddleware
         $academicSemester->update($validated);
 
         if (! $request->expectsJson()) {
-            return redirect()->route('academic-semesters.index')->with('success', 'Academic semester updated successfully.');
+            return redirect()->route('academic-semesters.index')->with('success', __('Academic semester updated successfully.'));
         }
         return response()->json([
-            'message' => 'Data Of Academic Semester Updated Successfully',
+            'message' => __('Data Of Academic Semester Updated Successfully'),
             'data' => $academicSemester
         ]);
-        //return redirect()->route('semesters.index')->with('success', 'Academic semester updated successfully.');
+        //return redirect()->route('semesters.index')->with('success', __('Academic semester updated successfully.'));
     }
 
     /**
@@ -135,11 +145,11 @@ class AcademicSemesterController extends Controller implements HasMiddleware
         $academicSemester->delete();
 
         if (! request()->expectsJson()) {
-            return redirect()->route('academic-semesters.index')->with('success', 'Academic semester deleted successfully.');
+            return redirect()->route('academic-semesters.index')->with('success', __('Academic semester deleted successfully.'));
         }
         return response()->json([
-            'message' => 'Academic Semester Deleted Successfully'
+            'message' => __('Academic Semester Deleted Successfully')
         ]);
-        //return redirect()->route('semesters.index')->with('success', 'Academic semester deleted successfully.');
+        //return redirect()->route('semesters.index')->with('success', __('Academic semester deleted successfully.'));
     }
 }

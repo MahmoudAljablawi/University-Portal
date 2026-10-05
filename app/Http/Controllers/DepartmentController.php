@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Department;
 use App\Models\College;
+use App\Support\DataScope;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 
@@ -23,7 +24,8 @@ class DepartmentController extends Controller implements HasMiddleware
 
     public function index(Request $request)
     {
-        $query = Department::with('college');
+        $user = $request->user();
+        $query = DataScope::departments($user)->with('college');
 
         $search = trim((string) $request->input('search'));
 
@@ -47,7 +49,7 @@ class DepartmentController extends Controller implements HasMiddleware
             ->withQueryString();
 
 
-        $colleges = College::orderBy('name')->get(['id', 'name']);
+        $colleges = DataScope::colleges($user)->orderBy('name')->get(['id', 'name']);
 
         return $request->expectsJson()
             ? response()->json($departments)
@@ -78,13 +80,13 @@ class DepartmentController extends Controller implements HasMiddleware
         $department = Department::create($validated);
 
         if (! $request->expectsJson()) {
-            return redirect()->route('departments.index')->with('success', 'Department created successfully.');
+            return redirect()->route('departments.index')->with('success', __('Department created successfully.'));
         }
         return response()->json([
-            'message' => 'Department Created Successfully',
+            'message' => __('Department Created Successfully'),
             'data' => $department->load('college')
         ], 201);
-        //return redirect()->route('departments.index')->with('success', 'Department created successfully.');
+        //return redirect()->route('departments.index')->with('success', __('Department created successfully.'));
     }
 
     /**
@@ -92,7 +94,19 @@ class DepartmentController extends Controller implements HasMiddleware
      */
     public function show(Department $department)
     {
-        return request()->expectsJson() ? response()->json($department->load('college', 'courses')) : view('departments.show', compact('department'));
+        $user = request()->user();
+        DataScope::ensureVisible($user, $department);
+        $department->load([
+            'college',
+            'courses' => fn ($courses) => $courses->whereIn(
+                'courses.id',
+                DataScope::courses($user)->select('courses.id')
+            ),
+        ]);
+
+        return request()->expectsJson()
+            ? response()->json($department)
+            : view('departments.show', compact('department'));
     }
 
     /**
@@ -118,13 +132,13 @@ class DepartmentController extends Controller implements HasMiddleware
         $department->update($validated);
 
         if (! $request->expectsJson()) {
-            return redirect()->route('departments.index')->with('success', 'Department updated successfully.');
+            return redirect()->route('departments.index')->with('success', __('Department updated successfully.'));
         }
         return response()->json([
-            'message' => 'Data Of Department Updated Successfully',
+            'message' => __('Data Of Department Updated Successfully'),
             'data' => $department->load('college')
         ]);
-        //return redirect()->route('departments.index')->with('success', 'Department updated successfully.');
+        //return redirect()->route('departments.index')->with('success', __('Department updated successfully.'));
     }
 
     /**
@@ -135,11 +149,11 @@ class DepartmentController extends Controller implements HasMiddleware
         $department->delete();
 
         if (! request()->expectsJson()) {
-            return redirect()->route('departments.index')->with('success', 'Department deleted successfully.');
+            return redirect()->route('departments.index')->with('success', __('Department deleted successfully.'));
         }
         return response()->json([
-            'message' => 'Department Deleted Successfully'
+            'message' => __('Department Deleted Successfully')
         ]);
-        //return redirect()->route('departments.index')->with('success', 'Department deleted successfully.');
+        //return redirect()->route('departments.index')->with('success', __('Department deleted successfully.'));
     }
 }

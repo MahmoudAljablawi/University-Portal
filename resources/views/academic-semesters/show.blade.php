@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Academic Semester Details')
+@section('title', __('Academic Semester Details'))
 
 @section('content')
 @php
@@ -19,12 +19,12 @@ $isAdmin = $user?->role === 'admin';
                     href="{{ route('academic-semesters.index') }}"
                     class="transition hover:text-[var(--color-primary)]"
                 >
-                    Academic Semesters
+                    {{ __('Academic Semesters') }}
                 </a>
 
                 <span>/</span>
 
-                <span>Details</span>
+                <span>{{ __('Details') }}</span>
             </div>
 
             <h1 class="mt-2 text-2xl font-semibold tracking-tight">
@@ -32,7 +32,7 @@ $isAdmin = $user?->role === 'admin';
             </h1>
 
             <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                Academic semester details and related course sections.
+                {{ __('Academic semester details and related course sections.') }}
             </p>
         </div>
 
@@ -44,7 +44,7 @@ $isAdmin = $user?->role === 'admin';
                        px-4 py-2.5 text-sm font-medium
                        transition hover:bg-[var(--color-surface-muted)]"
             >
-                Back
+                {{ __('Back') }}
             </a>
 
             @if ($isAdmin)
@@ -55,7 +55,7 @@ $isAdmin = $user?->role === 'admin';
                            text-white transition
                            hover:bg-[var(--color-primary-hover)]"
                 >
-                    Edit Semester
+                    {{ __('Edit Semester') }}
                 </a>
             @endif
         </div>
@@ -68,7 +68,7 @@ $isAdmin = $user?->role === 'admin';
     >
         <div class="border-b border-[var(--color-border)] px-6 py-4">
             <h2 class="text-base font-semibold">
-                Semester Information
+                {{ __('Semester Information') }}
             </h2>
         </div>
 
@@ -77,7 +77,7 @@ $isAdmin = $user?->role === 'admin';
             {{-- Name --}}
             <div>
                 <p class="text-sm text-[var(--color-foreground-muted)]">
-                    Semester Name
+                    {{ __('Semester Name') }}
                 </p>
 
                 <p class="mt-1 font-medium">
@@ -88,7 +88,7 @@ $isAdmin = $user?->role === 'admin';
             {{-- Code --}}
             <div>
                 <p class="text-sm text-[var(--color-foreground-muted)]">
-                    Code
+                    {{ __('Code') }}
                 </p>
 
                 <p class="mt-1">
@@ -105,7 +105,7 @@ $isAdmin = $user?->role === 'admin';
             {{-- Start Date --}}
             <div>
                 <p class="text-sm text-[var(--color-foreground-muted)]">
-                    Start Date
+                    {{ __('Start Date') }}
                 </p>
 
                 <p class="mt-1 font-medium">
@@ -118,7 +118,7 @@ $isAdmin = $user?->role === 'admin';
             {{-- End Date --}}
             <div>
                 <p class="text-sm text-[var(--color-foreground-muted)]">
-                    End Date
+                    {{ __('End Date') }}
                 </p>
 
                 <p class="mt-1 font-medium">
@@ -133,7 +133,7 @@ $isAdmin = $user?->role === 'admin';
         <div class="border-t border-[var(--color-border)] px-6 py-4">
             <div class="flex items-center gap-3">
                 <span class="text-sm text-[var(--color-foreground-muted)]">
-                    Status
+                    {{ __('Status') }}
                 </span>
 
                 @if ($academicSemester->is_active)
@@ -143,7 +143,7 @@ $isAdmin = $user?->role === 'admin';
                                text-green-700 dark:bg-green-950/40
                                dark:text-green-400"
                     >
-                        Active
+                        {{ __('Active') }}
                     </span>
                 @else
                     <span
@@ -152,7 +152,7 @@ $isAdmin = $user?->role === 'admin';
                                px-2.5 py-1 text-xs font-medium
                                text-[var(--color-foreground-muted)]"
                     >
-                        Inactive
+                        {{ __('Inactive') }}
                     </span>
                 @endif
             </div>
@@ -170,11 +170,11 @@ $isAdmin = $user?->role === 'admin';
         >
             <div>
                 <h2 class="text-base font-semibold">
-                    Course Sections
+                    {{ __('Course Sections') }}
                 </h2>
 
                 <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                    Course sections associated with this academic semester.
+                    {{ __('Course sections associated with this academic semester.') }}
                 </p>
             </div>
 
@@ -204,7 +204,7 @@ $isAdmin = $user?->role === 'admin';
                                        uppercase tracking-wider
                                        text-[var(--color-foreground-muted)]"
                             >
-                                Course
+                                {{ __('Course') }}
                             </th>
 
                             <th
@@ -212,7 +212,7 @@ $isAdmin = $user?->role === 'admin';
                                        uppercase tracking-wider
                                        text-[var(--color-foreground-muted)]"
                             >
-                                Course Code
+                                {{ __('Course Code') }}
                             </th>
 
                             <th
@@ -220,7 +220,7 @@ $isAdmin = $user?->role === 'admin';
                                        uppercase tracking-wider
                                        text-[var(--color-foreground-muted)]"
                             >
-                                Section
+                                {{ __('Section') }}
                             </th>
 
                             <th
@@ -228,7 +228,7 @@ $isAdmin = $user?->role === 'admin';
                                        uppercase tracking-wider
                                        text-[var(--color-foreground-muted)]"
                             >
-                                Capacity
+                                {{ __('Capacity') }}
                             </th>
                         </tr>
                     </thead>
@@ -277,11 +277,11 @@ $isAdmin = $user?->role === 'admin';
         @else
             <div class="px-6 py-12 text-center">
                 <p class="text-sm font-medium">
-                    No course sections found.
+                    {{ __('No course sections found.') }}
                 </p>
 
                 <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                    This academic semester does not have any course sections yet.
+                    {{ __('This academic semester does not have any course sections yet.') }}
                 </p>
             </div>
         @endif
