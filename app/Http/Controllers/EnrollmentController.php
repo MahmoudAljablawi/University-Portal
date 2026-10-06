@@ -193,7 +193,7 @@ class EnrollmentController extends Controller implements HasMiddleware
                     }
                 },
             ],
-            'status' => 'required|string|in:enrolled,dropped,completed',
+            'status' => 'required|string|in:enrolled,dropped,passed,failed',
         ]);
 
         if ($user->role !== 'admin') {

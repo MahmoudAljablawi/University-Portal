@@ -24,7 +24,7 @@ $isStudent = $user?->role === 'student';
             </p>
         </div>
 
-        @if ($isAdmin)
+        @if ($isAdmin||$isStudent)
         <a
             href="{{ route('enrollments.create') }}"
             class="inline-flex items-center justify-center gap-2 rounded-lg

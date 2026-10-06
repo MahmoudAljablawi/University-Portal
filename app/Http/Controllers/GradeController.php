@@ -93,12 +93,16 @@ class GradeController extends Controller implements HasMiddleware
         );
 
         if ($user->role !== 'student') {
+            $status = $request->input('status');
+
+            if ($status === null && $user->role === 'employee') {
+                $status = 'submitted';
+                $request->merge(['status' => $status]);
+            }
+
             $query->when(
-                $request->filled('status'),
-                fn($query) => $query->where(
-                    'status',
-                    $request->input('status')
-                )
+                $status !== null && $status !== '',
+                fn($query) => $query->where('status', $status)
             );
         }
 

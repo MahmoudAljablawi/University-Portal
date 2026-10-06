@@ -70,7 +70,7 @@ class CourseController extends Controller implements HasMiddleware
      */
     public function create()
     {
-        $departments = \App\Models\Department::all();
+        $departments = Department::all();
         return view('courses.create', compact('departments'));
     }
 
@@ -129,7 +129,7 @@ class CourseController extends Controller implements HasMiddleware
      */
     public function edit(Course $course)
     {
-        $departments = \App\Models\Department::all();
+        $departments = Department::all();
         return view('courses.edit', compact('course', 'departments'));
     }
 

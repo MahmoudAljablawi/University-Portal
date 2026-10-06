@@ -123,10 +123,17 @@
                         </option>
 
                         <option
-                            value="completed"
-                            @selected(old('status', $enrollment->status) === 'completed')
+                            value="passed"
+                            @selected(old('status', $enrollment->status) === 'passed')
                         >
-                            {{ __('Completed') }}
+                            {{ __('Passed') }}
+                        </option>
+
+                        <option
+                            value="failed"
+                            @selected(old('status', $enrollment->status) === 'failed')
+                        >
+                            {{ __('Failed') }}
                         </option>
 
                         <option

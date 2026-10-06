@@ -22,16 +22,16 @@ $isEmployee = $user?->role === 'employee';
 
         <div>
             <h1 class="text-2xl font-semibold tracking-tight">
-                {{ $isInstructor ? 'My Course Sections' : 'Course Sections' }}
+                {{ $isInstructor ? __('My Course Sections') : __('Course Sections') }}
             </h1>
 
             <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
                 @if ($isInstructor)
-                View the course sections assigned to you.
+                {{ __('View the course sections assigned to you.') }}
                 @elseif ($isEmployee)
-                View course sections within your college.
+                {{ __('View course sections within your college.') }}
                 @else
-                Manage course sections, instructors, semesters, and capacities.
+                {{ __('Manage course sections, instructors, semesters, and capacities.') }}
                 @endif
             </p>
         </div>
@@ -410,14 +410,14 @@ $isEmployee = $user?->role === 'employee';
                         <x-table-actions
                             :model="$section"
                             :itemName="$section->course
-                                ? ($section->course->code . ' - Section ' . $section->section_number)
-                                : ('Section #' . $section->id)"
+                                ? ($section->course->code . ' - ' . __('Section') . ' ' . $section->section_number)
+                                : (__('Section') . ' #' . $section->id)"
                             showRoute="course-sections.show"
                             editRoute="course-sections.edit"
                             destroyRoute="course-sections.destroy"
                             :showEdit="$isAdmin"
                             :showDelete="$isAdmin"
-                            deleteConfirm="Are you sure you want to delete this course section?" />
+                            :deleteConfirm="__('Are you sure you want to delete this course section?')" />
 
                     </tr>
 

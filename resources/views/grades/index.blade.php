@@ -22,8 +22,8 @@ $canManageGrades = in_array($userRole, ['admin', 'instructor']);
 
         <p class="mt-1 text-sm text-[var(--color-foreground-muted)]">
             {{ $isStudent
-            ? 'View your published grades.'
-            : 'Manage and review student grades.'
+            ? __('View your published grades.')
+            : __('Manage and review student grades.')
         }}
         </p>
     </div>
@@ -95,8 +95,8 @@ $canManageGrades = in_array($userRole, ['admin', 'instructor']);
                     name="search"
                     value="{{ request('search') }}"
                     placeholder="{{ $isStudent
-                    ? 'Search by course name or code...'
-                    : 'Search by student, email, course, or code...' }}"
+                    ? __('Search by course name or code...')
+                    : __('Search by student, email, course, or code...') }}"
                     class="w-full rounded-lg border border-[var(--color-border)]
                        bg-[var(--color-background)] py-2.5 ps-10 pe-4
                        text-sm outline-none transition
@@ -178,8 +178,7 @@ $canManageGrades = in_array($userRole, ['admin', 'instructor']);
 
 
         {{-- Grade Status --}}
-        @if ($canManageGrades)
-
+     
         <div>
 
             <label
@@ -209,7 +208,7 @@ $canManageGrades = in_array($userRole, ['admin', 'instructor']);
 
                 <option
                     value="submitted"
-                    @selected(request('status') === 'submitted')>
+                    @selected((request('status') === 'submitted') || ($userRole === 'employee' && !request()->has('status')) )>
                     {{ __('Submitted') }}
                 </option>
 
@@ -240,7 +239,7 @@ $canManageGrades = in_array($userRole, ['admin', 'instructor']);
             </select>
         </div>
 
-        @endif
+   
 
 
         {{-- Actions --}}
